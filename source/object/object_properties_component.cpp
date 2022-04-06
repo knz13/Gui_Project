@@ -38,7 +38,26 @@ void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
 }
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
+    int i = 0;
     for(auto& [handle,func] : m_ShowPropertiesFunctions){
+        
+        ImGui::BeginChild(("ObjectProperty" + std::to_string(i)).c_str(),ImVec2(ImGui::GetWindowSize().x-23,200),true);
+        
         func();
+        ImGui::EndChild();
+        i++;
     }
+}
+
+std::string ObjectPropertiesComponent::GetName() {
+    return m_Name;
+}
+
+void ObjectPropertiesComponent::SetHightlightState(bool state) {
+    m_ShouldHighlight = state;
+    
+}
+
+void ObjectPropertiesComponent::SetHighlightColor(Color color) {
+    m_HighlightColor = color;
 }

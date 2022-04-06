@@ -65,6 +65,10 @@ public:
         return Registry::Get().valid(m_EntityHandle);
     }
 
+    ObjectPropertiesComponent& Properties() {
+        return Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
+    };
+
 private:
     entt::entity m_EntityHandle;
     

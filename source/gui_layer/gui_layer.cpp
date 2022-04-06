@@ -69,6 +69,7 @@ void GuiLayer::AddUi(Window& win) {
         static bool firstLoop = true;
         static bool initialized = false;
         static ImVec2 lastSize;
+        static ClickedObjectProperties wasClicked;
 
         GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
@@ -131,8 +132,21 @@ void GuiLayer::AddUi(Window& win) {
         
         ImGui::Begin("Objects",0,flags );
 
+        if(Registry::Get().alive() > 0){
+            if(ImGui::TreeNode("Objects")){
+                
+                Registry::Get().each([&](const entt::entity e){
+                    Object obj(e);
 
-
+                    
+                    if(ImGui::Button(obj.Properties().GetName().c_str())){
+                        wasClicked = ClickedObjectProperties(e);
+                    }
+                    
+                });
+                ImGui::TreePop();
+            }
+        }
 
         ImGui::End();
         
@@ -140,14 +154,14 @@ void GuiLayer::AddUi(Window& win) {
 
         ImGui::Begin("Properties",0,flags);
 
-
+        if(wasClicked){
+            Object(wasClicked.objectID).Properties().CallShowPropertiesFunctions();
+        }
 
         ImGui::End();
         
         
         ImGui::Begin("Game View",0, flags);
-
-
 
         ImGui::BeginChild("GameRender");
         if(!initialized){
@@ -172,7 +186,13 @@ void GuiLayer::AddUi(Window& win) {
             ImVec2 pos;
             pos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
             pos.y = wsize.y - (ImGui::GetMousePos().y - ImGui::GetWindowPos().y);
-            RayCast(pos);
+            RayCastHit hit = RayCast(pos);
+            if(hit){
+                wasClicked = ClickedObjectProperties(hit.hitObjectID);
+            }
+            else {
+                wasClicked = ClickedObjectProperties();
+            }
         }
 
         

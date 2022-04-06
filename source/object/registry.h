@@ -9,7 +9,7 @@ public:
 
 
     static void DeleteObject(entt::entity handle);
-    static Object CreateObject();
+    static Object CreateObject(std::string name);
     static entt::registry& Get();
 
 

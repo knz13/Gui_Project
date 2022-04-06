@@ -408,3 +408,7 @@ FunctionSink<void(Window&)> WindowEvents::ClosingEvent() {
 RayCastHit Window::RayCast(glm::vec2 screenPos) {
     return GuiLayer::RayCast(ImVec2(screenPos.x,screenPos.y));    
 }
+
+float Window::GetDeltaTime() {
+    return m_DeltaTime;
+}

@@ -43,9 +43,9 @@ set(${PROJECT_NAME}_LIBRARIES )
 #------------ additional lines ---------------
 
 
-    # additional lines for alias "copying"...
+    # additional lines for alias "copy_file"...
 
-    file(COPY ${PROJECT_SOURCE_DIR}/base_shaders DESTINATION ${PROJECT_BINARY_DIR})
+    file(COPY ${PROJECT_SOURCE_DIR}/default_shaders/  DESTINATION ${PROJECT_BINARY_DIR}/default_shaders)
 
 
 
@@ -135,46 +135,6 @@ set(${PROJECT_NAME}_LIBRARIES )
         )
 
         FetchContent_MakeAvailable(STB)
-
-    endif()
-                    
-
-
-# repository download and settings for imgui...
-
-    dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
-
-
-    # adding includes:
-
-
-        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/imgui)
-
-    
-    # adding sources
-
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_tables.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_widgets.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp)
-
-
-    if(NOT ${imgui_exists})
-        FetchContent_Declare(IMGUI
-        GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG origin/docking
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imgui
-        )
-
-        FetchContent_MakeAvailable(IMGUI)
 
     endif()
                     
@@ -271,6 +231,48 @@ set(${PROJECT_NAME}_LIBRARIES )
         )
 
         FetchContent_MakeAvailable(ENTT)
+
+    endif()
+                    
+
+
+# repository download and settings for imgui...
+
+    dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/imgui)
+
+    
+    # adding sources
+
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_tables.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_widgets.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp)
+
+
+    if(NOT ${imgui_exists})
+        FetchContent_Declare(IMGUI
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+        GIT_TAG origin/docking
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imgui
+        )
+
+        FetchContent_MakeAvailable(IMGUI)
 
     endif()
                     

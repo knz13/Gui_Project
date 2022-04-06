@@ -70,6 +70,7 @@ public:
 
     const WindowCreationProperties& Properties() const;
     GLFWwindow* GetContextPointer();
+    float GetDeltaTime();
 
     void DrawingLoop();
     
@@ -80,7 +81,6 @@ public:
     
     RayCastHit RayCast(glm::vec2 screenPos);
     
-
 
 protected:
 

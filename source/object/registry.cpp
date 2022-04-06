@@ -8,10 +8,10 @@ entt::registry& Registry::Get() {
     return Registry::m_Registry;
 }
 
-Object Registry::CreateObject() {
+Object Registry::CreateObject(std::string name) {
     entt::entity ent = m_Registry.create();
 
-    m_Registry.emplace<ObjectPropertiesComponent>(ent);
+    m_Registry.emplace<ObjectPropertiesComponent>(ent,name);
 
     Object obj(ent);
 

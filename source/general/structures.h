@@ -133,6 +133,19 @@ private:
 };
 
 
+struct ClickedObjectProperties {
+    
+    ClickedObjectProperties(entt::entity ent = entt::null){
+        objectID = ent;
+    };
+
+    operator bool() const {
+        return Registry::Get().valid(objectID);
+    }
+
+    entt::entity objectID = entt::null;
+};
+
 
 
 
@@ -223,14 +236,14 @@ private:
 
 struct RayCastHit {
     RayCastHit(entt::entity ent){
-        hitObject = ent;
+        hitObjectID = ent;
     }
     
     operator bool() const {
-        return Registry::Get().valid(hitObject);
+        return Registry::Get().valid(hitObjectID);
     };
 
-    entt::entity hitObject= entt::null;
+    entt::entity hitObjectID = entt::null;
 
 };
 

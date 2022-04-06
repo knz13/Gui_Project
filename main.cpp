@@ -17,7 +17,7 @@ int main(){
 
     GuiLayer::AddUi(win);
     
-    Object obj = Registry::CreateObject();
+    Object obj = Registry::CreateObject("Cube");
 
     Drawable& dr = obj.GetComponent<Drawable>();
     dr.SetActive(win);
@@ -68,11 +68,13 @@ int main(){
         .SetIndices(indices);
 
     
-    dr.SetShader("base_shaders/base_shader");
+    dr.SetShader("default_shaders/base_shader");
     
+
 
     while(win.IsOpen()){
 
+        
         win.DrawingLoop();
 
     }

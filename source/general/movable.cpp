@@ -102,10 +102,11 @@ FunctionSink<void(Movable&)> Movable::Deleted() {
 }
 
 void Movable::ShowProperties() {
+
     
-    ImGui::InputFloat3("Position",(float*)&m_Position);
-    ImGui::InputFloat3("Rotation",(float*)&m_Rotation);
-    ImGui::InputFloat3("Scale",(float*)&m_Scale);
+    ImGui::DragFloat3("Position",(float*)&m_Position);
+    ImGui::DragFloat3("Rotation",(float*)&m_Rotation);
+    ImGui::DragFloat3("Scale",(float*)&m_Scale);
 
 
     
