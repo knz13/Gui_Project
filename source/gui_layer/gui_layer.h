@@ -15,6 +15,8 @@ public:
 
     static std::shared_ptr<Framebuffer> m_RaycastTexture;
 private:
+    static void SetupWindowStyle(std::function<void()> beginCommand);
+
     static std::unique_ptr<Framebuffer> m_Buffer;
 
 

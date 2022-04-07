@@ -66,3 +66,11 @@ Camera::~Camera() {
 void Camera::LookAt(Movable& mov) {
     this->SetLookAt(mov.GetPosition().x,mov.GetPosition().y,mov.GetPosition().z);
 }
+
+glm::mat4 Camera::GetProjection(float viewPortWidth, float viewPortHeight) {
+    return glm::perspective(m_Fov,viewPortWidth/viewPortHeight,m_DrawNear,m_DrawDistance);
+}
+
+glm::mat4 Camera::GetView() {
+    return glm::inverse(glm::translate(glm::mat4(1.0f),m_Position)* glm::toMat4(glm::quat(m_Rotation)));
+}

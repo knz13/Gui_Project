@@ -7,7 +7,7 @@ void ObjectPropertiesComponent::SetActiveState(bool state) {
     active = state;
 }
 
-bool ObjectPropertiesComponent::IsActive() {
+bool ObjectPropertiesComponent::IsActive() const{
     return active;
 }
 
@@ -49,7 +49,7 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
     }
 }
 
-std::string ObjectPropertiesComponent::GetName() {
+std::string ObjectPropertiesComponent::GetName() const{
     return m_Name;
 }
 
@@ -60,4 +60,12 @@ void ObjectPropertiesComponent::SetHightlightState(bool state) {
 
 void ObjectPropertiesComponent::SetHighlightColor(Color color) {
     m_HighlightColor = color;
+}
+
+bool ObjectPropertiesComponent::ShouldHighlight() const {
+    return m_ShouldHighlight;
+}
+
+Color ObjectPropertiesComponent::GetHighlightColor() const {
+    return m_HighlightColor;
 }

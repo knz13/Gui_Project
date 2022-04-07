@@ -68,6 +68,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     Camera::GeneratePerspectiveCamera(camProp,*this);
 
     GL_CALL(glEnable(GL_PROGRAM_POINT_SIZE));
+    GL_CALL(glEnable(GL_STENCIL_TEST));
 
     glfwSetKeyCallback(this->GetContextPointer(),[](GLFWwindow* ptr,int key, int scancode, int action, int mods){
         Window& win = *Window::GetWindow(ptr);
@@ -181,7 +182,9 @@ void Window::BeginDrawState() {
 
     glm::vec3 color = m_ClearColor.Normalized();
     GL_CALL(glClearColor(color.x,color.y,color.z,1.0f));
-    GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+    GL_CALL(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
+    GL_CALL(glStencilMask(0xFF));
+    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 
@@ -253,8 +256,6 @@ void Window::DrawingLoop() {
         currentObjectShader.Bind();
         currentObjectShader.SetUniformMat4f("MVP", GetCurrentCamera().GetViewProjection(*this)*transform.GetModelMatrix());
 
-        //GuiLayer::m_RaycastTexture.get()->GetAttachedTexture().Bind();
-        //GL_CALL(glBindImageTexture(3,GuiLayer::m_RaycastTexture.get()->GetAttachedTexture().GetID(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F));
         currentObjectShader.SetUniform1i("rayCastTexture",3);
 
         uint32_t val = (uint32_t)entity;
@@ -268,10 +269,44 @@ void Window::DrawingLoop() {
     
         drawable.m_PreDrawFuncs.EmitEvent(drawable,currentObjectShader);
 
-        drawable.Draw();
+
+        if(Object(entity).Properties().ShouldHighlight()){
+            
+            GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF)); 
+            GL_CALL(glStencilMask(0xFF));
+
+
+            drawable.Draw();
+
+            GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
+            GL_CALL(glStencilMask(0x00)); 
+            GL_CALL(glDisable(GL_DEPTH_TEST));
+
+            transform.InstantScaleChange(0.1,0.1,0.1);
+            bool result;
+            Shader& singleColorShader = this->Create().CachedShader("default_Shaders/single_color_shader",&result);
+
+            ObjectPropertiesComponent& comp = Object(entity).Properties();
+
+            singleColorShader.Bind();
+            singleColorShader.SetUniformMat4f("MVP", GetCurrentCamera().GetViewProjection(*this)*transform.GetModelMatrix());
+            singleColorShader.SetUniform3f("desiredColor",comp.GetHighlightColor().Normalized().x,comp.GetHighlightColor().Normalized().y,comp.GetHighlightColor().Normalized().z);
+
+            drawable.Draw();
+
+            transform.InstantScaleChange(-0.1,-0.1,-0.1);
+
+            GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+            GL_CALL(glStencilMask(0x00));
+            GL_CALL(glEnable(GL_DEPTH_TEST));
+            
+        }
+        else{
+            drawable.Draw();
+        }
 
         drawable.m_PostDrawFuncs.EmitEvent(drawable);
-
+        
     }
 
     

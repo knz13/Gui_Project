@@ -20,13 +20,16 @@ public:
     void SetHightlightState(bool state);
     void SetHighlightColor(Color color);
 
-    bool IsActive();
+    bool IsActive() const;
     void SetActiveState(bool state);
 
     void CallUpdateFunctions(float deltaTime);
     void CallShowPropertiesFunctions();
 
-    std::string GetName();
+
+    Color GetHighlightColor() const;
+    bool ShouldHighlight() const;
+    std::string GetName() const;
 
 private:
 
@@ -35,7 +38,7 @@ private:
     bool active = true;
     std::string m_Name = "";
     bool m_ShouldHighlight = false;
-    Color m_HighlightColor;
+    Color m_HighlightColor = Color::Red;
 
     friend class Object;
 };

@@ -10,6 +10,9 @@
 #include "../vendor/glm/glm/glm.hpp"
 #include "../vendor/glm/glm/gtc/quaternion.hpp"
 #include "../vendor/glm/glm/gtx/quaternion.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "../vendor/glm/glm/gtx/matrix_decompose.hpp"
+
 #define GLEW_STATIC
 #include "../vendor/glew/include/GL/glew.h"
 #include "../vendor/glfw/include/GLFW/glfw3.h"
@@ -26,7 +29,9 @@
 #include "imgui_internal.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
+#include "../vendor/imguizmo/ImGuizmo.h"
 #include "object/registry.h"
+#include "general/math.h"
 using namespace std;
 
 

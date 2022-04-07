@@ -67,6 +67,7 @@ void GuiLayer::AddUi(Window& win) {
     win.Events().PreDrawingLoopEvent().Connect([&](Window& win){
 
         static bool firstLoop = true;
+        static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
         static bool initialized = false;
         static ImVec2 lastSize;
         static ClickedObjectProperties wasClicked;
@@ -77,6 +78,8 @@ void GuiLayer::AddUi(Window& win) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        ImGuizmo::BeginFrame();
 
         
         
@@ -91,7 +94,7 @@ void GuiLayer::AddUi(Window& win) {
         
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->WorkPos);
-        ImGui::Begin("Hello",0,ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
+        ImGui::Begin("BackWindow",0,ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
         
 
 
@@ -130,29 +133,39 @@ void GuiLayer::AddUi(Window& win) {
         
         
         
-        ImGui::Begin("Objects",0,flags );
-
+        
+        GuiLayer::SetupWindowStyle([&](){
+            ImGui::Begin("Objects",0,flags );
+        });
+        
         if(Registry::Get().alive() > 0){
-            if(ImGui::TreeNode("Objects")){
-                
-                Registry::Get().each([&](const entt::entity e){
-                    Object obj(e);
-
+            
+            Registry::Get().each([&](const entt::entity e){
+                Object obj(e);
+                ImGui::SetNextItemOpen(true);
+                if(ImGui::TreeNodeEx(obj.Properties().GetName().c_str())){
                     
-                    if(ImGui::Button(obj.Properties().GetName().c_str())){
+                    if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
+                        if(wasClicked){
+                            Object(wasClicked.objectID).Properties().SetHightlightState(false);
+                        }
                         wasClicked = ClickedObjectProperties(e);
+                        Object(wasClicked.objectID).Properties().SetHightlightState(true);
                     }
-                    
-                });
-                ImGui::TreePop();
-            }
+                    ImGui::TreePop();
+                }
+                
+            });
+    
         }
 
         ImGui::End();
         
 
 
-        ImGui::Begin("Properties",0,flags);
+        GuiLayer::SetupWindowStyle([&](){
+            ImGui::Begin("Properties",0,flags );
+        });
 
         if(wasClicked){
             Object(wasClicked.objectID).Properties().CallShowPropertiesFunctions();
@@ -161,7 +174,9 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::End();
         
         
-        ImGui::Begin("Game View",0, flags);
+        GuiLayer::SetupWindowStyle([&](){
+            ImGui::Begin("Game View",0,flags );
+        });
 
         ImGui::BeginChild("GameRender");
         if(!initialized){
@@ -188,23 +203,76 @@ void GuiLayer::AddUi(Window& win) {
             pos.y = wsize.y - (ImGui::GetMousePos().y - ImGui::GetWindowPos().y);
             RayCastHit hit = RayCast(pos);
             if(hit){
+                if(wasClicked){
+                    Object(wasClicked.objectID).Properties().SetHightlightState(false);
+                }
                 wasClicked = ClickedObjectProperties(hit.hitObjectID);
+                Object(wasClicked.objectID).Properties().SetHightlightState(true);
             }
-            else {
-                wasClicked = ClickedObjectProperties();
+           
+        }
+        if(ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()){
+            if(wasClicked){
+                Object(wasClicked.objectID).Properties().SetHightlightState(false);
             }
+            wasClicked = ClickedObjectProperties();
+        }
+        
+
+        ImGui::Image((ImTextureID)GuiLayer::m_Buffer.get()->GetAttachedTexture().GetID(),wsize, ImVec2(0, 1), ImVec2(1, 0));
+        if(wasClicked){
+
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x,ImGui::GetWindowPos().y,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+
+            Object clickedObject(wasClicked.objectID);
+            glm::mat4 proj = win.GetCurrentCamera().GetProjection(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+            glm::mat4 view = win.GetCurrentCamera().GetView();
+            glm::mat4 model = clickedObject.GetComponent<Movable>().GetModelMatrix();
+
+            ImGuizmo::Manipulate(glm::value_ptr(view),glm::value_ptr(proj),(ImGuizmo::OPERATION)imguizmoMode,ImGuizmo::MODE::LOCAL,glm::value_ptr(model));
+
+
+            if(ImGuizmo::IsUsing()){
+                Movable& objectTransform = clickedObject.GetComponent<Movable>();
+                glm::vec3 position,scale;
+                glm::quat rotation;
+                glm::vec3 skew;
+                glm::vec4 perspective;
+                glm::decompose(model,scale,rotation,position,skew,perspective);
+
+                objectTransform.m_Position = position;
+                objectTransform.m_Rotation = glm::eulerAngles(rotation);
+                objectTransform.m_Scale = scale;
+
+            }
+
+            
+
+        }
+
+        if(ImGui::IsKeyPressed(ImGuiKey_E)){
+            imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
+        }
+        if(ImGui::IsKeyPressed(ImGuiKey_R)){
+            imguizmoMode = ImGuizmo::OPERATION::ROTATE;
+        }
+        if(ImGui::IsKeyPressed(ImGuiKey_T)){
+            imguizmoMode = ImGuizmo::OPERATION::SCALE;
         }
 
         
-        ImGui::Image((ImTextureID)GuiLayer::m_Buffer.get()->GetAttachedTexture().GetID(),wsize, ImVec2(0, 1), ImVec2(1, 0));
         ImGui::EndChild();
 
 
 
         ImGui::End();
 
+        
 
-        ImGui::Begin("Explorer",0,flags);
+        GuiLayer::SetupWindowStyle([&](){
+            ImGui::Begin("Explorer",0,flags );
+        });
         
         ImGui::End();
 
@@ -249,4 +317,10 @@ RayCastHit GuiLayer::RayCast(ImVec2 pos) {
         return RayCastHit((entt::entity)max);
     }
 
+}
+
+void GuiLayer::SetupWindowStyle(std::function<void()> beginCommand) {
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,1));
+    beginCommand();
+    ImGui::PopStyleColor();
 }

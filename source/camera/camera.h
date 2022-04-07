@@ -17,6 +17,8 @@ public:
     
     
     glm::mat4 GetViewProjection(const Window& window);
+    glm::mat4 GetView();
+    glm::mat4 GetProjection(float viewPortWidth,float viewPortHeight);
 
     glm::vec4 GetViewPort();
 

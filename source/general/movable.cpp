@@ -78,7 +78,7 @@ glm::mat4 Movable::GetModelMatrix() {
 }
 
 glm::vec3 Movable::GetRotation() {
-    return glm::degrees(glm::vec3(m_Rotation.x,-m_Rotation.y,m_Rotation.z));
+    return glm::degrees(glm::vec3(m_Rotation.x,m_Rotation.y,m_Rotation.z));
 }
 
 const glm::vec3& Movable::GetPosition() {
@@ -105,8 +105,13 @@ void Movable::ShowProperties() {
 
     
     ImGui::DragFloat3("Position",(float*)&m_Position);
-    ImGui::DragFloat3("Rotation",(float*)&m_Rotation);
-    ImGui::DragFloat3("Scale",(float*)&m_Scale);
+    glm::vec3 rotationAsAngles = GetRotation();
+    ImGui::DragFloat3("Rotation",(float*)&rotationAsAngles);
+    glm::vec3 rotationAsRadians = glm::radians(rotationAsAngles);
+
+    m_Rotation += rotationAsRadians - m_Rotation;
+    
+    ImGui::DragFloat3("Scale",(float*)&m_Scale,0.01f);
 
 
     

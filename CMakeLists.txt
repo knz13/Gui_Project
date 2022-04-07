@@ -278,6 +278,36 @@ set(${PROJECT_NAME}_LIBRARIES )
                     
 
 
+# repository download and settings for imguizmo...
+
+    dir_exists(imguizmo_exists ${PROJECT_SOURCE_DIR}/vendor/imguizmo)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/imguizmo)
+
+    
+    # adding sources
+
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imguizmo/ImGuizmo.cpp)
+
+
+    if(NOT ${imguizmo_exists})
+        FetchContent_Declare(IMGUIZMO
+        GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo
+        GIT_TAG 1.83
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imguizmo
+        )
+
+        FetchContent_MakeAvailable(IMGUIZMO)
+
+    endif()
+                    
+
+
 # finding package and adding settings for alias OpenGL...
 
 
@@ -350,6 +380,9 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/reg
 
 
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/object_properties_component.cpp)
+
+
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/general/math.cpp)
 
 
 #creating executable
