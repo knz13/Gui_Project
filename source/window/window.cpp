@@ -4,9 +4,11 @@
 
 std::map<GLFWwindow*,Window*> Window::m_CurrentWindows;
 EventLauncher<void(Window&)> Window::m_StartWindowFuncs;
+Window* Window::m_MainWindow = nullptr;
 
 Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
+    Window::m_MainWindow = this;
     if(glfwInit() != GLFW_TRUE){
         DEBUG_ERROR("GLFW was not initiated!");
         return;
@@ -64,8 +66,14 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
         return;
     }
 
-    CameraCreationProperties camProp;
-    Camera::GeneratePerspectiveCamera(camProp,*this);
+    CameraCreationProperties properties;
+    Object mainCameraObject = Registry::CreateObject("Main Camera");
+
+    mainCameraObject.GetComponent<Camera>(properties);
+
+    SetCamera(mainCameraObject);
+    
+
 
     GL_CALL(glEnable(GL_PROGRAM_POINT_SIZE));
     GL_CALL(glEnable(GL_STENCIL_TEST));
@@ -137,9 +145,11 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     this->Events().ResizedEvent().Connect([](Window& win,WindowResizedEventProperties prop){
         win.m_Properties.width = prop.width;
         win.m_Properties.height = prop.height;
-        glm::vec4 viewport = win.GetCurrentCamera().GetViewPort();
-        GL_CALL(glViewport(viewport.x*win.m_Properties.width,viewport.y*win.m_Properties.height,viewport.z*win.m_Properties.width,viewport.w*win.m_Properties.height));
-    
+        if(win.GetCurrentCamera()){
+
+            glm::vec4 viewport = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetViewPort();
+            GL_CALL(glViewport(viewport.x*win.m_Properties.width,viewport.y*win.m_Properties.height,viewport.z*win.m_Properties.width,viewport.w*win.m_Properties.height));
+        }
        
 
     });
@@ -157,8 +167,6 @@ Window::~Window() {
     
     m_CreatedShaders.clear();
     m_CreatedVertexArrays.clear();
-
-    m_DrawingQueue.clear();
 
     Window::m_CurrentWindows.erase(m_ContextPointer);
 
@@ -197,23 +205,21 @@ const WindowCreationProperties& Window::Properties() const {
     return m_Properties;
 }
 
-void Window::SetCamera(Camera& camera) {
-    m_MainCamera = &camera;
-}
-
-Camera& Window::GetCurrentCamera() {
-    return *m_MainCamera;
-}
-
-void Window::AddToDrawingQueue(unsigned int id) {
-    m_DrawingQueue[id] = Drawable::m_DrawableObjects[id];
-}
-
-void Window::RemoveFromDrawingQueue(unsigned int id) {
-    if(m_DrawingQueue.find(id) != m_DrawingQueue.end()){
-        m_DrawingQueue.erase(id);
+void Window::SetCamera(entt::entity ent) {
+    if(Registry::Get().valid(ent)){
+        m_MainCamera = ent;
     }
 }
+
+void Window::SetCamera(Object obj) {
+    m_MainCamera = obj.ID();
+}
+
+ObjectHandle Window::GetCurrentCamera() {
+    return ObjectHandle(m_MainCamera);
+}
+
+
 
 WindowEvents Window::Events() {
     return WindowEvents(*this);
@@ -254,7 +260,7 @@ void Window::DrawingLoop() {
         Shader& currentObjectShader = *m_CreatedShaders[drawable.m_ShaderName].get();
 
         currentObjectShader.Bind();
-        currentObjectShader.SetUniformMat4f("MVP", GetCurrentCamera().GetViewProjection(*this)*transform.GetModelMatrix());
+        currentObjectShader.SetUniformMat4f("MVP", Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix());
 
         currentObjectShader.SetUniform1i("rayCastTexture",3);
 
@@ -289,7 +295,7 @@ void Window::DrawingLoop() {
             ObjectPropertiesComponent& comp = Object(entity).Properties();
 
             singleColorShader.Bind();
-            singleColorShader.SetUniformMat4f("MVP", GetCurrentCamera().GetViewProjection(*this)*transform.GetModelMatrix());
+            singleColorShader.SetUniformMat4f("MVP", Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix());
             singleColorShader.SetUniform3f("desiredColor",comp.GetHighlightColor().Normalized().x,comp.GetHighlightColor().Normalized().y,comp.GetHighlightColor().Normalized().z);
 
             drawable.Draw();
@@ -446,4 +452,7 @@ RayCastHit Window::RayCast(glm::vec2 screenPos) {
 
 float Window::GetDeltaTime() {
     return m_DeltaTime;
+}
+Window& Window::GetCurrentWindow() {
+    return *Window::m_MainWindow;
 }

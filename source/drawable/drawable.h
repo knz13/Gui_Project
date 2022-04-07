@@ -3,21 +3,21 @@
 #include "../opengl_wrappers/vertex_array.h"
 #include "drawing_modes.h"
 #include "../general/movable.h"
+#include "../object/component.h"
 
 class Shader;
 class Drawable;
 
 
-class Drawable : public EventReceiver{
+class Drawable : public EventReceiver,public Component{
 
     KV_CLASS
 
 public:
-    Drawable(Window* win=nullptr);
+    Drawable(entt::entity master);
     ~Drawable();
 
     bool SetShader(std::string shaderLocation);
-    void SetActive(Window& win);
     void SetActive();
     void SetInactive();
 
@@ -43,11 +43,11 @@ private:
     
 
     DrawingMode m_DrawingMode;
-    Window* m_CurrentWindow = nullptr;
+    
     VertexArray* m_VAO=nullptr;
     std::string m_ShaderName = "";
     bool m_Active = true;
-    unsigned int m_ID;
+    
 
     
     EventLauncher<void(Drawable&,Shader&)> m_PreDrawFuncs;
@@ -58,10 +58,9 @@ private:
 
 
 
-    static void DestroyDrawableHandle(unsigned int id);
-    static unsigned int CreateDrawableHandle(Drawable& dr);
+    
 
-    static std::unordered_map<unsigned int,Drawable*> m_DrawableObjects;
+    
 
 
     friend class GuiLayer;

@@ -9,18 +9,16 @@ void Movable::SetRotationIncreasePerFrame(float x, float y, float z) {
 }
 
 void Movable::Rotate(float x, float y, float z) {
-    if(x != 0 || y != 0 || z != 0){
-        m_RotatedFuncs.EmitEvent(*this);
-    }
+    
     m_Rotation += glm::radians(glm::vec3(x,y,z));
-    m_RotatedFuncs.EmitEvent(*this);
+    
 }
 
-void Movable::SetRotation(float x, float y, float z) {
-    if(m_Rotation != glm::radians(glm::vec3(x,y,z))){
-        m_RotatedFuncs.EmitEvent(*this);
-    }
+void Movable::SetRotation(glm::vec3 vec) {
+    m_Rotation = vec;
+}
 
+void Movable::SetRotation(float x,float y,float z) {
     m_Rotation = glm::radians(glm::vec3(x,y,z));
 }
 
@@ -34,14 +32,16 @@ void Movable::SetMovementIncreasePerFrame(float x, float y, float z) {
 
 void Movable::Move(float x, float y, float z) {
     m_Position += glm::vec3(x,y,z);
-    m_MovedFuncs.EmitEvent(*this);
+    
 }
 
 void Movable::SetPosition(float x, float y, float z) {
-    if(m_Position !=  glm::vec3(x,y,z)){
-        m_MovedFuncs.EmitEvent(*this);
-    }
+    
     m_Position = glm::vec3(x,y,z);
+}
+
+void Movable::SetPosition(glm::vec3 pos) {
+    m_Position = pos;
 }
 
 void Movable::IncreaseScalePerFrame(float x, float y, float z) {
@@ -54,18 +54,13 @@ void Movable::SetScaleChangePerFrame(float x, float y, float z) {
 }
 
 void Movable::SetScale(float x, float y, float z) {
-    if(m_Scale != glm::vec3(x,y,z)){
-        m_ScaledFuncs.EmitEvent(*this);
-    }
+    
     m_Scale = glm::vec3(x,y,z);
     
 }
 
 void Movable::InstantScaleChange(float x, float y, float z) {
-    if(x != 0 || y != 0 || z != 0){
-        m_ScaledFuncs.EmitEvent(*this);
-    }
-
+   
     m_Scale += glm::vec3(x,y,z);
 
     
@@ -85,50 +80,34 @@ const glm::vec3& Movable::GetPosition() {
     return m_Position;
 }
 
-FunctionSink<void(Movable&)> Movable::Moved() {
-    return FunctionSink<void(Movable&)>(m_MovedFuncs);
-}
-
-FunctionSink<void(Movable&)> Movable::Rotated() {
-    return FunctionSink<void(Movable&)>(m_RotatedFuncs);
-}
-
-FunctionSink<void(Movable&)> Movable::Scaled() {
-    return FunctionSink<void(Movable&)>(m_ScaledFuncs);
-}
-
-FunctionSink<void(Movable&)> Movable::Deleted() {
-    return FunctionSink<void(Movable&)>(m_DeletedFuncs);
-}
 
 void Movable::ShowProperties() {
 
     
-    ImGui::DragFloat3("Position",(float*)&m_Position);
+    ImGui::DragFloat3("Position",(float*)&m_Position,0.1);
     glm::vec3 rotationAsAngles = GetRotation();
-    ImGui::DragFloat3("Rotation",(float*)&rotationAsAngles);
+    ImGui::DragFloat3("Rotation",(float*)&rotationAsAngles,0.1);
     glm::vec3 rotationAsRadians = glm::radians(rotationAsAngles);
 
     m_Rotation += rotationAsRadians - m_Rotation;
     
-    ImGui::DragFloat3("Scale",(float*)&m_Scale,0.01f);
+    ImGui::DragFloat3("Scale",(float*)&m_Scale,0.01f,0);
 
 
     
 }
 
 void Movable::Update(float deltaTime) {
-    if(m_PositionChangePerFrame != glm::vec3(0)){
-        m_MovedFuncs.EmitEvent(*this);
-    }
-    if(m_RotationChangePerFrame != glm::vec3(0)){
-        m_RotatedFuncs.EmitEvent(*this);
-    }
-    if(m_ScaleChangePerFrame != glm::vec3(0)){
-        m_ScaledFuncs.EmitEvent(*this);
-    }
 
     m_Position += m_PositionChangePerFrame * deltaTime;
     m_Rotation += m_RotationChangePerFrame * deltaTime;
     m_Scale += m_ScaleChangePerFrame * deltaTime;
+}
+
+Movable::Movable(entt::entity ent) : Component(ent) {
+    
+}
+
+const glm::vec3& Movable::GetScale() const {
+    return m_Scale;
 }

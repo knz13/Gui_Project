@@ -1,17 +1,18 @@
 #pragma once
 #include "../global.h"
-#include "../general/movable.h"
 
+class Object;
 class Window;
-class Camera : public Movable {
+class Camera : public Component {
 
     KV_CLASS
     
 public: 
-    Camera(Window* win=nullptr);
+    Camera(CameraCreationProperties prop,entt::entity ent);
+    Camera(entt::entity ent);
     ~Camera();
 
-    void LookAt(Movable& mov);
+    void LookAt(Object& obj);
     void SetLookAt(float x,float y,float z);
     void SetDirection(float x,float y,float z);
     
@@ -22,14 +23,10 @@ public:
 
     glm::vec4 GetViewPort();
 
-protected:
-
-    virtual void Update(float deltaTime);
+    void Update(float deltaTime);
+    void ShowProperties();
 
 private:
-
-    
-    Window* m_CurrentWindow = nullptr;
     float m_DrawNear = 0;
     float m_DrawDistance = 100.0f;
     float m_Fov = 45;
@@ -37,7 +34,7 @@ private:
     
     //static members
 
-    static Camera& GeneratePerspectiveCamera(CameraCreationProperties prop,Window& windowToSetCurrentOn);
+    
 
     static std::unordered_map<std::string,Camera> m_Cameras;
 

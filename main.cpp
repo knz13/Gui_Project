@@ -20,7 +20,6 @@ int main(){
     Object obj = Registry::CreateObject("Cube");
 
     Drawable& dr = obj.GetComponent<Drawable>();
-    dr.SetActive(win);
     obj.GetComponent<Movable>().SetPosition(0,0,-10);
     
     

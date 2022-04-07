@@ -32,6 +32,7 @@
 #include "../vendor/imguizmo/ImGuizmo.h"
 #include "object/registry.h"
 #include "general/math.h"
+#include "object/component.h"
 using namespace std;
 
 

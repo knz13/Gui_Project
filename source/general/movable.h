@@ -3,30 +3,39 @@
 
 
 
-class Movable : public EventReceiver {
+class Movable : public EventReceiver,public Component {
     KV_CLASS
 public:
+    Movable(entt::entity ent);
 
-    FunctionSink<void(Movable&)> Moved();
-    FunctionSink<void(Movable&)> Rotated();
-    FunctionSink<void(Movable&)> Scaled();
-    FunctionSink<void(Movable&)> Deleted();
+
+    
 
     void IncreaseRotationPerFrame(float x,float y,float z);
     void SetRotationIncreasePerFrame(float x,float y,float z);
     void Rotate(float x,float y,float z);
-    void SetRotation(float x,float y,float z);
+    /**
+     * Sets the rotation as euler angles
+     */
+    void SetRotation(float pitch,float yall,float row);
+    /**
+     * Sets the rotation as radians
+     */
+    void SetRotation(glm::vec3 vec);
 
     void IncreaseMovementPerFrame(float x,float y,float z);
     void SetMovementIncreasePerFrame(float x,float y,float z);
     void Move(float x,float y,float z);
     void SetPosition(float x,float y,float z);
+    void SetPosition(glm::vec3 pos);
 
     void IncreaseScalePerFrame(float x,float y,float z);
     void SetScaleChangePerFrame(float x,float y,float z);
     void SetScale(float x,float y,float z);
     void InstantScaleChange(float x,float y,float z);
 
+
+    const glm::vec3& GetScale() const;
     glm::vec3 GetRotation();
     const glm::vec3& GetPosition();
 
@@ -45,10 +54,7 @@ protected:
     glm::vec3 m_Rotation = glm::vec3(0,0,0);
     glm::vec3 m_Scale = glm::vec3(1,1,1);
 
-    EventLauncher<void(Movable&)> m_DeletedFuncs;
-    EventLauncher<void(Movable&)> m_MovedFuncs;
-    EventLauncher<void(Movable&)> m_RotatedFuncs;
-    EventLauncher<void(Movable&)> m_ScaledFuncs;
+    
 
     friend class GuiLayer;
 };

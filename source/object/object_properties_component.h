@@ -3,6 +3,20 @@
 #include "../global.h"
 
 
+struct ShowPropertiesFunctionsWrapper {
+    ShowPropertiesFunctionsWrapper(){
+        m_ClassName = "";
+    };
+
+    ShowPropertiesFunctionsWrapper(std::string name, std::function<void()> func) :m_Function(func),m_ClassName(name){
+
+    };
+
+    std::function<void()> m_Function;
+    std::string m_ClassName;
+
+};
+
 class Object;
 class ObjectPropertiesComponent {
 public:
@@ -14,7 +28,7 @@ public:
     void HandleUpdateFunction(entt::id_type type,std::function<void(float)> func);
     void EraseUpdateFunction(entt::id_type type);
 
-    void HandleShowPropertiesFunction(entt::id_type type,std::function<void()> func);
+    void HandleShowPropertiesFunction(entt::id_type type,std::string,std::function<void()> func);
     void EraseShowPropertiesFunction(entt::id_type type);
 
     void SetHightlightState(bool state);
@@ -33,8 +47,9 @@ public:
 
 private:
 
+
     std::map<entt::id_type,std::function<void(float)>> m_UpdateFunctions;
-    std::map<entt::id_type,std::function<void()>> m_ShowPropertiesFunctions;
+    std::map<entt::id_type,ShowPropertiesFunctionsWrapper> m_ShowPropertiesFunctions;
     bool active = true;
     std::string m_Name = "";
     bool m_ShouldHighlight = false;

@@ -11,8 +11,8 @@ bool ObjectPropertiesComponent::IsActive() const{
     return active;
 }
 
-void ObjectPropertiesComponent::HandleShowPropertiesFunction(entt::id_type type,std::function<void()> func) {
-    m_ShowPropertiesFunctions[type] = func;
+void ObjectPropertiesComponent::HandleShowPropertiesFunction(entt::id_type type,std::string name,std::function<void()> func) {
+    m_ShowPropertiesFunctions[type] = std::move(ShowPropertiesFunctionsWrapper(name,func));
 }
 
 void ObjectPropertiesComponent::EraseUpdateFunction(entt::id_type type) {
@@ -39,11 +39,11 @@ void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
     int i = 0;
-    for(auto& [handle,func] : m_ShowPropertiesFunctions){
+    for(auto& [handle,wrapper] : m_ShowPropertiesFunctions){
         
         ImGui::BeginChild(("ObjectProperty" + std::to_string(i)).c_str(),ImVec2(ImGui::GetWindowSize().x-23,200),true);
-        
-        func();
+        ImGui::BulletText(wrapper.m_ClassName.c_str());
+        wrapper.m_Function();
         ImGui::EndChild();
         i++;
     }

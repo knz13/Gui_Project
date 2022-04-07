@@ -46,7 +46,7 @@ private:
 
 };
 
-
+class ObjectHandle;
 class Window {
 
     KV_CLASS
@@ -64,9 +64,10 @@ public:
     WindowCreators Create();
     
 
-    Camera& GetCurrentCamera();
+    ObjectHandle GetCurrentCamera();
     void SetClearColor(Color color);
-    void SetCamera(Camera& camera);
+    void SetCamera(entt::entity ent);
+    void SetCamera(Object obj);
 
     const WindowCreationProperties& Properties() const;
     GLFWwindow* GetContextPointer();
@@ -75,7 +76,7 @@ public:
     void DrawingLoop();
     
     
-    
+    static Window& GetCurrentWindow();
     static Window* GetWindow(GLFWwindow* win);
     static FunctionSink<void(Window&)> WindowCreationEvent();
     
@@ -83,9 +84,6 @@ public:
     
 
 protected:
-
-    void AddToDrawingQueue(unsigned int id);
-    void RemoveFromDrawingQueue(unsigned int id);
 
     friend class Drawable;
 
@@ -100,7 +98,7 @@ private:
     WindowCreationProperties m_Properties;
     GLFWwindow* m_ContextPointer=nullptr;
 
-    Camera* m_MainCamera = nullptr;
+    entt::entity m_MainCamera = entt::null;
     
 
 
@@ -109,7 +107,6 @@ private:
 
     std::vector<std::unique_ptr<VertexArray>> m_CreatedVertexArrays;
     std::map<std::string,std::unique_ptr<Shader>> m_CreatedShaders;
-    std::map<unsigned int,Drawable*> m_DrawingQueue;
 
     
     EventLauncher<void(Window&,WindowResizedEventProperties)> m_WindowResizedEventFuncs;
@@ -128,7 +125,7 @@ private:
 
     //static members
 
-
+    static Window* m_MainWindow;
     static EventLauncher<void(Window&)> m_StartWindowFuncs;
 
     static std::map<GLFWwindow*,Window*> m_CurrentWindows;

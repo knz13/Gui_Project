@@ -220,21 +220,33 @@ void GuiLayer::AddUi(Window& win) {
         
 
         ImGui::Image((ImTextureID)GuiLayer::m_Buffer.get()->GetAttachedTexture().GetID(),wsize, ImVec2(0, 1), ImVec2(1, 0));
-        if(wasClicked){
+        if(wasClicked & win.GetCurrentCamera()){
 
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x,ImGui::GetWindowPos().y,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
 
             Object clickedObject(wasClicked.objectID);
-            glm::mat4 proj = win.GetCurrentCamera().GetProjection(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-            glm::mat4 view = win.GetCurrentCamera().GetView();
-            glm::mat4 model = clickedObject.GetComponent<Movable>().GetModelMatrix();
+            glm::mat4 proj = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetProjection(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+            glm::mat4 view = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetView();
+            Movable& objectTransform = clickedObject.GetComponent<Movable>();
+            
+            if(objectTransform.GetScale().x == 0){
+                objectTransform.SetScale(0.1,0,0);
+            }
+            if(objectTransform.GetScale().y == 0){
+                objectTransform.SetScale(0,0.1,0);
+            }
+            if(objectTransform.GetScale().z == 0){
+                objectTransform.SetScale(0,0,0.1);
+            }
 
-            ImGuizmo::Manipulate(glm::value_ptr(view),glm::value_ptr(proj),(ImGuizmo::OPERATION)imguizmoMode,ImGuizmo::MODE::LOCAL,glm::value_ptr(model));
+            glm::mat4 model = objectTransform.GetModelMatrix();
+
+            float snap[5] = {0,0,0,0,0.1};
+            ImGuizmo::Manipulate(glm::value_ptr(view),glm::value_ptr(proj),(ImGuizmo::OPERATION)imguizmoMode,ImGuizmo::MODE::LOCAL,glm::value_ptr(model),0,snap);
 
 
             if(ImGuizmo::IsUsing()){
-                Movable& objectTransform = clickedObject.GetComponent<Movable>();
                 glm::vec3 position,scale;
                 glm::quat rotation;
                 glm::vec3 skew;

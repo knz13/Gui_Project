@@ -385,6 +385,9 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/obj
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/general/math.cpp)
 
 
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/component.cpp)
+
+
 #creating executable
 add_executable(${PROJECT_NAME}
 
