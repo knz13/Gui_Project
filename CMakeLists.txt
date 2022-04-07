@@ -308,6 +308,39 @@ set(${PROJECT_NAME}_LIBRARIES )
                     
 
 
+# repository download and settings for react_physics...
+
+    dir_exists(react_physics_exists ${PROJECT_SOURCE_DIR}/vendor/react_physics)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/react_physics/include)
+
+
+    # adding libraries
+
+
+        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/react_physics/lib/${CMAKE_STATIC_LIBRARY_PREFIX}reactphysics3d${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+
+    if(NOT ${react_physics_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
+        ExternalProject_Add(REACT_PHYSICS
+        GIT_REPOSITORY https://github.com/DanielChappuis/reactphysics3d
+        GIT_TAG v0.9.0
+        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/react_physics
+                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/react_physics/lib/${CMAKE_STATIC_LIBRARY_PREFIX}reactphysics3d${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+
+        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD REACT_PHYSICS)
+
+    endif()
+
+
+
+
 # finding package and adding settings for alias OpenGL...
 
 
