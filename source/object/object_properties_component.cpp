@@ -1,5 +1,5 @@
 #include "object_properties_component.h"
-
+#include "../kv.h"
 
 
 
@@ -11,41 +11,59 @@ bool ObjectPropertiesComponent::IsActive() const{
     return active;
 }
 
-void ObjectPropertiesComponent::HandleShowPropertiesFunction(entt::id_type type,std::string name,std::function<void()> func) {
-    m_ShowPropertiesFunctions[type] = std::move(ShowPropertiesFunctionsWrapper(name,func));
-}
 
-void ObjectPropertiesComponent::EraseUpdateFunction(entt::id_type type) {
-    if(m_UpdateFunctions.find(type) != m_UpdateFunctions.end()){
-        m_UpdateFunctions.erase(type);
-    }
-}
-
-void ObjectPropertiesComponent::EraseShowPropertiesFunction(entt::id_type type) {
-    if(m_ShowPropertiesFunctions.find(type) != m_ShowPropertiesFunctions.end()){
-        m_ShowPropertiesFunctions.erase(type);
-    }
-}
-
-void ObjectPropertiesComponent::HandleUpdateFunction(entt::id_type type,std::function<void(float)> func) {
-    m_UpdateFunctions[type] = func;
-}
 
 void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
-    for(auto& [handle,func] : m_UpdateFunctions){
-        func(deltaTime);
+    for(auto& [handle,prop] : m_AttachedComponentsProperties){
+        prop.m_UpdateFunc(deltaTime);
     }
 }
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
-    int i = 0;
-    for(auto& [handle,wrapper] : m_ShowPropertiesFunctions){
+
+    for(auto& [handle,prop] : m_AttachedComponentsProperties){
         
-        ImGui::BeginChild(("ObjectProperty" + std::to_string(i)).c_str(),ImVec2(ImGui::GetWindowSize().x-23,200),true);
-        ImGui::BulletText(wrapper.m_ClassName.c_str());
-        wrapper.m_Function();
+       
+        ImGui::PushStyleColor(ImGuiCol_FrameBg,ImVec4(0.2,0.2,0.2,1));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,ImVec4(0.2,0.2,0.2,1));
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered,ImVec4(0,0,0,1));
+        ImGui::PushStyleColor(ImGuiCol_HeaderActive,ImVec4(0,0,0,1));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,10);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding,10);
+        
+        if(!prop.m_IsShowPropertiesChildOpen){
+            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,30),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        }
+        else{
+            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,200),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        
+        }
+        ImGui::SetNextItemOpen(true,ImGuiCond_FirstUseEver);
+
+        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNode((prop.m_ClassName.substr(5)).c_str());
+
+        ImGui::SameLine();
+        
+        
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x,ImGui::GetCursorPos().y - 4));
+        ImGui::Checkbox("##",prop.m_ActiveState);   
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x,ImGui::GetCursorPos().y + 4));
+        
+            
+        if(prop.m_IsShowPropertiesChildOpen){
+            prop.m_ShowPropertiesFunc();
+            ImGui::TreePop();
+            
+        }
+        
         ImGui::EndChild();
-        i++;
+        
+        
+        
+        ImGui::PopStyleColor(4);
+        ImGui::PopStyleVar(2);
+       
+       
     }
 }
 
@@ -68,4 +86,14 @@ bool ObjectPropertiesComponent::ShouldHighlight() const {
 
 Color ObjectPropertiesComponent::GetHighlightColor() const {
     return m_HighlightColor;
+}
+
+void ObjectPropertiesComponent::HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop) {
+    m_AttachedComponentsProperties[type] = prop;
+}
+
+void ObjectPropertiesComponent::EraseComponentProperties(entt::id_type type) {
+    if(m_AttachedComponentsProperties.find(type) != m_AttachedComponentsProperties.end()){
+        m_AttachedComponentsProperties.erase(type);
+    }
 }

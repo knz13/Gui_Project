@@ -45,20 +45,33 @@ glm::mat4 Camera::GetView() {
 }
 
 void Camera::ShowProperties() {
-
-    bool isCurrent = (Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().ID() == GetMasterObject().ID());
+    static std::string fovRand = ("##" + std::to_string(Registry::GenerateRandomNumber()));
+    bool isCurrent;
+    if(Window::GetCurrentWindow().GetCurrentCamera()){
+        isCurrent = (Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().ID() == GetMasterObject().ID());
+    }
+    else{
+        isCurrent = false;
+    }
     bool stateHolder = isCurrent;
 
     ImGui::Checkbox("Set Current",&isCurrent);
 
-    if(stateHolder != isCurrent){
+    if(stateHolder && !isCurrent){
+        Window::GetCurrentWindow().DisableCamera();
+    }
+
+    if(!stateHolder && isCurrent){
         Window::GetCurrentWindow().SetCamera(GetMasterObject());
     }
 
 
-    ImGui::DragFloat("Fov",&m_Fov,0.1,0,180);
-    ImGui::DragFloat("Render Distance",&m_DrawDistance,0.1,0);
-    ImGui::DragFloat("Near Cuttoff",&m_DrawNear,0.1,0);
+    ImGui::BulletText("Fov");
+    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_Fov).c_str(),&m_Fov,0.1,0,180);
+    ImGui::BulletText("Render Distance");
+    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_DrawDistance).c_str(),&m_DrawDistance,0.1,0);
+    ImGui::BulletText("Render Cuttoff");
+    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_DrawNear).c_str(),&m_DrawNear,0.1,0);
 
 
 }
@@ -87,3 +100,23 @@ Camera::Camera(entt::entity ent) : Component(ent){
 
 
 
+
+void Camera::MoveInRelationToView(float rightLeft, float upDown, float frontBack) {
+    glm::vec3 right,up,look;
+    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<Movable>().GetModelMatrix();
+
+    right = modelView[0];
+    up = modelView[1];
+    look  = modelView[2];
+
+    GetMasterObject().GetComponent<Movable>().Move(right * rightLeft);
+    GetMasterObject().GetComponent<Movable>().Move(up * upDown);
+    GetMasterObject().GetComponent<Movable>().Move(look * frontBack);
+
+}
+
+glm::vec3 Camera::GetLookDirection() {
+    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<Movable>().GetModelMatrix();
+
+    return modelView[1];
+}

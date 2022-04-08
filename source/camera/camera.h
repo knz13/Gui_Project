@@ -12,6 +12,8 @@ public:
     Camera(entt::entity ent);
     ~Camera();
 
+
+    void MoveInRelationToView(float rightLeft,float upDown,float frontBack);
     void LookAt(Object& obj);
     void SetLookAt(float x,float y,float z);
     void SetDirection(float x,float y,float z);
@@ -22,6 +24,7 @@ public:
     glm::mat4 GetProjection(float viewPortWidth,float viewPortHeight);
 
     glm::vec4 GetViewPort();
+    glm::vec3 GetLookDirection();
 
     void Update(float deltaTime);
     void ShowProperties();

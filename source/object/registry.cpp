@@ -2,8 +2,11 @@
 #include "object.h"
 #include "object_properties_component.h"
 #include "../kv.h"
+#include <ctime>
 
+reactphysics3d::PhysicsCommon Registry::m_PhysicsManager;
 entt::registry Registry::m_Registry;
+std::mt19937 Registry::m_RandomGenerator(time(nullptr));
 entt::registry& Registry::Get() {
     return Registry::m_Registry;
 }
@@ -25,4 +28,12 @@ void Registry::DeleteObject(entt::entity handle) {
     if(m_Registry.valid(handle)){
         m_Registry.destroy(handle);
     }
+}
+
+reactphysics3d::PhysicsCommon& Registry::GetPhysicsCommon() {
+    return m_PhysicsManager; 
+}
+
+size_t Registry::GenerateRandomNumber() {
+    return m_RandomGenerator();
 }

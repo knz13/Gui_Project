@@ -3,17 +3,13 @@
 #include "../global.h"
 
 
-struct ShowPropertiesFunctionsWrapper {
-    ShowPropertiesFunctionsWrapper(){
-        m_ClassName = "";
-    };
 
-    ShowPropertiesFunctionsWrapper(std::string name, std::function<void()> func) :m_Function(func),m_ClassName(name){
-
-    };
-
-    std::function<void()> m_Function;
-    std::string m_ClassName;
+struct AttachedComponentProperties {
+    std::function<void(float)> m_UpdateFunc;
+    std::function<void()> m_ShowPropertiesFunc;
+    bool* m_ActiveState = nullptr;
+    std::string m_ClassName = "";
+    bool m_IsShowPropertiesChildOpen = true;
 
 };
 
@@ -25,11 +21,8 @@ public:
         this->m_Name = name;
     };
 
-    void HandleUpdateFunction(entt::id_type type,std::function<void(float)> func);
-    void EraseUpdateFunction(entt::id_type type);
 
-    void HandleShowPropertiesFunction(entt::id_type type,std::string,std::function<void()> func);
-    void EraseShowPropertiesFunction(entt::id_type type);
+    
 
     void SetHightlightState(bool state);
     void SetHighlightColor(Color color);
@@ -46,14 +39,16 @@ public:
     std::string GetName() const;
 
 private:
+    void HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop);
+    void EraseComponentProperties(entt::id_type type);
 
-
-    std::map<entt::id_type,std::function<void(float)>> m_UpdateFunctions;
-    std::map<entt::id_type,ShowPropertiesFunctionsWrapper> m_ShowPropertiesFunctions;
+    std::map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
+    
     bool active = true;
     std::string m_Name = "";
     bool m_ShouldHighlight = false;
     Color m_HighlightColor = Color::Red;
 
+    friend class Component;
     friend class Object;
 };

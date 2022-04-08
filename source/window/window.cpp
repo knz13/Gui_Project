@@ -66,13 +66,13 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
         return;
     }
 
+
     CameraCreationProperties properties;
     Object mainCameraObject = Registry::CreateObject("Main Camera");
 
     mainCameraObject.GetComponent<Camera>(properties);
 
     SetCamera(mainCameraObject);
-    
 
 
     GL_CALL(glEnable(GL_PROGRAM_POINT_SIZE));
@@ -160,10 +160,11 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     Window::m_StartWindowFuncs.EmitEvent(*this);
 
 
+    this->m_PhysicsWorld = Registry::GetPhysicsCommon().createPhysicsWorld();
 }
 
 Window::~Window() {
-
+    
     
     m_CreatedShaders.clear();
     m_CreatedVertexArrays.clear();
@@ -205,14 +206,11 @@ const WindowCreationProperties& Window::Properties() const {
     return m_Properties;
 }
 
-void Window::SetCamera(entt::entity ent) {
-    if(Registry::Get().valid(ent)){
-        m_MainCamera = ent;
-    }
-}
 
 void Window::SetCamera(Object obj) {
-    m_MainCamera = obj.ID();
+    if(obj.HasComponent<Camera>()){
+        m_MainCamera = obj.ID();
+    }
 }
 
 ObjectHandle Window::GetCurrentCamera() {
@@ -243,11 +241,26 @@ void Window::DrawingLoop() {
 
     Registry::Get().each([&](auto entity){
 
+        
         Registry::Get().get<ObjectPropertiesComponent>(entity).CallUpdateFunctions(m_DeltaTime);
 
     });
 
-  
+    if(!GetCurrentCamera()){
+        PostDrawOperations();
+        return;
+    }
+    if(!GetCurrentCamera().GetAsObject().Properties().IsActive()){
+        PostDrawOperations();
+        return
+    }
+
+    if(!GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetActiveState()){
+        PostDrawOperations();
+        return
+    }
+
+
     auto view = Registry::Get().view<Movable,Drawable>();
     for(auto entity : view){
         auto& transform = view.get<Movable>(entity);
@@ -312,18 +325,13 @@ void Window::DrawingLoop() {
         }
 
         drawable.m_PostDrawFuncs.EmitEvent(drawable);
-        
+
     }
 
+    PostDrawOperations();
     
     
-    m_PostDrawingLoopFuncs.EmitEvent(*this);
-
-    EndDrawState();
-
-    if(!m_IsOpen){
-        m_ClosingCallbackFuncs.EmitEvent(*this);
-    }
+    
     
 
 }
@@ -455,4 +463,18 @@ float Window::GetDeltaTime() {
 }
 Window& Window::GetCurrentWindow() {
     return *Window::m_MainWindow;
+}
+
+void Window::DisableCamera() {
+    m_MainCamera = entt::null;
+}
+
+void Window::PostDrawOperations() {
+    m_PostDrawingLoopFuncs.EmitEvent(*this);
+
+    EndDrawState();
+
+    if(!m_IsOpen){
+        m_ClosingCallbackFuncs.EmitEvent(*this);
+    }
 }

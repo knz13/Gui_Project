@@ -1,4 +1,5 @@
 #include "movable.h"
+#include "../kv.h"
 
 void Movable::IncreaseRotationPerFrame(float x, float y, float z) {
     m_RotationChangePerFrame += glm::radians(glm::vec3(x,y,z));
@@ -33,6 +34,10 @@ void Movable::SetMovementIncreasePerFrame(float x, float y, float z) {
 void Movable::Move(float x, float y, float z) {
     m_Position += glm::vec3(x,y,z);
     
+}
+
+void Movable::Move(glm::vec3 offset) {
+    m_Position += offset;
 }
 
 void Movable::SetPosition(float x, float y, float z) {
@@ -83,15 +88,18 @@ const glm::vec3& Movable::GetPosition() {
 
 void Movable::ShowProperties() {
 
-    
-    ImGui::DragFloat3("Position",(float*)&m_Position,0.1);
+    ImGui::BulletText("Position");
+    ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Position).c_str(),(float*)&m_Position,0.1);
     glm::vec3 rotationAsAngles = GetRotation();
-    ImGui::DragFloat3("Rotation",(float*)&rotationAsAngles,0.1);
+
+    ImGui::BulletText("Rotation");
+    ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Rotation).c_str(),(float*)&rotationAsAngles,0.1);
     glm::vec3 rotationAsRadians = glm::radians(rotationAsAngles);
 
     m_Rotation += rotationAsRadians - m_Rotation;
     
-    ImGui::DragFloat3("Scale",(float*)&m_Scale,0.01f,0);
+    ImGui::BulletText("Scale");
+    ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Scale).c_str(),(float*)&m_Scale,0.01f,0);
 
 
     

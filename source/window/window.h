@@ -66,7 +66,8 @@ public:
 
     ObjectHandle GetCurrentCamera();
     void SetClearColor(Color color);
-    void SetCamera(entt::entity ent);
+    
+    void DisableCamera();
     void SetCamera(Object obj);
 
     const WindowCreationProperties& Properties() const;
@@ -91,9 +92,9 @@ private:
 
     void BeginDrawState();
     void EndDrawState();
+    void PostDrawOperations();
     
-
-    
+    reactphysics3d::PhysicsWorld* m_PhysicsWorld;
     bool m_IsOpen = true;
     WindowCreationProperties m_Properties;
     GLFWwindow* m_ContextPointer=nullptr;

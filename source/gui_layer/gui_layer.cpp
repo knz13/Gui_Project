@@ -89,7 +89,7 @@ void GuiLayer::AddUi(Window& win) {
         //setting up docks
         
 
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |ImGuiWindowFlags_NoTitleBar ;
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoBringToFrontOnFocus;
         
         
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
@@ -103,21 +103,21 @@ void GuiLayer::AddUi(Window& win) {
         
         
         
-        ImGui::DockSpace(id,ImGui::GetWindowViewport()->WorkSize,  ImGuiDockNodeFlags_NoResize);
+        ImGui::DockSpace(id);
         
         if(firstLoop){
             
             
             ImGui::DockBuilderRemoveNode(id);            
-            ImGui::DockBuilderAddNode(id,ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoResize);
+            ImGui::DockBuilderAddNode(id,ImGuiDockNodeFlags_AutoHideTabBar );
 
             ImGui::DockBuilderSetNodeSize(id, ImGui::GetWindowViewport()->WorkSize);
             ImGui::DockBuilderSetNodePos(id, ImGui::GetWindowViewport()->WorkPos);
 
             ImGuiID dock1 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Left, 0.2f, nullptr, &id);
-            ImGuiID dock2 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Right, 0.8f, nullptr, &id);
-            ImGuiID dock3 = ImGui::DockBuilderSplitNode(dock2, ImGuiDir_Left, 0.6f, nullptr, &dock2);
-            ImGuiID dock4 = ImGui::DockBuilderSplitNode(dock3, ImGuiDir_Down, 0.4f, nullptr, &dock3);
+            ImGuiID dock2 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Right, 0.2f, nullptr, &id);
+            ImGuiID dock3 = ImGui::DockBuilderSplitNode(dock2, ImGuiDir_Left, 0.75f, nullptr, &dock2);
+            ImGuiID dock4 = ImGui::DockBuilderSplitNode(dock3, ImGuiDir_Down, 0.3f, nullptr, &dock3);
 
             ImGui::DockBuilderDockWindow("Objects", dock1);
             ImGui::DockBuilderDockWindow("Properties", dock2);
@@ -220,7 +220,7 @@ void GuiLayer::AddUi(Window& win) {
         
 
         ImGui::Image((ImTextureID)GuiLayer::m_Buffer.get()->GetAttachedTexture().GetID(),wsize, ImVec2(0, 1), ImVec2(1, 0));
-        if(wasClicked & win.GetCurrentCamera()){
+        if(wasClicked && win.GetCurrentCamera()){
 
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x,ImGui::GetWindowPos().y,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
@@ -262,6 +262,7 @@ void GuiLayer::AddUi(Window& win) {
             
 
         }
+        ImVec2 gameSize = ImGui::GetWindowSize();
 
         if(ImGui::IsKeyPressed(ImGuiKey_E)){
             imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
@@ -273,6 +274,26 @@ void GuiLayer::AddUi(Window& win) {
             imguizmoMode = ImGuizmo::OPERATION::SCALE;
         }
 
+        static bool wasMouseDown = false;
+        if((ImGui::IsKeyDown(ImGuiKey_LeftShift) && ImGui::IsMouseDown(ImGuiMouseButton_Left)) || wasMouseDown){
+            static ImVec2 lastMousePos;
+
+
+            if(!wasMouseDown){
+                lastMousePos = ImGui::GetMousePos();
+                wasMouseDown = true;
+            }
+            else{
+                glm::vec3 offset(lastMousePos.x - ImGui::GetMousePos().x,ImGui::GetMousePos().y - lastMousePos.y,0);
+                offset *= 0.03;
+                Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x,offset.y,offset.z);
+                lastMousePos = ImGui::GetMousePos();
+            }
+        }
+        if(ImGui::IsMouseReleased(ImGuiMouseButton_Left) && wasMouseDown){
+            wasMouseDown = false;
+        }
+
         
         ImGui::EndChild();
 
@@ -280,6 +301,15 @@ void GuiLayer::AddUi(Window& win) {
 
         ImGui::End();
 
+        GuiLayer::SetupWindowStyle([&](){
+            ImGui::Begin("Stats");
+        });
+
+        ImGui::BulletText(("Game Screen Size " + std::to_string((int)gameSize.x) + "," + std::to_string((int)gameSize.y)).c_str());
+
+        
+
+        ImGui::End();
         
 
         GuiLayer::SetupWindowStyle([&](){
@@ -305,6 +335,8 @@ void GuiLayer::AddUi(Window& win) {
 
     });
 }
+
+
 
 RayCastHit GuiLayer::RayCast(ImVec2 pos) {
     m_RaycastTexture.get()->Bind();
@@ -333,6 +365,19 @@ RayCastHit GuiLayer::RayCast(ImVec2 pos) {
 
 void GuiLayer::SetupWindowStyle(std::function<void()> beginCommand) {
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,1));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,10);
     beginCommand();
     ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
+}
+std::string GuiLayer::GetImGuiID(void* ptr) {
+    
+    return ("##" + std::to_string(std::hash<void*>()(ptr)));
+}
+
+void GuiLayer::SetupWidgetStyle(std::function<void()> beginCommand) {
+    ImGui::PushStyleColor(ImGuiCol_FrameBg,ImVec4(20,20,20,1));
+    ImGui::PushStyleColor(ImGuiCol_TitleBg,ImVec4(20,20,20,1));
+    beginCommand();
+    ImGui::PopStyleColor(2);
 }

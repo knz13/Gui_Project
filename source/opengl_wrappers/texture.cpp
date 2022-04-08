@@ -4,12 +4,12 @@
 
 void Texture::Bind() {
     if(m_ID){
-        GL_CALL(glBindTexture(GL_TEXTURE_2D,*m_ID.get()));
+        GL_CALL(glBindTexture(m_TextureType,*m_ID.get()));
     }
 }
 
 void Texture::Unbind() {
-    GL_CALL(glBindTexture(GL_TEXTURE_2D,0));
+    GL_CALL(glBindTexture(m_TextureType,0));
 }
 
 const unsigned int Texture::GetID() {
@@ -17,7 +17,7 @@ const unsigned int Texture::GetID() {
 }
 
 
-Texture::Texture(std::function<void(Texture&)> initializerFunc) {
+Texture::Texture(std::function<void(Texture&)> initializerFunc,GLenum textureType) : m_TextureType(textureType) {
     if(!m_ID){
         auto deleter = [](unsigned int* id){
             GL_CALL(glDeleteTextures(1,id));

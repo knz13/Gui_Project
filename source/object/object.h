@@ -27,14 +27,20 @@ public:
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,m_EntityHandle);
             
-
-            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
-            properties.HandleUpdateFunction(entt::type_id<T>().index(),[&](float time){
+            AttachedComponentProperties prop;
+            prop.m_UpdateFunc = [&](float time){
                 comp.Update(time);
-            });
-            properties.HandleShowPropertiesFunction(entt::type_id<T>().index(),std::string(entt::type_id<T>().name()),[&](){
+            };
+
+            prop.m_ShowPropertiesFunc = [&](){
                 comp.ShowProperties();
-            });
+            };
+
+            comp.m_MyClassTypeID = entt::type_id<T>().index();
+            prop.m_ClassName = entt::type_id<T>().name();
+            prop.m_ActiveState = &comp.m_BaseComponentActiveState;
+            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
+            properties.HandleComponentProperties(entt::type_id<T>().index(),prop);
 
 
             return comp;
@@ -48,16 +54,21 @@ public:
     T& GetComponent(Args&&... args){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...,m_EntityHandle);
-            
 
-            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
-            properties.HandleUpdateFunction(entt::type_id<T>().index(),[&](float time){
+            AttachedComponentProperties prop;
+            prop.m_UpdateFunc = [&](float time){
                 comp.Update(time);
-            });
-            properties.HandleShowPropertiesFunction(entt::type_id<T>().index(),std::string(entt::type_id<T>().name()),[&](){
-                comp.ShowProperties();
-            });
+            };
 
+            prop.m_ShowPropertiesFunc = [&](){
+                comp.ShowProperties();
+            };
+
+            comp.m_MyClassTypeID = entt::type_id<T>().index();
+            prop.m_ClassName = entt::type_id<T>().name();
+            prop.m_ActiveState = &comp.m_BaseComponentActiveState;
+            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
+            properties.HandleComponentProperties(entt::type_id<T>().index(),prop);
 
             return comp;
         }
@@ -79,8 +90,7 @@ public:
         if(this->HasComponent<T>()){
             
             ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
-            properties.EraseUpdateFunction(entt::type_id<T>().index());
-            properties.EraseShowPropertiesFunction(entt::type_id<T>().index());
+            properties.EraseComponentProperties(entt::type_id<T>().index());
             
             Registry::Get().erase<T>(m_EntityHandle);
         }
@@ -124,4 +134,5 @@ public:
 private:
     entt::entity m_Handle = entt::null;
 
+    
 };

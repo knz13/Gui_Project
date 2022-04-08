@@ -26,6 +26,8 @@ public:
     void IncreaseMovementPerFrame(float x,float y,float z);
     void SetMovementIncreasePerFrame(float x,float y,float z);
     void Move(float x,float y,float z);
+    void Move(glm::vec3 offset);
+
     void SetPosition(float x,float y,float z);
     void SetPosition(glm::vec3 pos);
 
