@@ -252,12 +252,12 @@ void Window::DrawingLoop() {
     }
     if(!GetCurrentCamera().GetAsObject().Properties().IsActive()){
         PostDrawOperations();
-        return
+        return;
     }
 
     if(!GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetActiveState()){
         PostDrawOperations();
-        return
+        return;
     }
 
 

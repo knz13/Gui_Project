@@ -18,8 +18,7 @@ public:
     ~Drawable();
 
     bool SetShader(std::string shaderLocation);
-    void SetActive();
-    void SetInactive();
+    
 
 
     void SetDrawingMode(DrawingMode mode);
@@ -46,7 +45,7 @@ private:
     
     VertexArray* m_VAO=nullptr;
     std::string m_ShaderName = "";
-    bool m_Active = true;
+    
     
 
     

@@ -67,7 +67,7 @@ public:
             comp.m_MyClassTypeID = entt::type_id<T>().index();
             prop.m_ClassName = entt::type_id<T>().name();
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
-            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
+            ObjectPropertiesComponent& properties = Properties();
             properties.HandleComponentProperties(entt::type_id<T>().index(),prop);
 
             return comp;
@@ -89,11 +89,26 @@ public:
         }
         if(this->HasComponent<T>()){
             
-            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
+            ObjectPropertiesComponent& properties = Properties();
             properties.EraseComponentProperties(entt::type_id<T>().index());
             
             Registry::Get().erase<T>(m_EntityHandle);
         }
+    };
+
+    template<typename T>
+    void DisableComponent() {
+        if(!this->Valid()){
+            return;
+        }
+
+        if(this->HasComponent<T>()){
+
+            ObjectPropertiesComponent& prop = Properties();
+
+
+        }
+
     };
 
     bool Valid(){

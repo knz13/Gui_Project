@@ -204,30 +204,6 @@ set(${PROJECT_NAME}_LIBRARIES )
 
 
 
-# repository download and settings for entt...
-
-    dir_exists(entt_exists ${PROJECT_SOURCE_DIR}/vendor/entt)
-
-
-    # adding includes:
-
-
-        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
-
-
-    if(NOT ${entt_exists})
-        FetchContent_Declare(ENTT
-        GIT_REPOSITORY https://github.com/skypjack/entt
-        GIT_TAG origin/wip
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
-        )
-
-        FetchContent_MakeAvailable(ENTT)
-
-    endif()
-                    
-
-
 # repository download and settings for imguizmo...
 
     dir_exists(imguizmo_exists ${PROJECT_SOURCE_DIR}/vendor/imguizmo)
@@ -330,6 +306,59 @@ set(${PROJECT_NAME}_LIBRARIES )
         )
 
         FetchContent_MakeAvailable(IMGUI)
+
+    endif()
+                    
+
+
+# repository download and settings for json...
+
+    dir_exists(json_exists ${PROJECT_SOURCE_DIR}/vendor/json)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/json/include)
+
+
+    if(NOT ${json_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
+        ExternalProject_Add(JSON
+        GIT_REPOSITORY https://github.com/nlohmann/json
+        GIT_TAG v3.10.5
+        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/json
+                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                    -DJSON_BuildTests=OFF
+                        
+        BUILD_BYPRODUCTS 
+        )
+
+        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD JSON)
+
+    endif()
+
+
+
+
+# repository download and settings for entt...
+
+    dir_exists(entt_exists ${PROJECT_SOURCE_DIR}/vendor/entt)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
+
+
+    if(NOT ${entt_exists})
+        FetchContent_Declare(ENTT
+        GIT_REPOSITORY https://github.com/skypjack/entt
+        GIT_TAG origin/master
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
+        )
+
+        FetchContent_MakeAvailable(ENTT)
 
     endif()
                     

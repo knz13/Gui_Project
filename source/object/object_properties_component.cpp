@@ -31,23 +31,26 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,10);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding,10);
         
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 6,ImGui::GetCursorPos().y));
         if(!prop.m_IsShowPropertiesChildOpen){
-            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,30),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+            
+            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,30),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);
         }
         else{
-            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,200),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,200),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);
         
         }
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 6,ImGui::GetCursorPos().y));
         ImGui::SetNextItemOpen(true,ImGuiCond_FirstUseEver);
 
-        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNode((prop.m_ClassName.substr(5)).c_str());
+        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNode((prop.m_ClassName).c_str());
 
         ImGui::SameLine();
         
         
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x,ImGui::GetCursorPos().y - 4));
         ImGui::Checkbox("##",prop.m_ActiveState);   
-        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x,ImGui::GetCursorPos().y + 4));
+        
         
             
         if(prop.m_IsShowPropertiesChildOpen){

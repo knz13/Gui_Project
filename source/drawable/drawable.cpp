@@ -17,14 +17,14 @@ bool Drawable::SetShader(std::string shaderLocation) {
 
 bool Drawable::ReadyToDraw() {
 
-    if(m_Active && m_ShaderName == ""){
+    if(GetActiveState() && m_ShaderName == ""){
         LOG("Created Object has no shader attached, deactivating...");
-        m_Active = false;
+        SetActiveState(false);
     }
 
     bool shaderValid = false;
     Window::GetCurrentWindow().Create().CachedShader(m_ShaderName,&shaderValid);
-    return m_ShaderName != "" && shaderValid && m_Active;
+    return m_ShaderName != "" && shaderValid && GetActiveState();
 }
 
 
@@ -35,13 +35,6 @@ VertexArray& Drawable::GetVertexArray() {
 
 
 
-void Drawable::SetActive(){
-    m_Active= true;
-}
-
-void Drawable::SetInactive() {
-    m_Active = false;
-}
 
 Drawable::Drawable(entt::entity master) : Component(master) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
