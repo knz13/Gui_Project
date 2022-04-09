@@ -15,7 +15,7 @@ class Mesh : public EventReceiver,public Component{
 
 public:
     Mesh(entt::entity e);
-    Mesh();
+   
     ~Mesh();
 
     bool SetShader(std::string shaderLocation);

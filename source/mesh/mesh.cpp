@@ -35,7 +35,6 @@ VertexArray& Mesh::GetVertexArray() {
 
 
 
-
 Mesh::Mesh(entt::entity e) : Component(e) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
 }
@@ -61,15 +60,6 @@ void Mesh::Draw() {
 void Mesh::SetDrawingMode(DrawingMode mode) {
     m_DrawingMode = mode;
 }
-
-
-
-
-
-
-
-
-
 
 
 
