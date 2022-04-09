@@ -2,7 +2,7 @@
 #include "texture_loader.h"
 #include "../global.h"
 
-class Drawable;
+class Mesh;
 struct ModelVertices {
 	std::vector<float> positions;
 	std::vector<float> normals;
@@ -33,7 +33,7 @@ private:
 struct LoadingModelProperties {
 
 	std::string modelName = "";
-	std::function<void(Drawable&)> initializationFunc = [](Drawable& model){};
+	std::function<void(Mesh&)> initializationFunc = [](Mesh& model){};
 
 
 private:
@@ -54,7 +54,7 @@ class ModelLoader {
 	
 public:
 
-	static LoadedModelResult LoadModel(std::string fileName,Drawable& drawable,LoadingModelProperties prop = LoadingModelProperties());
+	static LoadedModelResult LoadModel(std::string fileName,Mesh& drawable,LoadingModelProperties prop = LoadingModelProperties());
 
 
 private:
@@ -63,10 +63,10 @@ private:
 	static std::unordered_map<std::string,std::map<std::string,ModelVertices>> m_ModelCache;
 
 
-	static LoadedModelResult CopyModelFromCache(std::string cacheName,Drawable& dr,LoadingModelProperties prop);
+	static LoadedModelResult CopyModelFromCache(std::string cacheName,Mesh& dr,LoadingModelProperties prop);
 	static vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
-	static LoadedModelResult ProcessData(Drawable& model,const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop);
-	static LoadedModelResult AssimpGetMeshData(const aiMesh* mesh,Drawable& model,LoadingModelProperties prop);
+	static LoadedModelResult ProcessData(Mesh& model,const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop);
+	static LoadedModelResult AssimpGetMeshData(const aiMesh* mesh,Mesh& model,LoadingModelProperties prop);
 
 
 

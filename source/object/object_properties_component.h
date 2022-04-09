@@ -22,7 +22,7 @@ public:
     };
 
 
-    
+    void Copy(const ObjectPropertiesComponent& other);
 
     void SetHightlightState(bool state);
     void SetHighlightColor(Color color);
@@ -38,6 +38,7 @@ public:
     Color GetHighlightColor() const;
     bool ShouldHighlight() const;
     std::string GetName() const;
+    std::string GetComponentByName(entt::id_type type) const;
 
 private:
     void HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop);

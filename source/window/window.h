@@ -4,7 +4,7 @@
 
 class Camera;
 class Framebuffer;
-class Drawable;
+class Mesh;
 class Texture;
 class Window;
 class VertexArray;
@@ -86,7 +86,7 @@ public:
 
 protected:
 
-    friend class Drawable;
+    friend class Mesh;
 
 private:
 

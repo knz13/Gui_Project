@@ -46,7 +46,7 @@ using namespace std;
 #define GL_SIZEOF(x) TestSize(x)
 #define KV_CLASS private: \
                     friend class Registry; friend class RegistryCreates;friend class RegistryDeleters;friend class RegistryGetters;friend class RegistrySetters;friend class Window;
-#define KV_DRAWING_MODE private: friend class Drawable;
+#define KV_DRAWING_MODE private: friend class Mesh;
 
 
 static unsigned int TestSize(unsigned int dataType) {

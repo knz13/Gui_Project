@@ -7,7 +7,7 @@ class Movable : public EventReceiver,public Component {
     KV_CLASS
 public:
     Movable(entt::entity e);
-
+    Movable(const Movable& mov);
 
     
 

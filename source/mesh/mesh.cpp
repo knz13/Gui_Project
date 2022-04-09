@@ -1,9 +1,9 @@
-#include "drawable.h"
+#include "mesh.h"
 #include "kv.h"
 
 
 
-bool Drawable::SetShader(std::string shaderLocation) {
+bool Mesh::SetShader(std::string shaderLocation) {
     bool loadResult;
     Shader& shader = Window::GetCurrentWindow().Create().CachedShader(shaderLocation,&loadResult);
     if(loadResult){
@@ -15,7 +15,7 @@ bool Drawable::SetShader(std::string shaderLocation) {
     }
 }
 
-bool Drawable::ReadyToDraw() {
+bool Mesh::ReadyToDraw() {
 
     if(GetActiveState() && m_ShaderName == ""){
         LOG("Created Object has no shader attached, deactivating...");
@@ -29,24 +29,24 @@ bool Drawable::ReadyToDraw() {
 
 
 
-VertexArray& Drawable::GetVertexArray() {
+VertexArray& Mesh::GetVertexArray() {
     return *m_VAO;
 }
 
 
 
 
-Drawable::Drawable(entt::entity e) : Component(e) {
+Mesh::Mesh(entt::entity e) : Component(e) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
 }
 
-Drawable::~Drawable() {
+Mesh::~Mesh() {
     m_DeletedFuncs.EmitEvent(*this);
 
 }
 
 
-void Drawable::Draw() {
+void Mesh::Draw() {
     m_VAO->Bind();
     if(m_VAO->HasIndexBuffer()){
         GL_CALL(glDrawElements(m_DrawingMode.GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
@@ -58,7 +58,7 @@ void Drawable::Draw() {
 
 
 
-void Drawable::SetDrawingMode(DrawingMode mode) {
+void Mesh::SetDrawingMode(DrawingMode mode) {
     m_DrawingMode = mode;
 }
 
@@ -74,19 +74,19 @@ void Drawable::SetDrawingMode(DrawingMode mode) {
 
 
 
-FunctionSink<void(Drawable&,Shader&)> Drawable::PreDrawn() {
-    return FunctionSink<void(Drawable&,Shader&)>(m_PreDrawFuncs);
+FunctionSink<void(Mesh&,Shader&)> Mesh::PreDrawn() {
+    return FunctionSink<void(Mesh&,Shader&)>(m_PreDrawFuncs);
 }
 
-FunctionSink<void(Drawable&)> Drawable::PostDrawn() {
-    return FunctionSink<void(Drawable&)>(m_PostDrawFuncs);
+FunctionSink<void(Mesh&)> Mesh::PostDrawn() {
+    return FunctionSink<void(Mesh&)>(m_PostDrawFuncs);
 }
 
-void Drawable::Update(float deltaTime) {
+void Mesh::Update(float deltaTime) {
     
 }
 
-void Drawable::ShowProperties() {
+void Mesh::ShowProperties() {
     
 }
 

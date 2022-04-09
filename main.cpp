@@ -7,7 +7,7 @@
 int main(){
     Object::RegisterClassAsComponent<Movable>();
     Object::RegisterClassAsComponent<Camera>();
-    Object::RegisterClassAsComponent<Drawable>();
+    Object::RegisterClassAsComponent<Mesh>();
 
     GuiLayer::Init();
 
@@ -25,10 +25,11 @@ int main(){
     
     Object obj = Registry::CreateObject("Cube");
 
-    Drawable& dr = obj.GetComponent<Drawable>();
+    Mesh& dr = obj.GetComponent<Mesh>();
     obj.GetComponent<Movable>().SetPosition(0,0,-10);
     
-    
+    Object other = Registry::CopyEntity(obj);
+
     std::vector<float> positions = {
       // front
     -1.0, -1.0,  1.0,

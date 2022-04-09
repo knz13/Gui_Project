@@ -130,3 +130,13 @@ const glm::vec3& Movable::GetScale() const {
 Movable::Movable(entt::entity e) : Component(e) {
 
 };
+
+Movable::Movable(const Movable& mov) : Component(this->GetMasterObject().ID()) {
+    m_Position = mov.m_Position;
+    m_Rotation = mov.m_Rotation;
+    m_Scale = mov.m_Scale;
+
+    m_PositionChangePerFrame = mov.m_PositionChangePerFrame;
+    m_RotationChangePerFrame = mov.m_RotationChangePerFrame;
+    m_ScaleChangePerFrame = mov.m_ScaleChangePerFrame;
+}

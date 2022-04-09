@@ -6,16 +6,17 @@
 #include "../object/component.h"
 
 class Shader;
-class Drawable;
+class Mesh;
 
 
-class Drawable : public EventReceiver,public Component{
+class Mesh : public EventReceiver,public Component{
 
     KV_CLASS
 
 public:
-    Drawable(entt::entity e);
-    ~Drawable();
+    Mesh(entt::entity e);
+    Mesh();
+    ~Mesh();
 
     bool SetShader(std::string shaderLocation);
     
@@ -23,17 +24,13 @@ public:
 
     void SetDrawingMode(DrawingMode mode);
 
-    FunctionSink<void(Drawable&,Shader&)> PreDrawn();
-    FunctionSink<void(Drawable&)> PostDrawn();
+    FunctionSink<void(Mesh&,Shader&)> PreDrawn();
+    FunctionSink<void(Mesh&)> PostDrawn();
 
     VertexArray& GetVertexArray();
 
     void Update(float deltaTime);
     void ShowProperties();
-protected:
-
-    
-
 
 private:
     
@@ -45,13 +42,11 @@ private:
     
     VertexArray* m_VAO=nullptr;
     std::string m_ShaderName = "";
-    
-    
 
     
-    EventLauncher<void(Drawable&,Shader&)> m_PreDrawFuncs;
-    EventLauncher<void(Drawable&)> m_PostDrawFuncs;
-    EventLauncher<void(Drawable&)> m_DeletedFuncs;
+    EventLauncher<void(Mesh&,Shader&)> m_PreDrawFuncs;
+    EventLauncher<void(Mesh&)> m_PostDrawFuncs;
+    EventLauncher<void(Mesh&)> m_DeletedFuncs;
 
     //static members
 

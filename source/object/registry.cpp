@@ -39,3 +39,25 @@ size_t Registry::GenerateRandomNumber() {
 }
 
 
+
+Object Registry::CopyEntity(Object other) {
+    Object obj = Registry::CreateObject(other.Properties().GetName());
+
+    for(auto [id,storage] : m_Registry.storage()){
+        if(id == entt::type_hash<ObjectPropertiesComponent>().value()){
+            continue;
+        }
+        if(storage.contains(other.ID()) && !storage.contains(obj.ID())){
+                void* oldData = storage.get(other.ID());
+                obj.TryCopyComponent(other.Properties().GetComponentByName(id),other);
+
+        }
+        else if(storage.contains(obj.ID())){
+            
+            obj.TryCopyComponent(obj.Properties().GetComponentByName(id),other);
+        }
+    }
+
+    return obj;
+
+}

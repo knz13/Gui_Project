@@ -2,6 +2,7 @@
 #include "../global.h"
 
 class Object;
+
 class Component {
 public:
 
@@ -25,7 +26,6 @@ private:
     entt::id_type m_MyClassTypeID;
     entt::entity m_MasterHandle = entt::null;
     bool m_BaseComponentActiveState = true;
-    
     
     friend class Object;
 

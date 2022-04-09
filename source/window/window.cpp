@@ -261,10 +261,10 @@ void Window::DrawingLoop() {
     }
 
 
-    auto view = Registry::Get().view<Movable,Drawable>();
+    auto view = Registry::Get().view<Movable,Mesh>();
     for(auto entity : view){
         auto& transform = view.get<Movable>(entity);
-        auto& drawable = view.get<Drawable>(entity);
+        auto& drawable = view.get<Mesh>(entity);
 
         if(!drawable.ReadyToDraw()){
             continue;

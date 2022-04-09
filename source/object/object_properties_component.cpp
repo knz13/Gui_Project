@@ -114,3 +114,13 @@ void ObjectPropertiesComponent::EraseComponentProperties(entt::id_type type) {
         m_AttachedComponentsProperties.erase(type);
     }
 }
+
+
+std::string ObjectPropertiesComponent::GetComponentByName(entt::id_type type) const {
+    if(this->m_AttachedComponentsProperties.find(type) != this->m_AttachedComponentsProperties.end()){
+        return this->m_AttachedComponentsProperties.at(type).m_ClassName;
+    }
+    else {
+        return "";
+    }
+}

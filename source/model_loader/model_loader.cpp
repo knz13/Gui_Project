@@ -27,7 +27,7 @@ vector<ModelLoader::Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, 
 	return Itextures;
 }
 
-LoadedModelResult ModelLoader::ProcessData(Drawable& model,const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop)
+LoadedModelResult ModelLoader::ProcessData(Mesh& model,const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop)
 {		
 	if (scene.mNumMeshes > 0) {
 		for (unsigned int i = 0; i < scene.mNumMeshes;i++) {
@@ -40,7 +40,7 @@ LoadedModelResult ModelLoader::ProcessData(Drawable& model,const aiScene& scene,
 	return LoadedModelResult(true);
 }
 
-LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh,Drawable& model,LoadingModelProperties prop)
+LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh,Mesh& model,LoadingModelProperties prop)
 {
 	aiFace* face;
 	std::vector<float> vertices;
@@ -125,7 +125,7 @@ LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh,Drawable& mo
 
 
 
-LoadedModelResult ModelLoader::LoadModel(std::string fileName,Drawable& drawable,LoadingModelProperties prop) {
+LoadedModelResult ModelLoader::LoadModel(std::string fileName,Mesh& drawable,LoadingModelProperties prop) {
     if(!std::filesystem::exists(fileName)){
 		LOG("Couldn't load model at " + fileName + " because the file was not found!");
 		LoadedModelResult(false);
@@ -155,7 +155,7 @@ LoadedModelResult ModelLoader::LoadModel(std::string fileName,Drawable& drawable
 	}
 }
 
-LoadedModelResult ModelLoader::CopyModelFromCache(std::string cacheName,Drawable& dr,LoadingModelProperties prop) {
+LoadedModelResult ModelLoader::CopyModelFromCache(std::string cacheName,Mesh& dr,LoadingModelProperties prop) {
     
 	std::vector<float> positions;
 	std::vector<float> normals;

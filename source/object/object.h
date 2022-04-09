@@ -55,6 +55,24 @@ public:
         }
     };
 
+    
+
+    bool TryCopyComponent(std::string stringToHash,Object from){
+        auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
+        
+        if(resolved){
+            entt::meta_any component = resolved.construct(*this);
+            if(auto func = resolved.func(entt::hashed_string("Copy Component")) ; func){
+                return func.invoke({},from,*this).operator bool();
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    };
 
     bool TryAddComponent(std::string stringToHash){
 
@@ -153,9 +171,22 @@ public:
     }
 
     template<typename T>
+    static bool CopyComponent(Object from,Object to){
+        if(from.HasComponent<T>() && to.HasComponent<T>()){
+            T& first = from.GetComponent<T>();
+            to.GetComponent<T>() = first;
+            return true;
+        }
+        else{
+            return false;
+        }
+    };
+
+    template<typename T>
     static void RegisterClassAsComponent(){
         std::string name = string(entt::type_id<T>().name()).substr(6);
         entt::meta<T>().type(entt::hashed_string(name.c_str())).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
+        entt::meta<T>().type(entt::hashed_string(name.c_str())).func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
     };
 
 private:
