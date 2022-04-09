@@ -70,7 +70,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     CameraCreationProperties properties;
     Object mainCameraObject = Registry::CreateObject("Main Camera");
 
-    mainCameraObject.GetComponent<Camera>(properties);
+    mainCameraObject.AddComponent<Camera>(properties);
 
     SetCamera(mainCameraObject);
 

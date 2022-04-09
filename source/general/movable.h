@@ -6,7 +6,7 @@
 class Movable : public EventReceiver,public Component {
     KV_CLASS
 public:
-    Movable(entt::entity ent);
+    Movable(entt::entity e);
 
 
     
@@ -45,8 +45,9 @@ public:
     void ShowProperties();
     glm::mat4 GetModelMatrix();
 protected:
+    std::function<nlohmann::json()> GetSerializerFunction();
 
-
+private:
 
     glm::vec3 m_PositionChangePerFrame = glm::vec3(0,0,0);
     glm::vec3 m_RotationChangePerFrame = glm::vec3(0,0,0);

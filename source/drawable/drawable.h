@@ -14,7 +14,7 @@ class Drawable : public EventReceiver,public Component{
     KV_CLASS
 
 public:
-    Drawable(entt::entity master);
+    Drawable(entt::entity e);
     ~Drawable();
 
     bool SetShader(std::string shaderLocation);

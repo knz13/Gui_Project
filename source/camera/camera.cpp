@@ -76,7 +76,7 @@ void Camera::ShowProperties() {
 
 }
 
-Camera::Camera(CameraCreationProperties prop, entt::entity ent) : Component(ent) {
+Camera::Camera(CameraCreationProperties prop,entt::entity e) : Component(e) {
     m_Fov = prop.fov;
     m_DrawNear = prop.drawingNearCutoff;
     m_DrawDistance = prop.drawDistance;
@@ -87,7 +87,7 @@ Camera::Camera(CameraCreationProperties prop, entt::entity ent) : Component(ent)
 }
 
 
-Camera::Camera(entt::entity ent) : Component(ent){
+Camera::Camera(entt::entity e) : Component(e){
     CameraCreationProperties prop;
 
     m_Fov = prop.fov;

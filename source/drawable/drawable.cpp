@@ -36,7 +36,7 @@ VertexArray& Drawable::GetVertexArray() {
 
 
 
-Drawable::Drawable(entt::entity master) : Component(master) {
+Drawable::Drawable(entt::entity e) : Component(e) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
 }
 

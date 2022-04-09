@@ -10,7 +10,7 @@ struct AttachedComponentProperties {
     bool* m_ActiveState = nullptr;
     std::string m_ClassName = "";
     bool m_IsShowPropertiesChildOpen = true;
-
+    size_t m_SizeInBytes = 0;
 };
 
 class Object;
@@ -32,6 +32,7 @@ public:
 
     void CallUpdateFunctions(float deltaTime);
     void CallShowPropertiesFunctions();
+
 
 
     Color GetHighlightColor() const;

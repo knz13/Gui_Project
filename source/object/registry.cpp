@@ -18,7 +18,7 @@ Object Registry::CreateObject(std::string name) {
 
     Object obj(ent);
 
-    obj.GetComponent<Movable>();
+    obj.AddComponent<Movable>();
 
     return obj;
 
@@ -37,3 +37,5 @@ reactphysics3d::PhysicsCommon& Registry::GetPhysicsCommon() {
 size_t Registry::GenerateRandomNumber() {
     return m_RandomGenerator();
 }
+
+

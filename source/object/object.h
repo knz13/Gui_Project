@@ -21,12 +21,16 @@ public:
         return Registry::Get().any_of<T>(m_EntityHandle);
     };
 
+    bool HasComponent(entt::id_type type) {
+        return Properties().m_AttachedComponentsProperties.find(type) != Properties().m_AttachedComponentsProperties.end();
+    }
 
     template<typename T>
     T& GetComponent(){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,m_EntityHandle);
             
+
             AttachedComponentProperties prop;
             prop.m_UpdateFunc = [&](float time){
                 comp.Update(time);
@@ -36,11 +40,12 @@ public:
                 comp.ShowProperties();
             };
 
-            comp.m_MyClassTypeID = entt::type_id<T>().index();
+            comp.m_MyClassTypeID = entt::type_hash<T>().value();
             prop.m_ClassName = entt::type_id<T>().name();
+            prop.m_SizeInBytes = sizeof(T);
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
             ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
-            properties.HandleComponentProperties(entt::type_id<T>().index(),prop);
+            properties.HandleComponentProperties(entt::type_hash<T>().value(),prop);
 
 
             return comp;
@@ -50,10 +55,24 @@ public:
         }
     };
 
+
+    bool TryAddComponent(std::string stringToHash){
+
+        auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
+        if(resolved){
+            entt::meta_any owner = resolved.construct(*this);
+            return owner.operator bool();
+        }
+        else{
+            return false;
+        }
+    }
+
     template<typename T,typename ...Args>
-    T& GetComponent(Args&&... args){
+    T& AddComponent(Args&&... args){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...,m_EntityHandle);
+            
 
             AttachedComponentProperties prop;
             prop.m_UpdateFunc = [&](float time){
@@ -64,11 +83,12 @@ public:
                 comp.ShowProperties();
             };
 
-            comp.m_MyClassTypeID = entt::type_id<T>().index();
+            comp.m_MyClassTypeID = entt::type_hash<T>().value();
             prop.m_ClassName = entt::type_id<T>().name();
+            prop.m_SizeInBytes = sizeof(T);
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
             ObjectPropertiesComponent& properties = Properties();
-            properties.HandleComponentProperties(entt::type_id<T>().index(),prop);
+            properties.HandleComponentProperties(entt::type_hash<T>().value(),prop);
 
             return comp;
         }
@@ -77,6 +97,13 @@ public:
         }
     }
 
+    const AttachedComponentProperties* GetComponentData(entt::id_type type){
+        if(!HasComponent(type)){
+            return nullptr;
+        }
+
+        return &Properties().m_AttachedComponentsProperties[type];
+    } 
 
 
 
@@ -115,6 +142,8 @@ public:
         return Registry::Get().valid(m_EntityHandle);
     }
 
+    
+    
     ObjectPropertiesComponent& Properties() {
         return Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
     };
@@ -122,6 +151,12 @@ public:
     entt::entity ID(){
         return m_EntityHandle;
     }
+
+    template<typename T>
+    static void RegisterClassAsComponent(){
+        std::string name = string(entt::type_id<T>().name()).substr(6);
+        entt::meta<T>().type(entt::hashed_string(name.c_str())).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
+    };
 
 private:
     entt::entity m_EntityHandle;

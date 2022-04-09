@@ -2,7 +2,13 @@
 #include "kv.h"
 #include "gui_layer/gui_layer.h"
 
+
+
 int main(){
+    Object::RegisterClassAsComponent<Movable>();
+    Object::RegisterClassAsComponent<Camera>();
+    Object::RegisterClassAsComponent<Drawable>();
+
     GuiLayer::Init();
 
     WindowCreationProperties prop;
@@ -13,7 +19,13 @@ int main(){
     prop.title = "window";
     Window win(prop);
 
+
     
+    
+
+
+
+
 
     GuiLayer::AddUi(win);
     
@@ -69,7 +81,6 @@ int main(){
     
     dr.SetShader("default_shaders/base_shader");
     
-
 
     while(win.IsOpen()){
 

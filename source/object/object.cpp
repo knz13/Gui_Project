@@ -11,3 +11,4 @@ Object::Object(entt::entity ent) {
     }
     m_EntityHandle = ent;    
 }
+

@@ -32,8 +32,12 @@ void Color::Set(float r, float g, float b) {
 void Color::Modify(std::function<void(glm::ivec3&)> changeFunction) {
     changeFunction(m_ColorValue);
 }
-Color::Color(unsigned char r, unsigned char g, unsigned char b) {
+Color::Color(unsigned char r,unsigned char g,unsigned char b) {
     m_ColorValue.x = r;
     m_ColorValue.y = g;
     m_ColorValue.z = b;
+}
+
+Color::Color() {
+    m_ColorValue = glm::vec3(0,0,0);
 }

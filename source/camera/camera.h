@@ -8,8 +8,8 @@ class Camera : public Component {
     KV_CLASS
     
 public: 
-    Camera(CameraCreationProperties prop,entt::entity ent);
-    Camera(entt::entity ent);
+    Camera(CameraCreationProperties prop,entt::entity e);
+    Camera(entt::entity e);
     ~Camera();
 
 

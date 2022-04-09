@@ -112,10 +112,14 @@ void Movable::Update(float deltaTime) {
     m_Scale += m_ScaleChangePerFrame * deltaTime;
 }
 
-Movable::Movable(entt::entity ent) : Component(ent) {
+
     
-}
+
 
 const glm::vec3& Movable::GetScale() const {
     return m_Scale;
 }
+
+Movable::Movable(entt::entity e) : Component(e) {
+
+};
