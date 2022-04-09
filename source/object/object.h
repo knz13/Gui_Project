@@ -41,7 +41,7 @@ public:
             };
 
             comp.m_MyClassTypeID = entt::type_hash<T>().value();
-            prop.m_ClassName = entt::type_id<T>().name();
+            prop.m_ClassName = std::string(entt::type_id<T>().name()).substr(6);
             prop.m_SizeInBytes = sizeof(T);
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
             ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
@@ -84,7 +84,7 @@ public:
             };
 
             comp.m_MyClassTypeID = entt::type_hash<T>().value();
-            prop.m_ClassName = entt::type_id<T>().name();
+            prop.m_ClassName = std::string(entt::type_id<T>().name()).substr(6);
             prop.m_SizeInBytes = sizeof(T);
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
             ObjectPropertiesComponent& properties = Properties();

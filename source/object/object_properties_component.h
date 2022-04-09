@@ -43,7 +43,7 @@ private:
     void HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop);
     void EraseComponentProperties(entt::id_type type);
 
-    std::map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
+    std::unordered_map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
     
     bool active = true;
     std::string m_Name = "";

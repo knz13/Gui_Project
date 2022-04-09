@@ -31,6 +31,8 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,10);
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding,10);
         
+        
+        
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 6,ImGui::GetCursorPos().y));
         if(!prop.m_IsShowPropertiesChildOpen){
             
@@ -41,23 +43,35 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         
         }
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 6,ImGui::GetCursorPos().y));
+
         ImGui::SetNextItemOpen(true,ImGuiCond_FirstUseEver);
 
-        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNode((prop.m_ClassName).c_str());
+        
+        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNodeEx((prop.m_ClassName).c_str());
+        
 
         ImGui::SameLine();
         
         
-        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x,ImGui::GetCursorPos().y - 4));
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 10,ImGui::GetCursorPos().y - 2));
         ImGui::Checkbox("##",prop.m_ActiveState);   
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 10,ImGui::GetCursorPos().y + 2));
         
-        
-            
+        bool passed = false;
         if(prop.m_IsShowPropertiesChildOpen){
-            prop.m_ShowPropertiesFunc();
-            ImGui::TreePop();
+            if(!passed){
+                ImGui::Spacing();
+                prop.m_ShowPropertiesFunc();
+                
             
+            }
+            else {
+                prop.m_ShowPropertiesFunc();
+            }
+            ImGui::TreePop();
+            passed = true;
         }
+        
         
         ImGui::EndChild();
         

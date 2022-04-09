@@ -87,20 +87,24 @@ const glm::vec3& Movable::GetPosition() {
 
 
 void Movable::ShowProperties() {
-
+    
     ImGui::BulletText("Position");
     ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Position).c_str(),(float*)&m_Position,0.1);
     glm::vec3 rotationAsAngles = GetRotation();
+    
 
+    
     ImGui::BulletText("Rotation");
     ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Rotation).c_str(),(float*)&rotationAsAngles,0.1);
+    
+
     glm::vec3 rotationAsRadians = glm::radians(rotationAsAngles);
 
     m_Rotation += rotationAsRadians - m_Rotation;
     
     ImGui::BulletText("Scale");
     ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Scale).c_str(),(float*)&m_Scale,0.01f,0);
-
+    
 
     
 }

@@ -20,12 +20,6 @@ int main(){
     Window win(prop);
 
 
-    
-    
-
-
-
-
 
     GuiLayer::AddUi(win);
     
