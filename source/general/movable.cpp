@@ -85,6 +85,9 @@ const glm::vec3& Movable::GetPosition() {
     return m_Position;
 }
 
+void Movable::SetScale(glm::vec3 vec) {
+    m_Scale = vec;
+}
 
 void Movable::ShowProperties() {
     

@@ -34,6 +34,7 @@ public:
     void IncreaseScalePerFrame(float x,float y,float z);
     void SetScaleChangePerFrame(float x,float y,float z);
     void SetScale(float x,float y,float z);
+    void SetScale(glm::vec3 vec);
     void InstantScaleChange(float x,float y,float z);
 
 
@@ -59,5 +60,5 @@ private:
 
     
 
-    friend class GuiLayer;
+ 
 };

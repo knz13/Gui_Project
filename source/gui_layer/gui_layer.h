@@ -1,33 +1,25 @@
 #pragma once 
 #include "../global.h"
+#include "explorer_view.h"
+#include "game_view.h"
+#include "properties_view.h"
+#include "scene_hierarchy_view.h"
 
-class Object;
-class Framebuffer;
+
+
 class Window;
 
-class GuiLayer {
-public:
+namespace GuiLayer {
 
-    static void Init();
+    void Init();
 
-    static void AddUi(Window& win);
-    static RayCastHit RayCast(ImVec2 pos);
+    void AddUi(Window& win);
+    
 
-    static std::string GetImGuiID(void* ptr);
+    std::string GetImGuiID(void* ptr);
 
-    static void SetupWidgetStyle(std::function<void()> beginCommand);
-
-    static std::shared_ptr<Framebuffer> m_RaycastTexture;
-private:
-
-    static void SetupFileExplorer(Window& win);
-    static void SetupGameView(Window& win);
-    static void SetupPropertiesView(Window& win);
-    static void SetupSceneHierarchy(Window& win);
-    static void SetupWindowStyle(std::function<void(ImGuiWindowFlags)> beginCommand);
-
-    static inline ClickedObjectProperties m_IsObjectSelected;
-    static std::unique_ptr<Framebuffer> m_Buffer;
-
+    void SetupWidgetStyle(std::function<void()> beginCommand);
+    void SetupWindowStyle(std::function<void(ImGuiWindowFlags)> beginCommand);
 
 };
+

@@ -62,6 +62,5 @@ private:
     
 
 
-    friend class GuiLayer;
     friend class DrawableEvents;
 };
