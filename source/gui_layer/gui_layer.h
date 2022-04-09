@@ -19,8 +19,14 @@ public:
 
     static std::shared_ptr<Framebuffer> m_RaycastTexture;
 private:
-    static void SetupWindowStyle(std::function<void()> beginCommand);
 
+    static void SetupFileExplorer(Window& win);
+    static void SetupGameView(Window& win);
+    static void SetupPropertiesView(Window& win);
+    static void SetupSceneHierarchy(Window& win);
+    static void SetupWindowStyle(std::function<void(ImGuiWindowFlags)> beginCommand);
+
+    static inline ClickedObjectProperties m_IsObjectSelected;
     static std::unique_ptr<Framebuffer> m_Buffer;
 
 
