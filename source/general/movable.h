@@ -49,6 +49,7 @@ protected:
     std::function<nlohmann::json()> GetSerializerFunction();
 
 private:
+    glm::mat4 CalculateModelMatrix();
 
     glm::vec3 m_PositionChangePerFrame = glm::vec3(0,0,0);
     glm::vec3 m_RotationChangePerFrame = glm::vec3(0,0,0);

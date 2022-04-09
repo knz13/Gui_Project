@@ -44,6 +44,33 @@ Mesh::~Mesh() {
 
 }
 
+bool MeshAttribute::Vertex::CheckValid() {
+    return (positions.size() == normals.size()) && (positions.size()/3 == texCoords.size()/2) && (positions.size() == tangents.size()) && (positions.size() != 0);
+}
+
+bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
+    vertexAttribute.SetEqualSize();
+    if(!vertexAttribute.CheckValid()){
+        return false;
+    }
+    
+    m_Vertices = vertexAttribute;
+    GetVertexArray().Bind();
+    GetVertexArray().Reset();
+    GetVertexArray().Bind();
+    GetVertexArray().CreateVertexBuffer((unsigned int)vertexAttribute.positions.size()/3)
+        .AddAttribute(m_Vertices.positions,false)
+        .AddAttribute(m_Vertices.normals,false)
+        .AddAttribute(m_Vertices.texCoords,false)
+        .AddAttribute(m_Vertices.tangents,false)
+        .Generate();
+
+    if(m_Vertices.indices.size() > 0){
+        GetVertexArray().CreateIndexBuffer().SetIndices(m_Vertices.indices);
+    }
+   
+    return true;
+}
 
 void Mesh::Draw() {
     m_VAO->Bind();
@@ -81,3 +108,28 @@ void Mesh::ShowProperties() {
 }
 
 
+
+void MeshAttribute::Vertex::SetEqualSize() {
+    size_t largestAttribute = positions.size()/3;
+    
+    if(positions.size() == 0){
+        return;
+    }
+    
+    if(normals.size()/3 < largestAttribute){
+        size_t oldSize = normals.size();
+        normals.resize(normals.size() + largestAttribute*3);
+        std::fill(normals.begin() + oldSize,normals.end(),0.0f);
+    }
+    if(texCoords.size()/2 < largestAttribute){
+        size_t oldSize = texCoords.size();
+        texCoords.resize(texCoords.size() + largestAttribute*2);
+        std::fill(texCoords.begin() + oldSize,texCoords.end(),0.0f);
+    }
+    if(tangents.size()/3 < largestAttribute){
+        size_t oldSize = tangents.size();
+        tangents.resize(tangents.size() + largestAttribute*3);
+        std::fill(tangents.begin() + oldSize,tangents.end(),0.0f);
+    }
+
+}

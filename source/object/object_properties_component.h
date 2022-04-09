@@ -13,6 +13,8 @@ struct AttachedComponentProperties {
     size_t m_SizeInBytes = 0;
 };
 
+
+
 class Object;
 class ObjectPropertiesComponent {
 public:
@@ -33,7 +35,9 @@ public:
     void CallUpdateFunctions(float deltaTime);
     void CallShowPropertiesFunctions();
 
-
+    void SetChildrenOf(Object obj);
+    
+    ReturnedObjectProperties GetParent();
 
     Color GetHighlightColor() const;
     bool ShouldHighlight() const;
@@ -46,6 +50,7 @@ private:
 
     std::unordered_map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
     
+    entt::entity m_Parent = entt::null;
     bool active = true;
     std::string m_Name = "";
     bool m_ShouldHighlight = false;

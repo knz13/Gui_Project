@@ -8,6 +8,20 @@
 class Shader;
 class Mesh;
 
+namespace MeshAttribute {
+
+    struct Vertex {
+        bool CheckValid();
+       
+        void SetEqualSize();
+
+        std::vector<float> positions;
+        std::vector<float> normals;
+        std::vector<float> texCoords;
+        std::vector<float> tangents;
+        std::vector<unsigned int> indices;
+    };
+};
 
 class Mesh : public EventReceiver,public Component{
 
@@ -19,25 +33,26 @@ public:
     ~Mesh();
 
     bool SetShader(std::string shaderLocation);
+    bool SetVertices(MeshAttribute::Vertex vertexAttribute);
     
-
 
     void SetDrawingMode(DrawingMode mode);
 
     FunctionSink<void(Mesh&,Shader&)> PreDrawn();
     FunctionSink<void(Mesh&)> PostDrawn();
 
-    VertexArray& GetVertexArray();
 
     void Update(float deltaTime);
     void ShowProperties();
 
 private:
+    VertexArray& GetVertexArray();
     
     void Draw();
     bool ReadyToDraw();
     
 
+    MeshAttribute::Vertex m_Vertices;
     DrawingMode m_DrawingMode;
     
     VertexArray* m_VAO=nullptr;
@@ -56,6 +71,6 @@ private:
 
     
 
-
+    
     friend class DrawableEvents;
 };

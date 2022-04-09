@@ -5,7 +5,7 @@
 
 
 
-
+class Movable;
 class Object {
 public:
     Object(entt::entity ent);
@@ -55,6 +55,7 @@ public:
         }
     };
 
+    Movable& Transform();
     
 
     bool TryCopyComponent(std::string stringToHash,Object from){

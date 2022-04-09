@@ -74,6 +74,26 @@ void Movable::InstantScaleChange(float x, float y, float z) {
 
 
 glm::mat4 Movable::GetModelMatrix() {
+    // getting the parent transforms
+    glm::mat4 finalMatrix = this->CalculateModelMatrix();
+    bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
+    Object current = GetMasterObject();
+    while (!foundFinalMatrix){
+        if(current.Properties().GetParent()){
+            current = Object(GetMasterObject().Properties().GetParent().Handle());
+        }
+        else{
+            foundFinalMatrix = true;
+        }
+        finalMatrix *= current.Transform().CalculateModelMatrix();
+        
+    }
+
+    return finalMatrix;
+    
+}
+
+glm::mat4 Movable::CalculateModelMatrix() {
     return glm::translate(glm::mat4(1.0f),m_Position) * glm::toMat4(glm::quat(m_Rotation)) * glm::scale(glm::mat4(1.0f),m_Scale);
 }
 

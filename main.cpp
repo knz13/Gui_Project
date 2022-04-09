@@ -27,10 +27,10 @@ int main(){
 
     Mesh& dr = obj.GetComponent<Mesh>();
     obj.GetComponent<Movable>().SetPosition(0,0,-10);
-    
-    Object other = Registry::CopyEntity(obj);
 
-    std::vector<float> positions = {
+    MeshAttribute::Vertex vertices;
+
+    vertices.positions = {
       // front
     -1.0, -1.0,  1.0,
      1.0, -1.0,  1.0,
@@ -43,7 +43,7 @@ int main(){
     -1.0,  1.0, -1.0
     };
 
-    std::vector<unsigned int> indices = {
+    vertices.indices = {
         // front
 		0, 1, 2,
 		2, 3, 0,
@@ -63,17 +63,9 @@ int main(){
 		3, 2, 6,
 		6, 7, 3
     };
-
     
 
-    dr.GetVertexArray().CreateVertexBuffer(8)
-        .AddAttribute(positions,false)
-        .Generate();
-
-    dr.GetVertexArray().CreateIndexBuffer()
-        .SetIndices(indices);
-
-    
+    dr.SetVertices(vertices);
     dr.SetShader("default_shaders/base_shader");
     
 

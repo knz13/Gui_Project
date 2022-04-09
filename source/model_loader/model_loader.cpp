@@ -3,7 +3,7 @@
 #include "kv.h"
 
 Assimp::Importer ModelLoader::m_Importer;
-std::unordered_map<std::string,std::map<std::string,ModelVertices>> ModelLoader::m_ModelCache;
+std::unordered_map<std::string,std::map<std::string,MeshAttribute::Vertex>> ModelLoader::m_ModelCache;
 
 
 vector<ModelLoader::Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
@@ -43,39 +43,35 @@ LoadedModelResult ModelLoader::ProcessData(Mesh& model,const aiScene& scene,std:
 LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh,Mesh& model,LoadingModelProperties prop)
 {
 	aiFace* face;
-	std::vector<float> vertices;
-	std::vector<float> normals;
-	std::vector<float> texCoords;
-	std::vector<float> tangents;
-	std::vector<unsigned int> indices;
+	MeshAttribute::Vertex vertex;
 
 	for (unsigned int v = 0; v < mesh->mNumVertices;v++) {
-		vertices.push_back(mesh->mVertices[v].x);
-		vertices.push_back(mesh->mVertices[v].y);
-		vertices.push_back(mesh->mVertices[v].z);
+		vertex.positions.push_back(mesh->mVertices[v].x);
+		vertex.positions.push_back(mesh->mVertices[v].y);
+		vertex.positions.push_back(mesh->mVertices[v].z);
 
-		normals.push_back(mesh->mNormals[v].x);
-		normals.push_back(mesh->mNormals[v].y);
-		normals.push_back(mesh->mNormals[v].z);
+		vertex.normals.push_back(mesh->mNormals[v].x);
+		vertex.normals.push_back(mesh->mNormals[v].y);
+		vertex.normals.push_back(mesh->mNormals[v].z);
 
 		if (mesh->HasTextureCoords(0)) {
-			texCoords.push_back(mesh->mTextureCoords[0][v].x);
-			texCoords.push_back(mesh->mTextureCoords[0][v].y);
+			vertex.texCoords.push_back(mesh->mTextureCoords[0][v].x);
+			vertex.texCoords.push_back(mesh->mTextureCoords[0][v].y);
 		} 
 		else {
-			texCoords.push_back(0);
-			texCoords.push_back(0);
+			vertex.texCoords.push_back(0);
+			vertex.texCoords.push_back(0);
 		}
 
 		if (mesh->HasTangentsAndBitangents()) {
-			tangents.push_back(mesh->mTangents[v].x);
-			tangents.push_back(mesh->mTangents[v].y);
-			tangents.push_back(mesh->mTangents[v].z);
+			vertex.tangents.push_back(mesh->mTangents[v].x);
+			vertex.tangents.push_back(mesh->mTangents[v].y);
+			vertex.tangents.push_back(mesh->mTangents[v].z);
 		}
 		else {
-			tangents.push_back(0);
-			tangents.push_back(0);
-			tangents.push_back(0);
+			vertex.tangents.push_back(0);
+			vertex.tangents.push_back(0);
+			vertex.tangents.push_back(0);
 		}
 	}
 
@@ -92,30 +88,14 @@ LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh,Mesh& model,
 
 	for (unsigned int i = 0; i < mesh->mNumFaces;i++) {
 		face = &mesh->mFaces[i];
-		indices.push_back(face->mIndices[0]);
-		indices.push_back(face->mIndices[1]);
-		indices.push_back(face->mIndices[2]);
+		vertex.indices.push_back(face->mIndices[0]);
+		vertex.indices.push_back(face->mIndices[1]);
+		vertex.indices.push_back(face->mIndices[2]);
 	}
 	
-	model.GetVertexArray().CreateVertexBuffer(mesh->mNumVertices)
-		.AddAttribute(vertices,false)
-		.AddAttribute(normals,false)
-		.AddAttribute(texCoords,false)
-		.AddAttribute(tangents,false)
-		.Generate();
-
-	model.GetVertexArray().CreateIndexBuffer()
-		.SetIndices(indices);
+	model.SetVertices(vertex);
 
 	prop.initializationFunc(model);
-
-
-	ModelVertices vertex;
-	vertex.positions = std::move(vertices);
-	vertex.normals = std::move(normals);
-	vertex.texCoords = std::move(texCoords);
-	vertex.tangents = std::move(tangents);
-	vertex.indices = std::move(indices);
 	
 	m_ModelCache[prop.fileName][prop.currentModelName] = std::move(vertex);
 
@@ -157,21 +137,19 @@ LoadedModelResult ModelLoader::LoadModel(std::string fileName,Mesh& drawable,Loa
 
 LoadedModelResult ModelLoader::CopyModelFromCache(std::string cacheName,Mesh& dr,LoadingModelProperties prop) {
     
-	std::vector<float> positions;
-	std::vector<float> normals;
-	std::vector<float> texCoords;
-	std::vector<float> tangents;
-	std::vector<unsigned int> indices;
+	MeshAttribute::Vertex vertices;
+
+	
 	for (auto& [name,vertex] : m_ModelCache[cacheName]){
 		
 
 		
 
-		positions.insert(positions.end(),vertex.positions.begin(),vertex.positions.end());
-		normals.insert(normals.end(),vertex.normals.begin(),vertex.normals.end());
-		texCoords.insert(texCoords.end(),vertex.texCoords.begin(),vertex.texCoords.end());
-		tangents.insert(tangents.end(),vertex.tangents.begin(),vertex.tangents.end());
-		indices.insert(indices.end(),vertex.indices.begin(),vertex.indices.end());
+		vertices.positions.insert(vertices.positions.end(),vertex.positions.begin(),vertex.positions.end());
+		vertices.normals.insert(vertices.normals.end(),vertex.normals.begin(),vertex.normals.end());
+		vertices.texCoords.insert(vertices.texCoords.end(),vertex.texCoords.begin(),vertex.texCoords.end());
+		vertices.tangents.insert(vertices.tangents.end(),vertex.tangents.begin(),vertex.tangents.end());
+		vertices.indices.insert(vertices.indices.end(),vertex.indices.begin(),vertex.indices.end());
 
 	
 
@@ -179,14 +157,7 @@ LoadedModelResult ModelLoader::CopyModelFromCache(std::string cacheName,Mesh& dr
 
 	}
 
-	dr.GetVertexArray().CreateVertexBuffer(positions.size()/3)
-		.AddAttribute(positions,false)
-		.AddAttribute(normals,false)
-		.AddAttribute(texCoords,false)
-		.AddAttribute(tangents,false)
-		.Generate();
-	
-	dr.GetVertexArray().CreateIndexBuffer().SetIndices(indices);
+	dr.SetVertices(vertices);
 
 	prop.initializationFunc(dr);
 

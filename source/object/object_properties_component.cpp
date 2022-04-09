@@ -124,3 +124,6 @@ std::string ObjectPropertiesComponent::GetComponentByName(entt::id_type type) co
         return "";
     }
 }
+ReturnedObjectProperties ObjectPropertiesComponent::GetParent() {
+    return ReturnedObjectProperties(m_Parent);
+}

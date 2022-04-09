@@ -54,3 +54,8 @@ unsigned int VertexArray::GetDrawCount() {
         return m_VBO.get()->numberOfElements;
     }
 }
+
+void VertexArray::Reset() {
+    m_IB.reset();
+    m_VBO.reset();
+}

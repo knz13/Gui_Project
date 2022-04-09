@@ -1,15 +1,9 @@
 #pragma once
 #include "texture_loader.h"
 #include "../global.h"
+#include "../mesh/mesh.h"
 
 class Mesh;
-struct ModelVertices {
-	std::vector<float> positions;
-	std::vector<float> normals;
-	std::vector<float> texCoords;
-	std::vector<float> tangents;
-	std::vector<unsigned int> indices;
-};
 
 
 struct LoadedModelResult {
@@ -60,7 +54,7 @@ public:
 private:
 	
 	static Assimp::Importer m_Importer;
-	static std::unordered_map<std::string,std::map<std::string,ModelVertices>> m_ModelCache;
+	static std::unordered_map<std::string,std::map<std::string,MeshAttribute::Vertex>> m_ModelCache;
 
 
 	static LoadedModelResult CopyModelFromCache(std::string cacheName,Mesh& dr,LoadingModelProperties prop);

@@ -10,6 +10,7 @@
 #include "color.h"
 #include "../vendor/entt/single_include/entt/entt.hpp"
 #include "../object/registry.h"
+#include "../vendor/entt/single_include/entt/entt.hpp"
 
 enum WindowFlag {
 
@@ -175,7 +176,24 @@ struct WindowCreationProperties {
     int openGLVersionMinor = 0;
 };
 
+struct ReturnedObjectProperties {
+    ReturnedObjectProperties(entt::entity handle) {
+        m_Handle = handle;
+    };
 
+    operator bool(){
+        return (Registry::Get().valid(m_Handle));
+    }
+
+    entt::entity Handle(){
+        return m_Handle;
+    }
+
+
+private:
+    entt::entity m_Handle;
+
+};
 
 
 template<typename T>

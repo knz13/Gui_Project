@@ -17,6 +17,7 @@ public:
     void Bind();
     void Unbind();
     unsigned int GetDrawCount();
+    void Reset();
 
 protected:
     
