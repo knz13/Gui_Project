@@ -1,7 +1,7 @@
 #include "explorer_view.h"
 #include "../kv.h"
 
-void GuiLayer::ExplorerView::Setup(Window& win) {
+void GuiLayer::ExplorerView::Update(Window& win) {
     static std::string currentPath = std::filesystem::current_path().string();
     std::replace(currentPath.begin(),currentPath.end(),'\\','/');
 

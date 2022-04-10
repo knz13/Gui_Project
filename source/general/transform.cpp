@@ -1,70 +1,70 @@
-#include "movable.h"
+#include "transform.h"
 #include "../kv.h"
 
-void Movable::IncreaseRotationPerFrame(float x, float y, float z) {
+void TransformComponent::IncreaseRotationPerFrame(float x, float y, float z) {
     m_RotationChangePerFrame += glm::radians(glm::vec3(x,y,z));
 }
 
-void Movable::SetRotationIncreasePerFrame(float x, float y, float z) {
+void TransformComponent::SetRotationIncreasePerFrame(float x, float y, float z) {
     m_RotationChangePerFrame = glm::radians(glm::vec3(x,y,z));
 }
 
-void Movable::Rotate(float x, float y, float z) {
+void TransformComponent::Rotate(float x, float y, float z) {
     
     m_Rotation += glm::radians(glm::vec3(x,y,z));
     
 }
 
-void Movable::SetRotation(glm::vec3 vec) {
+void TransformComponent::SetRotation(glm::vec3 vec) {
     m_Rotation = vec;
 }
 
-void Movable::SetRotation(float x,float y,float z) {
+void TransformComponent::SetRotation(float x,float y,float z) {
     m_Rotation = glm::radians(glm::vec3(x,y,z));
 }
 
-void Movable::IncreaseMovementPerFrame(float x, float y, float z) {
+void TransformComponent::IncreaseMovementPerFrame(float x, float y, float z) {
     m_PositionChangePerFrame += glm::vec3(x,y,z);
 }
 
-void Movable::SetMovementIncreasePerFrame(float x, float y, float z) {
+void TransformComponent::SetMovementIncreasePerFrame(float x, float y, float z) {
     m_PositionChangePerFrame = glm::vec3(x,y,z);
 }
 
-void Movable::Move(float x, float y, float z) {
+void TransformComponent::Move(float x, float y, float z) {
     m_Position += glm::vec3(x,y,z);
     
 }
 
-void Movable::Move(glm::vec3 offset) {
+void TransformComponent::Move(glm::vec3 offset) {
     m_Position += offset;
 }
 
-void Movable::SetPosition(float x, float y, float z) {
+void TransformComponent::SetPosition(float x, float y, float z) {
     
     m_Position = glm::vec3(x,y,z);
 }
 
-void Movable::SetPosition(glm::vec3 pos) {
+void TransformComponent::SetPosition(glm::vec3 pos) {
     m_Position = pos;
 }
 
-void Movable::IncreaseScalePerFrame(float x, float y, float z) {
+void TransformComponent::IncreaseScalePerFrame(float x, float y, float z) {
     m_ScaleChangePerFrame += glm::vec3(x,y,z);
 }
 
-void Movable::SetScaleChangePerFrame(float x, float y, float z) {
+void TransformComponent::SetScaleChangePerFrame(float x, float y, float z) {
     m_ScaleChangePerFrame = glm::vec3(x,y,z);
     
 }
 
-void Movable::SetScale(float x, float y, float z) {
+void TransformComponent::SetScale(float x, float y, float z) {
     
     m_Scale = glm::vec3(x,y,z);
     
 }
 
-void Movable::InstantScaleChange(float x, float y, float z) {
+void TransformComponent::InstantScaleChange(float x, float y, float z) {
    
     m_Scale += glm::vec3(x,y,z);
 
@@ -73,7 +73,7 @@ void Movable::InstantScaleChange(float x, float y, float z) {
 
 
 
-glm::mat4 Movable::GetModelMatrix() {
+glm::mat4 TransformComponent::GetModelMatrix() {
     // getting the parent transforms
     glm::mat4 finalMatrix = this->CalculateModelMatrix();
     bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
@@ -93,23 +93,23 @@ glm::mat4 Movable::GetModelMatrix() {
     
 }
 
-glm::mat4 Movable::CalculateModelMatrix() {
+glm::mat4 TransformComponent::CalculateModelMatrix() {
     return glm::translate(glm::mat4(1.0f),m_Position) * glm::toMat4(glm::quat(m_Rotation)) * glm::scale(glm::mat4(1.0f),m_Scale);
 }
 
-glm::vec3 Movable::GetRotation() {
+glm::vec3 TransformComponent::GetRotation() {
     return glm::degrees(glm::vec3(m_Rotation.x,m_Rotation.y,m_Rotation.z));
 }
 
-const glm::vec3& Movable::GetPosition() {
+const glm::vec3& TransformComponent::GetPosition() {
     return m_Position;
 }
 
-void Movable::SetScale(glm::vec3 vec) {
+void TransformComponent::SetScale(glm::vec3 vec) {
     m_Scale = vec;
 }
 
-void Movable::ShowProperties() {
+void TransformComponent::ShowProperties() {
     
     ImGui::BulletText("Position");
     ImGui::DragFloat3(GuiLayer::GetImGuiID(&m_Position).c_str(),(float*)&m_Position,0.1);
@@ -132,7 +132,7 @@ void Movable::ShowProperties() {
     
 }
 
-void Movable::Update(float deltaTime) {
+void TransformComponent::Update(float deltaTime) {
 
     m_Position += m_PositionChangePerFrame * deltaTime;
     m_Rotation += m_RotationChangePerFrame * deltaTime;
@@ -143,15 +143,15 @@ void Movable::Update(float deltaTime) {
     
 
 
-const glm::vec3& Movable::GetScale() const {
+const glm::vec3& TransformComponent::GetScale() const {
     return m_Scale;
 }
 
-Movable::Movable(entt::entity e) : Component(e) {
+TransformComponent::TransformComponent(entt::entity e) : Component(e) {
 
 };
 
-Movable::Movable(const Movable& mov) : Component(this->GetMasterObject().ID()) {
+TransformComponent::TransformComponent(const TransformComponent& mov) : Component(this->GetMasterObject().ID()) {
     m_Position = mov.m_Position;
     m_Rotation = mov.m_Rotation;
     m_Scale = mov.m_Scale;

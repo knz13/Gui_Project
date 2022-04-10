@@ -5,7 +5,7 @@
 
 
 int main(){
-    Object::RegisterClassAsComponent<Movable>();
+    Object::RegisterClassAsComponent<TransformComponent>();
     Object::RegisterClassAsComponent<Camera>();
     Object::RegisterClassAsComponent<Mesh>();
 
@@ -26,7 +26,7 @@ int main(){
     Object obj = Registry::CreateObject("Cube");
 
     Mesh& dr = obj.GetComponent<Mesh>();
-    obj.GetComponent<Movable>().SetPosition(0,0,-10);
+    obj.GetComponent<TransformComponent>().SetPosition(0,0,-10);
 
     MeshAttribute::Vertex vertices;
 

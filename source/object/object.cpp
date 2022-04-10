@@ -1,5 +1,6 @@
 #include "object.h"
 #include "../kv.h"
+#include "../general/transform.h"
 
 Object::~Object() {
   
@@ -12,6 +13,6 @@ Object::Object(entt::entity ent) {
     m_EntityHandle = ent;    
 }
 
-Movable& Object::Transform() {
-    return GetComponent<Movable>();
+TransformComponent& Object::Transform() {
+    return GetComponent<TransformComponent>();
 }

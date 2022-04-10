@@ -27,15 +27,18 @@ RayCastHit GuiLayer::GameView::RayCast(ImVec2 pos) {
     }
 }
 
-void GuiLayer::GameView::Setup(Window& win) {
+void GuiLayer::GameView::Update(Window& win) {
     static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
     static bool initialized = false;
     static ImVec2 lastSize;
+
     GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
             ImGui::Begin("Game View",0,flags);
         });
 
         ImGui::BeginChild("GameRender");
+
+
         if(!initialized){
             m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
             m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
@@ -85,7 +88,7 @@ void GuiLayer::GameView::Setup(Window& win) {
             Object clickedObject(m_IsObjectSelected.objectID);
             glm::mat4 proj = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetProjection(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
             glm::mat4 view = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetView();
-            Movable& objectTransform = clickedObject.GetComponent<Movable>();
+            TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
             
             if(objectTransform.GetScale().x == 0){
                 objectTransform.SetScale(0.1,0,0);
@@ -176,7 +179,7 @@ void GuiLayer::GameView::Setup(Window& win) {
 
 }
 
-void GuiLayer::GameView::PreLoopSetup(Window& win) {
+void GuiLayer::GameView::Setup(Window& win) {
 
     win.Events().PostDrawingLoopEvent().Connect([&](Window& window){
         GL_CALL(glMemoryBarrier(GL_ALL_BARRIER_BITS));

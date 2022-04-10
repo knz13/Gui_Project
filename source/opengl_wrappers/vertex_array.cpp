@@ -59,3 +59,12 @@ void VertexArray::Reset() {
     m_IB.reset();
     m_VBO.reset();
 }
+
+int VertexArray::GetVBOID() {
+    if(m_VBO){
+        return *m_VBO.get()->m_ID.get();
+    }
+    else{
+        return -1;
+    }
+}

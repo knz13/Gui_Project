@@ -44,7 +44,7 @@ Mesh::~Mesh() {
 
 }
 
-bool MeshAttribute::Vertex::CheckValid() {
+bool MeshAttribute::Vertex::CheckValid() const {
     return (positions.size() == normals.size()) && (positions.size()/3 == texCoords.size()/2) && (positions.size() == tangents.size()) && (positions.size() != 0);
 }
 
@@ -104,7 +104,7 @@ void Mesh::Update(float deltaTime) {
 }
 
 void Mesh::ShowProperties() {
-    
+    ImGui::Text(std::to_string(m_VAO->GetVBOID()).c_str());
 }
 
 
@@ -132,4 +132,18 @@ void MeshAttribute::Vertex::SetEqualSize() {
         std::fill(tangents.begin() + oldSize,tangents.end(),0.0f);
     }
 
+}
+
+Mesh& Mesh::operator=(const Mesh& other) {
+    Component::operator=(other);
+    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
+
+    if(other.m_Vertices.CheckValid()){
+        m_Vertices = other.m_Vertices;
+        this->SetVertices(m_Vertices);
+    }
+
+    m_DrawingMode = other.m_DrawingMode;
+    m_ShaderName = other.m_ShaderName;
+    return *this;
 }

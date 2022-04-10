@@ -19,6 +19,8 @@ public:
     unsigned int GetDrawCount();
     void Reset();
 
+    int GetVBOID();
+
 protected:
     
 

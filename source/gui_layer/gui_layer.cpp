@@ -36,7 +36,7 @@ void GuiLayer::AddUi(Window& win) {
 
     ImGui::ClearIniSettings();
     
-    GuiLayer::GameView::PreLoopSetup(win);
+    GuiLayer::GameView::Setup(win);
 
 
     win.Events().PostDrawingLoopEvent().Connect([&](Window& win){
@@ -109,13 +109,13 @@ void GuiLayer::AddUi(Window& win) {
         
         ImGui::End();
         
-        GuiLayer::ExplorerView::Setup(win);
+        GuiLayer::ExplorerView::Update(win);
         
-        GuiLayer::SceneHierarchyView::Setup(win);
+        GuiLayer::SceneHierarchyView::Update(win);
 
-        GuiLayer::GameView::Setup(win);
+        GuiLayer::GameView::Update(win);
 
-        GuiLayer::PropertiesView::Setup(win);
+        GuiLayer::PropertiesView::Update(win);
         
 
     

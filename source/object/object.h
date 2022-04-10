@@ -5,7 +5,7 @@
 
 
 
-class Movable;
+class TransformComponent;
 class Object {
 public:
     Object(entt::entity ent);
@@ -41,7 +41,7 @@ public:
             };
 
             comp.m_MyClassTypeID = entt::type_hash<T>().value();
-            prop.m_ClassName = std::string(entt::type_id<T>().name()).substr(6);
+            prop.m_ClassName = Registry::GetClassName<T>();
             prop.m_SizeInBytes = sizeof(T);
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
             ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
@@ -55,7 +55,7 @@ public:
         }
     };
 
-    Movable& Transform();
+    TransformComponent& Transform();
     
 
     bool TryCopyComponent(std::string stringToHash,Object from){
@@ -103,7 +103,7 @@ public:
             };
 
             comp.m_MyClassTypeID = entt::type_hash<T>().value();
-            prop.m_ClassName = std::string(entt::type_id<T>().name()).substr(6);
+            prop.m_ClassName = Registry::GetClassName<T>();
             prop.m_SizeInBytes = sizeof(T);
             prop.m_ActiveState = &comp.m_BaseComponentActiveState;
             ObjectPropertiesComponent& properties = Properties();
@@ -175,7 +175,8 @@ public:
     static bool CopyComponent(Object from,Object to){
         if(from.HasComponent<T>() && to.HasComponent<T>()){
             T& first = from.GetComponent<T>();
-            to.GetComponent<T>() = first;
+            T& second = to.GetComponent<T>();
+            second = first;
             return true;
         }
         else{
@@ -185,9 +186,9 @@ public:
 
     template<typename T>
     static void RegisterClassAsComponent(){
-        std::string name = string(entt::type_id<T>().name()).substr(6);
-        entt::meta<T>().type(entt::hashed_string(name.c_str())).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
-        entt::meta<T>().type(entt::hashed_string(name.c_str())).func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
+        entt::id_type hash = Registry::HashClassName<T>();
+        entt::meta<T>().type(hash).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
+        entt::meta<T>().type(hash).func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
     };
 
 private:

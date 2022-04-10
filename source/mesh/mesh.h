@@ -2,7 +2,7 @@
 #include "../global.h"
 #include "../opengl_wrappers/vertex_array.h"
 #include "drawing_modes.h"
-#include "../general/movable.h"
+#include "../general/transform.h"
 #include "../object/component.h"
 
 class Shader;
@@ -11,7 +11,7 @@ class Mesh;
 namespace MeshAttribute {
 
     struct Vertex {
-        bool CheckValid();
+        bool CheckValid() const;
        
         void SetEqualSize();
 
@@ -29,7 +29,7 @@ class Mesh : public EventReceiver,public Component{
 
 public:
     Mesh(entt::entity e);
-   
+    
     ~Mesh();
 
     bool SetShader(std::string shaderLocation);
@@ -45,6 +45,7 @@ public:
     void Update(float deltaTime);
     void ShowProperties();
 
+    Mesh& operator=(const Mesh& other);
 private:
     VertexArray& GetVertexArray();
     

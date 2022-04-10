@@ -36,7 +36,7 @@
 #include "../vendor/imguizmo/ImGuizmo.h"
 #include "object/registry.h"
 #include "general/math.h"
-
+#include "general/helpers.h"
 #include "object/component.h"
 #include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
 using namespace std;

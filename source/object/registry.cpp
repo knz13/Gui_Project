@@ -14,11 +14,11 @@ entt::registry& Registry::Get() {
 Object Registry::CreateObject(std::string name) {
     entt::entity ent = m_Registry.create();
 
-    m_Registry.emplace<ObjectPropertiesComponent>(ent,name);
+    m_Registry.emplace<ObjectPropertiesComponent>(ent,name,ent);
 
     Object obj(ent);
 
-    obj.AddComponent<Movable>();
+    obj.AddComponent<TransformComponent>();
 
     return obj;
 

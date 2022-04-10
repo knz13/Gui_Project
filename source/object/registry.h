@@ -1,5 +1,5 @@
 #pragma once
-
+#include "../general/helpers.h"
 #include "../vendor/entt/single_include/entt/entt.hpp"
 #include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
 #include <random>
@@ -16,7 +16,19 @@ public:
     static entt::registry& Get();
     static size_t GenerateRandomNumber();
     static Object CopyEntity(Object other);
-    
+
+    template<typename T>
+    static std::string GetClassName(){
+        std::string name = std::string(entt::type_id<T>().name());
+        HelperFunctions::EraseWordFromString(name,"Component");
+        HelperFunctions::EraseWordFromString(name,"class ");
+        return name;
+    }
+
+    template<typename T>
+    static entt::id_type HashClassName() {
+        return entt::hashed_string(Registry::GetClassName<T>().c_str());
+    }
 
 
 private:

@@ -19,7 +19,7 @@ class Object;
 class ObjectPropertiesComponent {
 public:
 
-    ObjectPropertiesComponent(std::string name){
+    ObjectPropertiesComponent(std::string name,entt::entity e) : m_MasterHandle(e){
         this->m_Name = name;
     };
 
@@ -54,7 +54,9 @@ private:
     bool active = true;
     std::string m_Name = "";
     bool m_ShouldHighlight = false;
+    entt::entity m_MasterHandle;
     Color m_HighlightColor = Color::Red;
+    
 
     friend class Component;
     friend class Object;

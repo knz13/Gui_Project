@@ -3,11 +3,11 @@
 
 
 
-class Movable : public EventReceiver,public Component {
+class TransformComponent : public EventReceiver,public Component {
     KV_CLASS
 public:
-    Movable(entt::entity e);
-    Movable(const Movable& mov);
+    TransformComponent(entt::entity e);
+    TransformComponent(const TransformComponent& mov);
 
     
 

@@ -5,18 +5,18 @@
 std::unordered_map<std::string,Camera> Camera::m_Cameras;
 
 void Camera::SetLookAt(float x, float y, float z) {
-    glm::mat4 lookat = glm::lookAt(GetMasterObject().GetComponent<Movable>().GetPosition(),glm::vec3(x,y,z),glm::vec3(0,1,0));
+    glm::mat4 lookat = glm::lookAt(GetMasterObject().GetComponent<TransformComponent>().GetPosition(),glm::vec3(x,y,z),glm::vec3(0,1,0));
     glm::mat4 modelMat = glm::inverse(lookat);
     modelMat[3] = glm::vec4(0,0,0,1);
-    GetMasterObject().GetComponent<Movable>().SetRotation(glm::eulerAngles(glm::quat(modelMat)));
+    GetMasterObject().GetComponent<TransformComponent>().SetRotation(glm::eulerAngles(glm::quat(modelMat)));
 }
 
 void Camera::SetDirection(float x, float y, float z) {
-    GetMasterObject().GetComponent<Movable>().SetRotation(glm::eulerAngles(glm::quatLookAt(glm::vec3(x,y,z),glm::vec3(0,1,0))));
+    GetMasterObject().GetComponent<TransformComponent>().SetRotation(glm::eulerAngles(glm::quatLookAt(glm::vec3(x,y,z),glm::vec3(0,1,0))));
 }
 
 glm::mat4 Camera::GetViewProjection(const Window& window) {
-    return glm::perspective(glm::radians(m_Fov),(float)window.Properties().width/window.Properties().height,m_DrawNear,m_DrawDistance) * glm::inverse(GetMasterObject().GetComponent<Movable>().GetModelMatrix());
+    return glm::perspective(glm::radians(m_Fov),(float)window.Properties().width/window.Properties().height,m_DrawNear,m_DrawDistance) * glm::inverse(GetMasterObject().GetComponent<TransformComponent>().GetModelMatrix());
 }
 
 glm::vec4 Camera::GetViewPort() {
@@ -33,7 +33,7 @@ Camera::~Camera() {
 }
 
 void Camera::LookAt(Object& obj) {
-    this->SetLookAt(obj.GetComponent<Movable>().GetPosition().x,obj.GetComponent<Movable>().GetPosition().y,obj.GetComponent<Movable>().GetPosition().z);
+    this->SetLookAt(obj.GetComponent<TransformComponent>().GetPosition().x,obj.GetComponent<TransformComponent>().GetPosition().y,obj.GetComponent<TransformComponent>().GetPosition().z);
 }
 
 glm::mat4 Camera::GetProjection(float viewPortWidth, float viewPortHeight) {
@@ -41,14 +41,14 @@ glm::mat4 Camera::GetProjection(float viewPortWidth, float viewPortHeight) {
 }
 
 glm::mat4 Camera::GetView() {
-    return glm::inverse(GetMasterObject().GetComponent<Movable>().GetModelMatrix());
+    return glm::inverse(GetMasterObject().GetComponent<TransformComponent>().GetModelMatrix());
 }
 
 void Camera::ShowProperties() {
     static std::string fovRand = ("##" + std::to_string(Registry::GenerateRandomNumber()));
     bool isCurrent;
     if(Window::GetCurrentWindow().GetCurrentCamera()){
-        isCurrent = (Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().ID() == GetMasterObject().ID());
+        isCurrent = (Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().ID() == this->GetMasterObject().ID());
     }
     else{
         isCurrent = false;
@@ -80,8 +80,8 @@ Camera::Camera(CameraCreationProperties prop,entt::entity e) : Component(e) {
     m_Fov = prop.fov;
     m_DrawNear = prop.drawingNearCutoff;
     m_DrawDistance = prop.drawDistance;
-    GetMasterObject().GetComponent<Movable>().SetPosition(prop.initialPos);
-    GetMasterObject().GetComponent<Movable>().SetRotation(prop.initialRotationRadians);
+    GetMasterObject().GetComponent<TransformComponent>().SetPosition(prop.initialPos);
+    GetMasterObject().GetComponent<TransformComponent>().SetRotation(prop.initialRotationRadians);
     m_ViewPort = prop.viewPort;
 
 }
@@ -93,8 +93,8 @@ Camera::Camera(entt::entity e) : Component(e){
     m_Fov = prop.fov;
     m_DrawNear = prop.drawingNearCutoff;
     m_DrawDistance = prop.drawDistance;
-    GetMasterObject().GetComponent<Movable>().SetPosition(prop.initialPos);
-    GetMasterObject().GetComponent<Movable>().SetRotation(prop.initialRotationRadians);
+    GetMasterObject().GetComponent<TransformComponent>().SetPosition(prop.initialPos);
+    GetMasterObject().GetComponent<TransformComponent>().SetRotation(prop.initialRotationRadians);
     m_ViewPort = prop.viewPort;
 }
 
@@ -103,20 +103,20 @@ Camera::Camera(entt::entity e) : Component(e){
 
 void Camera::MoveInRelationToView(float rightLeft, float upDown, float frontBack) {
     glm::vec3 right,up,look;
-    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<Movable>().GetModelMatrix();
+    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<TransformComponent>().GetModelMatrix();
 
     right = modelView[0];
     up = modelView[1];
     look  = modelView[2];
 
-    GetMasterObject().GetComponent<Movable>().Move(right * rightLeft);
-    GetMasterObject().GetComponent<Movable>().Move(up * upDown);
-    GetMasterObject().GetComponent<Movable>().Move(look * frontBack);
+    GetMasterObject().GetComponent<TransformComponent>().Move(right * rightLeft);
+    GetMasterObject().GetComponent<TransformComponent>().Move(up * upDown);
+    GetMasterObject().GetComponent<TransformComponent>().Move(look * frontBack);
 
 }
 
 glm::vec3 Camera::GetLookDirection() {
-    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<Movable>().GetModelMatrix();
+    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<TransformComponent>().GetModelMatrix();
 
     return modelView[1];
 }

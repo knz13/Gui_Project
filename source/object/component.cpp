@@ -18,3 +18,9 @@ Component::~Component() {
 bool Component::GetActiveState() {
     return m_BaseComponentActiveState;
 }
+
+Component& Component::operator=(const Component& comp) {
+    m_MyClassTypeID = comp.m_MyClassTypeID;
+    m_BaseComponentActiveState = comp.m_BaseComponentActiveState;
+    return *this;
+}
