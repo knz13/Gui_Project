@@ -104,7 +104,7 @@ void Mesh::Update(float deltaTime) {
 }
 
 void Mesh::ShowProperties() {
-    ImGui::Text(std::to_string(m_VAO->GetVBOID()).c_str());
+    
 }
 
 

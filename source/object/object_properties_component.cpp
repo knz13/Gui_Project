@@ -20,7 +20,6 @@ void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
 }
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
-    ImGui::Text(("Object id " + std::to_string((uint32_t)m_MasterHandle)).c_str());
     for(auto& [handle,prop] : m_AttachedComponentsProperties){
         
        
