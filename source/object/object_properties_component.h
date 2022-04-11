@@ -47,6 +47,8 @@ public:
     Color GetHighlightColor() const;
     bool ShouldHighlight() const;
     std::string GetName() const;
+    void SetName(std::string name);
+
     std::string GetComponentByName(entt::id_type type) const;
 
 private:

@@ -56,11 +56,20 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
 
         if(ImGui::BeginPopupContextItem(GuiLayer::GetImGuiID(&obj.Transform()).c_str())){
             
-            if(ImGui::MenuItem("Duplicate","Ctrl+E")){
+            if(ImGui::MenuItem("Duplicate")){
                 Registry::CopyEntity(obj);
             }
+            if(ImGui::MenuItem("Rename")){
+                //TODO
+            }
+
             ImGui::EndPopup();
         }
+        
+        
+                
+
+
         if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
             if(GameView::AnyObjectSelected()){
                 Object(GameView::AnyObjectSelected().objectID).Properties().SetHightlightState(false);

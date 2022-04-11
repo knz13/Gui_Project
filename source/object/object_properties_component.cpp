@@ -137,6 +137,10 @@ void ObjectPropertiesComponent::ApplyFuncToSelfAndChildren(std::function<void(Ob
     }
 }
 
+void ObjectPropertiesComponent::SetName(std::string name) {
+    m_Name = name;
+}
+
 void ObjectPropertiesComponent::SetParent(Object e) {
     if(e.Valid()){
         if(m_Parent != entt::null){
