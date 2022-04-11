@@ -126,3 +126,59 @@ std::string ObjectPropertiesComponent::GetComponentByName(entt::id_type type) co
 ReturnedObjectProperties ObjectPropertiesComponent::GetParent() {
     return ReturnedObjectProperties(m_Parent);
 }
+
+void ObjectPropertiesComponent::ApplyFuncToSelfAndChildren(std::function<void(Object)> func) {
+    func(Object(m_MasterHandle));
+    if(m_Children.size() == 0){
+        return;
+    }
+    for(auto& id : m_Children){
+        Object(id).Properties().ApplyFuncToSelfAndChildren(func);
+    }
+}
+
+void ObjectPropertiesComponent::SetParent(Object e) {
+    if(e.Valid()){
+        if(m_Parent != entt::null){
+            Object(m_Parent).Properties().RemoveChildren(Object(m_MasterHandle));
+        }
+        m_Parent = e.ID();
+        e.Properties().AddChildren(Object(m_MasterHandle));
+    }
+}
+
+void ObjectPropertiesComponent::AddChildren(Object e) {
+    if(e.Valid() && std::find(m_Children.begin(),m_Children.end(),e.ID()) == m_Children.end()){
+        m_Children.push_back(e.ID());
+    }
+}
+
+void ObjectPropertiesComponent::RemoveChildren(Object e) {
+    auto it = std::find(m_Children.begin(),m_Children.end(),e.ID());
+    if(e.Valid() && it != m_Children.end()){
+        m_Children.erase(it);
+    }
+}
+const std::vector<entt::entity>& ObjectPropertiesComponent::GetChildren() {
+    return m_Children;
+}
+
+bool ObjectPropertiesComponent::IsInChildren(Object obj) {
+    if(m_Children.size() == 0){
+        return false;
+    }
+    auto it = std::find(m_Children.begin(),m_Children.end(),obj.ID());
+    if(it != m_Children.end()){
+        return true;
+    }
+    for(auto& id : m_Children){
+        if(Object(id).Properties().IsInChildren(obj)){
+            return true;
+        }
+    }
+    return false;
+}
+
+void ObjectPropertiesComponent::ClearParent() {
+    m_Parent = entt::null;
+}

@@ -1,13 +1,6 @@
 #include "transform.h"
 #include "../kv.h"
 
-void TransformComponent::IncreaseRotationPerFrame(float x, float y, float z) {
-    m_RotationChangePerFrame += glm::radians(glm::vec3(x,y,z));
-}
-
-void TransformComponent::SetRotationIncreasePerFrame(float x, float y, float z) {
-    m_RotationChangePerFrame = glm::radians(glm::vec3(x,y,z));
-}
 
 void TransformComponent::Rotate(float x, float y, float z) {
     
@@ -23,13 +16,7 @@ void TransformComponent::SetRotation(float x,float y,float z) {
     m_Rotation = glm::radians(glm::vec3(x,y,z));
 }
 
-void TransformComponent::IncreaseMovementPerFrame(float x, float y, float z) {
-    m_PositionChangePerFrame += glm::vec3(x,y,z);
-}
 
-void TransformComponent::SetMovementIncreasePerFrame(float x, float y, float z) {
-    m_PositionChangePerFrame = glm::vec3(x,y,z);
-}
 
 void TransformComponent::Move(float x, float y, float z) {
     m_Position += glm::vec3(x,y,z);
@@ -49,14 +36,7 @@ void TransformComponent::SetPosition(glm::vec3 pos) {
     m_Position = pos;
 }
 
-void TransformComponent::IncreaseScalePerFrame(float x, float y, float z) {
-    m_ScaleChangePerFrame += glm::vec3(x,y,z);
-}
 
-void TransformComponent::SetScaleChangePerFrame(float x, float y, float z) {
-    m_ScaleChangePerFrame = glm::vec3(x,y,z);
-    
-}
 
 void TransformComponent::SetScale(float x, float y, float z) {
     
@@ -70,31 +50,116 @@ void TransformComponent::InstantScaleChange(float x, float y, float z) {
 
     
 }
+void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
+    bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
+    Object current = GetMasterObject();
+    glm::vec3 currentPosition;
+    glm::vec3 currentRotation;
+    GetCumulativeTransformation(&currentPosition,&currentRotation);
+    
+    currentPosition -= GetPosition();
+    currentRotation -= GetRotationRadians();
 
 
+
+    glm::vec3 position,scale;
+    glm::quat rotation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose(matrix,scale,rotation,position,skew,perspective);
+
+    SetPosition(position - currentPosition);
+    SetRotation(glm::eulerAngles(rotation) - currentRotation);
+    SetScale(scale);
+}
 
 glm::mat4 TransformComponent::GetModelMatrix() {
-    // getting the parent transforms
-    glm::mat4 finalMatrix = this->CalculateModelMatrix();
+   
+
+    glm::vec3 finalPosition;
+    glm::vec3 finalRotation;
+
+    //GetCumulativeTransformation(&finalPosition,&finalRotation);
+
+
+    return this->GetCumulativeMatrix(); //Math::CalculateModelMatrix(finalPosition,finalRotation,m_Scale);
+    
+}
+
+
+void TransformComponent::GetCumulativeTransformation(glm::vec3* position,glm::vec3* rotation,glm::vec3* scale) {
+    std::vector<glm::vec3> positions = {m_Position};
+    std::vector<glm::vec3> scales = {m_Scale};
+    std::vector<glm::vec3> rotations = {m_Rotation};
     bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
     Object current = GetMasterObject();
     while (!foundFinalMatrix){
         if(current.Properties().GetParent()){
-            current = Object(GetMasterObject().Properties().GetParent().Handle());
+            current = Object(current.Properties().GetParent().Handle());
         }
         else{
             foundFinalMatrix = true;
         }
-        finalMatrix *= current.Transform().CalculateModelMatrix();
+        positions.push_back(current.Transform().GetPosition());
+        rotations.push_back(current.Transform().GetRotationRadians());
+        scales.push_back(current.Transform().GetScale());
         
     }
 
-    return finalMatrix;
-    
+
+    glm::vec3 finalRotation = glm::vec3(0);
+    glm::vec3 finalPosition = glm::vec3(0);
+    glm::vec3 finalScale = glm::vec3(1);
+    for(auto it = positions.rbegin();it != positions.rend();it++){
+        finalPosition += *it;
+    }
+
+    for(auto it = rotations.rbegin();it != rotations.rend();it++){
+        finalRotation += *it;
+    }
+
+    for(auto it = scales.rbegin();it != scales.rend();it++){
+        finalScale += glm::vec3(1) -*it;
+    }
+
+    if(position){
+        *position = finalPosition;
+    }
+    if(rotation){
+        *rotation = finalRotation;
+    }
+    if(scale){
+        *scale = finalScale;
+    }
+
+
 }
 
+glm::mat4 TransformComponent::GetCumulativeMatrix(){
+    std::vector<glm::mat4> matrices {this->CalculateModelMatrix()};
+    bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
+    Object current = GetMasterObject();
+    while (!foundFinalMatrix){
+        if(current.Properties().GetParent()){
+            current = Object(current.Properties().GetParent().Handle());
+        }
+        else{
+            foundFinalMatrix = true;
+        }
+        matrices.push_back(current.Transform().CalculateModelMatrix());
+        
+    }
+
+    glm::mat4 finalMat(1.0f);
+    for(auto it = matrices.rbegin();it != matrices.rend();it++){
+        finalMat *= *it;
+    }
+
+    return finalMat;
+};
+
 glm::mat4 TransformComponent::CalculateModelMatrix() {
-    return glm::translate(glm::mat4(1.0f),m_Position) * glm::toMat4(glm::quat(m_Rotation)) * glm::scale(glm::mat4(1.0f),m_Scale);
+    return Math::CalculateModelMatrix(m_Position,m_Rotation,m_Scale);
 }
 
 glm::vec3 TransformComponent::GetRotation() {
@@ -134,9 +199,7 @@ void TransformComponent::ShowProperties() {
 
 void TransformComponent::Update(float deltaTime) {
 
-    m_Position += m_PositionChangePerFrame * deltaTime;
-    m_Rotation += m_RotationChangePerFrame * deltaTime;
-    m_Scale += m_ScaleChangePerFrame * deltaTime;
+    
 }
 
 
@@ -155,8 +218,7 @@ TransformComponent::TransformComponent(const TransformComponent& mov) : Componen
     m_Position = mov.m_Position;
     m_Rotation = mov.m_Rotation;
     m_Scale = mov.m_Scale;
-
-    m_PositionChangePerFrame = mov.m_PositionChangePerFrame;
-    m_RotationChangePerFrame = mov.m_RotationChangePerFrame;
-    m_ScaleChangePerFrame = mov.m_ScaleChangePerFrame;
+}
+const glm::vec3& TransformComponent::GetRotationRadians() {
+    return m_Rotation;
 }

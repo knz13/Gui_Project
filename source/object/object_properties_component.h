@@ -34,10 +34,15 @@ public:
 
     void CallUpdateFunctions(float deltaTime);
     void CallShowPropertiesFunctions();
-
-    void SetChildrenOf(Object obj);
     
     ReturnedObjectProperties GetParent();
+    const std::vector<entt::entity>& GetChildren();
+    void SetParent(Object e);
+    void ClearParent();
+    bool IsInChildren(Object obj);
+    void RemoveChildren(Object e);
+    void AddChildren(Object e);
+    void ApplyFuncToSelfAndChildren(std::function<void(Object)> func);
 
     Color GetHighlightColor() const;
     bool ShouldHighlight() const;
@@ -50,6 +55,7 @@ private:
 
     std::unordered_map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
     
+    std::vector<entt::entity> m_Children;
     entt::entity m_Parent = entt::null;
     bool active = true;
     std::string m_Name = "";

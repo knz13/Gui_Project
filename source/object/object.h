@@ -167,8 +167,8 @@ public:
         return Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
     };
 
-    entt::entity ID(){
-        return m_EntityHandle;
+    const entt::entity& ID(){
+        return Properties().m_MasterHandle;
     }
 
     template<typename T>

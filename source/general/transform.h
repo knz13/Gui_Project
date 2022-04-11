@@ -11,8 +11,7 @@ public:
 
     
 
-    void IncreaseRotationPerFrame(float x,float y,float z);
-    void SetRotationIncreasePerFrame(float x,float y,float z);
+    
     void Rotate(float x,float y,float z);
     /**
      * Sets the rotation as euler angles
@@ -23,16 +22,15 @@ public:
      */
     void SetRotation(glm::vec3 vec);
 
-    void IncreaseMovementPerFrame(float x,float y,float z);
-    void SetMovementIncreasePerFrame(float x,float y,float z);
+    
     void Move(float x,float y,float z);
     void Move(glm::vec3 offset);
 
     void SetPosition(float x,float y,float z);
     void SetPosition(glm::vec3 pos);
+    
 
-    void IncreaseScalePerFrame(float x,float y,float z);
-    void SetScaleChangePerFrame(float x,float y,float z);
+    
     void SetScale(float x,float y,float z);
     void SetScale(glm::vec3 vec);
     void InstantScaleChange(float x,float y,float z);
@@ -40,20 +38,22 @@ public:
 
     const glm::vec3& GetScale() const;
     glm::vec3 GetRotation();
+    const glm::vec3& GetRotationRadians();
     const glm::vec3& GetPosition();
 
     void Update(float deltaTime);
     void ShowProperties();
+    void SetFromModelMatrix(glm::mat4 matrix);
     glm::mat4 GetModelMatrix();
 protected:
     std::function<nlohmann::json()> GetSerializerFunction();
 
 private:
+    void GetCumulativeTransformation(glm::vec3* position=nullptr,glm::vec3* rotation=nullptr,glm::vec3* scale=nullptr);
+    glm::mat4 GetCumulativeMatrix();
     glm::mat4 CalculateModelMatrix();
 
-    glm::vec3 m_PositionChangePerFrame = glm::vec3(0,0,0);
-    glm::vec3 m_RotationChangePerFrame = glm::vec3(0,0,0);
-    glm::vec3 m_ScaleChangePerFrame = glm::vec3(0,0,0);
+    
 
     glm::vec3 m_Position = glm::vec3(0,0,0);
     glm::vec3 m_Rotation = glm::vec3(0,0,0);

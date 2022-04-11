@@ -106,6 +106,8 @@ void GuiLayer::GameView::Update(Window& win) {
             ImGuizmo::Manipulate(glm::value_ptr(view),glm::value_ptr(proj),(ImGuizmo::OPERATION)imguizmoMode,ImGuizmo::MODE::LOCAL,glm::value_ptr(model),0,snap);
 
 
+            objectTransform.SetFromModelMatrix(model);
+            /*
             if(ImGuizmo::IsUsing()){
                 glm::vec3 position,scale;
                 glm::quat rotation;
@@ -118,7 +120,7 @@ void GuiLayer::GameView::Update(Window& win) {
                 objectTransform.SetScale(scale);
 
             }
-
+            */
             
 
         }

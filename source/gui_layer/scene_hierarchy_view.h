@@ -8,6 +8,7 @@ class SceneHierarchyView : public GuiView {
 public:
     static void Update(Window& win);
 
-
+private:
+    static void SetupObject(Object obj);
 };
 };
