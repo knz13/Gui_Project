@@ -5,9 +5,7 @@
 
 
 int main(){
-    Object::RegisterClassAsComponent<TransformComponent>();
-    Object::RegisterClassAsComponent<Camera>();
-    Object::RegisterClassAsComponent<Mesh>();
+    
 
     GuiLayer::Init();
 

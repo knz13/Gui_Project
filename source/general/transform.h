@@ -3,7 +3,7 @@
 
 
 
-class TransformComponent : public EventReceiver,public Component {
+class TransformComponent : public EventReceiver,public Component<TransformComponent,AddToEveryObject<TransformComponent>> {
     KV_CLASS
 public:
     TransformComponent(entt::entity e);
@@ -63,3 +63,4 @@ private:
 
  
 };
+

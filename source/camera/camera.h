@@ -3,7 +3,7 @@
 
 class Object;
 class Window;
-class Camera : public Component {
+class Camera : public Component<Camera> {
 
     KV_CLASS
     

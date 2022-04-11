@@ -20,10 +20,26 @@ public:
     template<typename T>
     static std::string GetClassName(){
         std::string name = std::string(entt::type_id<T>().name());
-        HelperFunctions::EraseWordFromString(name,"Component");
         HelperFunctions::EraseWordFromString(name,"class ");
+        HelperFunctions::EraseWordFromString(name,"struct ");
+        if(auto loc = name.find_last_of(':'); loc != std::string::npos){
+            name = std::string(name.begin() + loc + 1,name.end());
+        }
         return name;
     }
+
+    template<typename T>
+    static std::string GetClassDisplayName(){
+        std::string name = std::string(entt::type_id<T>().name());
+        HelperFunctions::EraseWordFromString(name,"Component");
+        HelperFunctions::EraseWordFromString(name,"class ");
+        HelperFunctions::EraseWordFromString(name,"struct ");
+        if(auto loc = name.find_last_of(':'); loc != std::string::npos){
+            name = std::string(name.begin() + loc + 1,name.end());
+        }
+        return name;
+    }
+
 
     template<typename T>
     static entt::id_type HashClassName() {

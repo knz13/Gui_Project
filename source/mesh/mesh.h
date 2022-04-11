@@ -23,9 +23,7 @@ namespace MeshAttribute {
     };
 };
 
-class Mesh : public EventReceiver,public Component{
-
-    KV_CLASS
+class Mesh : public EventReceiver,public Component<Mesh>{
 
 public:
     Mesh(entt::entity e);
@@ -46,11 +44,11 @@ public:
     void ShowProperties();
 
     Mesh& operator=(const Mesh& other);
+    bool ReadyToDraw();
 private:
     VertexArray& GetVertexArray();
     
     void Draw();
-    bool ReadyToDraw();
     
 
     MeshAttribute::Vertex m_Vertices;
@@ -72,6 +70,6 @@ private:
 
     
 
-    
+    friend class Window;
     friend class DrawableEvents;
 };

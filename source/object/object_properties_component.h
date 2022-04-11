@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../global.h"
+#include "../general/structures.h"
 
 
 
@@ -8,6 +8,7 @@ struct AttachedComponentProperties {
     std::function<void(float)> m_UpdateFunc;
     std::function<void()> m_ShowPropertiesFunc;
     bool* m_ActiveState = nullptr;
+    bool* m_HideInEditor = nullptr;
     std::string m_ClassName = "";
     bool m_IsShowPropertiesChildOpen = true;
     size_t m_SizeInBytes = 0;
@@ -66,6 +67,7 @@ private:
     Color m_HighlightColor = Color::Red;
     
 
+    template<typename,typename>
     friend class Component;
     friend class Object;
 };

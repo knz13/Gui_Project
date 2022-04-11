@@ -21,7 +21,9 @@ void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
     for(auto& [handle,prop] : m_AttachedComponentsProperties){
-        
+        if(*prop.m_HideInEditor){
+            continue;
+        }
        
         ImGui::PushStyleColor(ImGuiCol_FrameBg,ImVec4(0.2,0.2,0.2,1));
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,ImVec4(0.2,0.2,0.2,1));

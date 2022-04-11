@@ -1,6 +1,6 @@
 #pragma once
-
-#include "../global.h"
+#include "../general/structures.h"
+#include "../vendor/entt/single_include/entt/entt.hpp"
 #include "object_properties_component.h"
 
 
@@ -29,24 +29,8 @@ public:
     T& GetComponent(){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,m_EntityHandle);
-            
-
-            AttachedComponentProperties prop;
-            prop.m_UpdateFunc = [&](float time){
-                comp.Update(time);
-            };
-
-            prop.m_ShowPropertiesFunc = [&](){
-                comp.ShowProperties();
-            };
-
-            comp.m_MyClassTypeID = entt::type_hash<T>().value();
-            prop.m_ClassName = Registry::GetClassName<T>();
-            prop.m_SizeInBytes = sizeof(T);
-            prop.m_ActiveState = &comp.m_BaseComponentActiveState;
-            ObjectPropertiesComponent& properties = Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
-            properties.HandleComponentProperties(entt::type_hash<T>().value(),prop);
-
+        
+            this->HandleComponent(comp);
 
             return comp;
         }
@@ -93,21 +77,7 @@ public:
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...,m_EntityHandle);
             
 
-            AttachedComponentProperties prop;
-            prop.m_UpdateFunc = [&](float time){
-                comp.Update(time);
-            };
-
-            prop.m_ShowPropertiesFunc = [&](){
-                comp.ShowProperties();
-            };
-
-            comp.m_MyClassTypeID = entt::type_hash<T>().value();
-            prop.m_ClassName = Registry::GetClassName<T>();
-            prop.m_SizeInBytes = sizeof(T);
-            prop.m_ActiveState = &comp.m_BaseComponentActiveState;
-            ObjectPropertiesComponent& properties = Properties();
-            properties.HandleComponentProperties(entt::type_hash<T>().value(),prop);
+            this->HandleComponent(comp);
 
             return comp;
         }
@@ -143,16 +113,24 @@ public:
     };
 
     template<typename T>
+    void EnableComponent() {
+        if(!this->Valid()){
+            return;
+        }
+
+        if(this->HasComponent<T>()){
+            this->GetComponent<T>().SetActiveState(true);
+        }
+    }
+
+    template<typename T>
     void DisableComponent() {
         if(!this->Valid()){
             return;
         }
 
         if(this->HasComponent<T>()){
-
-            ObjectPropertiesComponent& prop = Properties();
-
-
+            this->GetComponent<T>().SetActiveState(false);
         }
 
     };
@@ -184,17 +162,60 @@ public:
         }
     };
 
+
+
+private:
+    template<typename T>
+    static void MakeComponentOmnipresent(){
+        m_ClassesToAddEveryTime.push_back(Registry::GetClassName<T>());
+    }
+
     template<typename T>
     static void RegisterClassAsComponent(){
         entt::id_type hash = Registry::HashClassName<T>();
         entt::meta<T>().type(hash).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
         entt::meta<T>().type(hash).func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
     };
+    template<typename T>
+    static entt::id_type HashComponent(){
+        return entt::type_hash<T>().value();
+    };
 
-private:
+    template<typename T>
+    void HandleComponent(T& comp){
+
+        AttachedComponentProperties prop;
+        prop.m_UpdateFunc = [&](float time){
+            comp.Update(time);
+        };
+
+        prop.m_ShowPropertiesFunc = [&](){
+            comp.ShowProperties();
+        };
+
+
+        comp.m_MyClassTypeID = HashComponent<T>();
+        prop.m_ClassName = Registry::GetClassDisplayName<T>();
+        prop.m_SizeInBytes = sizeof(T);
+        prop.m_HideInEditor = &comp.m_ShouldHideInEditor;
+        prop.m_ActiveState = &comp.m_BaseComponentActiveState;
+        ObjectPropertiesComponent& properties = Properties();
+        properties.HandleComponentProperties(HashComponent<T>(),prop);
+    }
+
     entt::entity m_EntityHandle;
-    
+    static inline std::vector<std::string> m_ClassesToAddEveryTime;
 
+
+    friend class Registry;
+    template<typename>
+    friend class AddToEveryObject;
+
+    template<typename>
+    friend class AddWhenCalled;
+
+    template<typename,typename>
+    friend class Component;
 };
 
 

@@ -16,9 +16,14 @@ Object Registry::CreateObject(std::string name) {
 
     m_Registry.emplace<ObjectPropertiesComponent>(ent,name,ent);
 
+
     Object obj(ent);
 
-    obj.AddComponent<TransformComponent>();
+
+    for(auto& className : Object::m_ClassesToAddEveryTime){
+        obj.TryAddComponent(className);
+    }
+    //obj.AddComponent<TransformComponent>();
 
     return obj;
 
