@@ -31,17 +31,21 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 }
 
 void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
-    static bool openRename = false;
+    
+    SceneHierarchyViewComponent& comp = obj.GetComponent<SceneHierarchyViewComponent>();
+    bool& openRename = comp.m_IsChoosingName;
     static std::string nameToRename;
     if(openRename){
         ImGui::SetNextItemOpen(true);
-        if(ImGui::TreeNodeEx((GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(),ImGuiTreeNodeFlags_SpanFullWidth)){
+        if(ImGui::TreeNodeEx((GuiLayer::GetImGuiID((void*)&obj.ID())).c_str())){
             ImGui::SameLine();
-           
+
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,10);
             if(ImGui::InputText("##",&nameToRename,ImGuiInputTextFlags_EnterReturnsTrue)){
                 obj.Properties().SetName(nameToRename);
                 openRename = false;
             }
+            ImGui::PopStyleVar();
             if(ImGui::IsKeyPressed(ImGuiKey_Escape,false)){
                 openRename = false;
             }

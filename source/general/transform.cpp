@@ -95,7 +95,7 @@ void TransformComponent::GetCumulativeTransformation(glm::vec3* position,glm::ve
     Object current = GetMasterObject();
     while (!foundFinalMatrix){
         if(current.Properties().GetParent()){
-            current = Object(current.Properties().GetParent().Handle());
+            current = current.Properties().GetParent().GetAsObject();
         }
         else{
             foundFinalMatrix = true;
@@ -141,7 +141,7 @@ glm::mat4 TransformComponent::GetCumulativeMatrix(){
     Object current = GetMasterObject();
     while (!foundFinalMatrix){
         if(current.Properties().GetParent()){
-            current = Object(current.Properties().GetParent().Handle());
+            current = current.Properties().GetParent().GetAsObject();
         }
         else{
             foundFinalMatrix = true;

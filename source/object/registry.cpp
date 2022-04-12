@@ -23,7 +23,6 @@ Object Registry::CreateObject(std::string name) {
     for(auto& className : Object::m_ClassesToAddEveryTime){
         obj.TryAddComponent(className);
     }
-    //obj.AddComponent<TransformComponent>();
 
     return obj;
 

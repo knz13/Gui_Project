@@ -7,7 +7,6 @@ class Window;
 namespace GuiLayer {
 
 struct SceneHierarchyViewComponent : public Component<SceneHierarchyViewComponent,AddToEveryObject<SceneHierarchyViewComponent>> {
-public:
     SceneHierarchyViewComponent(entt::entity e) : Component(e){
         this->HideInEditor(true);
     };
@@ -15,8 +14,7 @@ public:
     void ShowProperties(){};
     void Update(float time){};
 
-private:
-    bool m_IsChoosingName;
+    bool m_IsChoosingName = false;
 
     
 };

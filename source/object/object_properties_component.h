@@ -1,7 +1,14 @@
 #pragma once
 
-#include "../general/structures.h"
-
+#include <iostream>
+#include <string>
+#include <vector>
+#include <concepts>
+#include <unordered_map>
+#include <map>
+#include "../general/color.h"
+#include "../vendor/entt/single_include/entt/entt.hpp"
+using namespace std;
 
 
 struct AttachedComponentProperties {
@@ -10,6 +17,7 @@ struct AttachedComponentProperties {
     bool* m_ActiveState = nullptr;
     bool* m_HideInEditor = nullptr;
     std::string m_ClassName = "";
+    std::string m_DisplayName = "";
     bool m_IsShowPropertiesChildOpen = true;
     size_t m_SizeInBytes = 0;
 };
@@ -17,6 +25,7 @@ struct AttachedComponentProperties {
 
 
 class Object;
+class ObjectHandle;
 class ObjectPropertiesComponent {
 public:
 
@@ -36,7 +45,7 @@ public:
     void CallUpdateFunctions(float deltaTime);
     void CallShowPropertiesFunctions();
     
-    ReturnedObjectProperties GetParent();
+    ObjectHandle GetParent();
     const std::vector<entt::entity>& GetChildren();
     void SetParent(Object e);
     void ClearParent();

@@ -26,6 +26,8 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
+#include "../object/object.h"
+#include "../object/component.h"
 using namespace std;
 
 
@@ -88,6 +90,8 @@ static bool GetGLError(int line,std::string file){
     #define GL_CALL(x) ClearGLErrors(); x; if(GetGLError(__LINE__,__FILE__)) {;}
     #define GL_CALL_WITH_RESULT(var,x) ClearGLErrors(); var = x; if(GetGLError(__LINE__,__FILE__)) {;}
 #endif
+
+
 
 enum WindowFlag {
 
@@ -182,25 +186,11 @@ struct WindowCreationProperties {
     int openGLVersionMinor = 0;
 };
 
-struct ReturnedObjectProperties {
-    ReturnedObjectProperties(entt::entity handle) {
-        m_Handle = handle;
-    };
-
-    operator bool(){
-        return (Registry::Get().valid(m_Handle));
-    }
-
-    entt::entity Handle(){
-        return m_Handle;
-    }
-
-
-private:
-    entt::entity m_Handle;
-
+struct RandomDummyComponent : public Component<RandomDummyComponent> {
+    RandomDummyComponent(entt::entity e) : Component(e) {}
+    void Update(float) {};
+    void ShowProperties() {};
 };
-
 
 template<typename T>
 struct EventLauncher;

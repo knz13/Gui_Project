@@ -1,8 +1,7 @@
 #pragma once 
-#include "../object/object.h"
+#include "add_to_every_object.h"
+#include "add_when_called.h"
 
-template<typename U>
-class AddWhenCalled;
 
 template<typename T,typename Behavior=AddWhenCalled<T>>
 class Component : public Behavior{
@@ -12,6 +11,9 @@ public:
     }
     bool IsVisibleInEditor(){
         return !m_ShouldHideInEditor;
+    }
+    bool IsRemovable(){
+        return m_IsRemovable;
     }
 protected:
     Component(entt::entity master) {
@@ -27,11 +29,17 @@ protected:
 
     }
 
+    
+
     void HideInEditor(bool state){
         m_ShouldHideInEditor = state;
     }
     void SetActiveState(bool state){
         m_BaseComponentActiveState = state;
+    }
+
+    void MakeRemovable(bool state){
+        m_IsRemovable = state;
     }
 
 
@@ -48,14 +56,16 @@ protected:
     
 
 private:
-
+   
     
     entt::id_type m_MyClassTypeID;
     entt::entity m_MasterHandle = entt::null;
     bool m_BaseComponentActiveState = true;
     bool m_ShouldHideInEditor = false;
+    bool m_IsRemovable = true;
     static inline bool Initialized = [](){Object::RegisterClassAsComponent<T>(); return true;}();
 
     friend class Object;
+    
 
 };

@@ -48,7 +48,7 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         ImGui::SetNextItemOpen(true,ImGuiCond_FirstUseEver);
 
         
-        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNodeEx((prop.m_ClassName).c_str());
+        prop.m_IsShowPropertiesChildOpen = ImGui::TreeNodeEx((prop.m_DisplayName).c_str());
         
 
         ImGui::SameLine();
@@ -125,8 +125,8 @@ std::string ObjectPropertiesComponent::GetComponentByName(entt::id_type type) co
         return "";
     }
 }
-ReturnedObjectProperties ObjectPropertiesComponent::GetParent() {
-    return ReturnedObjectProperties(m_Parent);
+ObjectHandle ObjectPropertiesComponent::GetParent() {
+    return ObjectHandle(m_Parent);
 }
 
 void ObjectPropertiesComponent::ApplyFuncToSelfAndChildren(std::function<void(Object)> func) {
