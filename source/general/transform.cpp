@@ -89,6 +89,7 @@ glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec
         }
         else{
             foundFinalMatrix = true;
+            break;
         }
         matrices.push_back(current.Transform().CalculateModelMatrix(false));
         
