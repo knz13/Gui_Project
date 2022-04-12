@@ -51,16 +51,16 @@ void TransformComponent::InstantScaleChange(float x, float y, float z) {
     
 }
 void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
-    bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
-    Object current = GetMasterObject();
-    glm::vec3 currentPosition;
-    glm::vec3 currentRotation;
-    GetCumulativeTransformation(&currentPosition,&currentRotation);
     
-    currentPosition -= GetPosition();
-    currentRotation -= GetRotationRadians();
-
-
+    Object current = GetMasterObject();
+    
+    std::vector<glm::mat4> vec;
+    GetCumulativeMatrix(&vec);
+    vec.erase(vec.begin());
+    
+    for(auto it = vec.rbegin();it != vec.rend();it++){
+        matrix *= glm::inverse(*it);
+    }
 
     glm::vec3 position,scale;
     glm::quat rotation;
@@ -68,18 +68,12 @@ void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
     glm::vec4 perspective;
     glm::decompose(matrix,scale,rotation,position,skew,perspective);
 
-    SetPosition(position - currentPosition);
-    SetRotation(glm::eulerAngles(rotation) - currentRotation);
+    SetPosition(position);
+    SetRotation(glm::eulerAngles(rotation));
     SetScale(scale);
 }
 
 glm::mat4 TransformComponent::GetModelMatrix() {
-   
-
-    glm::vec3 finalPosition;
-    glm::vec3 finalRotation;
-
-    //GetCumulativeTransformation(&finalPosition,&finalRotation);
 
 
     return this->GetCumulativeMatrix(); //Math::CalculateModelMatrix(finalPosition,finalRotation,m_Scale);
@@ -135,7 +129,7 @@ void TransformComponent::GetCumulativeTransformation(glm::vec3* position,glm::ve
 
 }
 
-glm::mat4 TransformComponent::GetCumulativeMatrix(){
+glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec){
     std::vector<glm::mat4> matrices {this->CalculateModelMatrix()};
     bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
     Object current = GetMasterObject();
@@ -149,7 +143,9 @@ glm::mat4 TransformComponent::GetCumulativeMatrix(){
         matrices.push_back(current.Transform().CalculateModelMatrix());
         
     }
-
+    if(outVec){
+        *outVec = matrices;
+    }
     glm::mat4 finalMat(1.0f);
     for(auto it = matrices.rbegin();it != matrices.rend();it++){
         finalMat *= *it;
@@ -211,7 +207,7 @@ const glm::vec3& TransformComponent::GetScale() const {
 }
 
 TransformComponent::TransformComponent(entt::entity e) : Component(e) {
-
+    MakeRemovable(false);
 };
 
 TransformComponent::TransformComponent(const TransformComponent& mov) : Component(this->GetMasterObject().ID()) {

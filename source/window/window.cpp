@@ -241,7 +241,7 @@ void Window::DrawingLoop() {
     Registry::Get().each([&](auto entity){
 
         
-        Registry::Get().get<ObjectPropertiesComponent>(entity).CallUpdateFunctions(m_DeltaTime);
+        Object(entity).Properties().CallUpdateFunctions(m_DeltaTime);
 
     });
 

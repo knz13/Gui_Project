@@ -16,6 +16,7 @@ struct AttachedComponentProperties {
     std::function<void()> m_ShowPropertiesFunc;
     bool* m_ActiveState = nullptr;
     bool* m_HideInEditor = nullptr;
+    bool* m_IsDeletable = nullptr;
     std::string m_ClassName = "";
     std::string m_DisplayName = "";
     bool m_IsShowPropertiesChildOpen = true;
@@ -60,11 +61,12 @@ public:
     void SetName(std::string name);
 
     std::string GetComponentByName(entt::id_type type) const;
-
+    
 private:
     void HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop);
     void EraseComponentProperties(entt::id_type type);
 
+    std::vector<entt::id_type> m_IDsToDelete;
     std::unordered_map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
     
     std::vector<entt::entity> m_Children;

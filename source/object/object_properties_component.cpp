@@ -20,7 +20,9 @@ void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
 }
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
+    static std::vector<std::string> idsToErase;
     for(auto& [handle,prop] : m_AttachedComponentsProperties){
+        
         if(*prop.m_HideInEditor){
             continue;
         }
@@ -47,6 +49,16 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
 
         ImGui::SetNextItemOpen(true,ImGuiCond_FirstUseEver);
 
+        if((*prop.m_IsDeletable)){
+            if(ImGui::BeginPopupContextWindow(GuiLayer::GetImGuiID(&prop.m_DisplayName).c_str(),ImGuiPopupFlags_MouseButtonRight)){
+
+                    if(ImGui::MenuItem("Remove Component")){
+                        idsToErase.push_back(prop.m_ClassName);
+                    }
+                                
+                ImGui::EndPopup();
+            }
+        }
         
         prop.m_IsShowPropertiesChildOpen = ImGui::TreeNodeEx((prop.m_DisplayName).c_str());
         
@@ -56,8 +68,9 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 10,ImGui::GetCursorPos().y - 2));
         ImGui::Checkbox("##",prop.m_ActiveState);   
-        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 10,ImGui::GetCursorPos().y + 2));
         
+        ImGui::SameLine();
+
         bool passed = false;
         if(prop.m_IsShowPropertiesChildOpen){
             if(!passed){
@@ -82,6 +95,12 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         ImGui::PopStyleVar(2);
        
        
+    }
+    if(idsToErase.size() > 0){
+        for(auto& id : idsToErase){
+            Object(m_MasterHandle).EraseComponent(id);
+        }
+        idsToErase.clear();
     }
 }
 
@@ -112,8 +131,8 @@ void ObjectPropertiesComponent::HandleComponentProperties(entt::id_type type, At
 
 void ObjectPropertiesComponent::EraseComponentProperties(entt::id_type type) {
     if(m_AttachedComponentsProperties.find(type) != m_AttachedComponentsProperties.end()){
-        m_AttachedComponentsProperties.erase(type);
-    }
+            m_AttachedComponentsProperties.erase(type);
+        }
 }
 
 
@@ -188,3 +207,4 @@ bool ObjectPropertiesComponent::IsInChildren(Object obj) {
 void ObjectPropertiesComponent::ClearParent() {
     m_Parent = entt::null;
 }
+

@@ -20,7 +20,7 @@ public:
         if(!this->Valid()){
             return false;
         }
-        return Registry::Get().any_of<T>(m_EntityHandle);
+        return Registry::Get().all_of<T>(m_EntityHandle);
     };
 
     bool HasComponent(entt::id_type type) {
@@ -83,6 +83,7 @@ public:
         }
     }
 
+
     template<IsDerivedFromComponent T,typename ...Args>
     T& AddComponent(Args&&... args){
         if(!this->HasComponent<T>()){
@@ -112,17 +113,32 @@ public:
     template<IsDerivedFromComponent T>
     void EraseComponent(){
         if(!this->Valid()){
-            
             return;
         }
         if(this->HasComponent<T>()){
             
             ObjectPropertiesComponent& properties = Properties();
-            properties.EraseComponentProperties(entt::type_id<T>().index());
+            properties.EraseComponentProperties(HashComponent<T>());
             
             Registry::Get().erase<T>(m_EntityHandle);
         }
     };
+
+    bool EraseComponent(std::string componentName){
+        auto resolved = entt::resolve(entt::hashed_string(componentName.c_str()));
+        
+        if(resolved){
+            if(auto func = resolved.func(entt::hashed_string("Erase Component")) ; func){
+                return func.invoke({},*this).operator bool();
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
 
     template<IsDerivedFromComponent T>
     void EnableComponent() {
@@ -178,6 +194,7 @@ public:
         return m_RegisteredComponents;
     }
 
+    
 private:
     template<IsDerivedFromComponent T>
     static void MakeComponentOmnipresent(){
@@ -189,6 +206,7 @@ private:
         entt::id_type hash = Registry::HashClassName<T>();
         entt::meta<T>().type(hash).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
         entt::meta<T>().type(hash).func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
+        entt::meta<T>().type(hash).func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
         m_RegisteredComponents.push_back(Registry::GetClassName<T>());
     };
     template<IsDerivedFromComponent T>
@@ -214,6 +232,7 @@ private:
         prop.m_SizeInBytes = sizeof(T);
         prop.m_DisplayName = Registry::GetClassDisplayName<T>();
         prop.m_HideInEditor = &comp.m_ShouldHideInEditor;
+        prop.m_IsDeletable = &comp.m_IsRemovable;
         prop.m_ActiveState = &comp.m_BaseComponentActiveState;
         ObjectPropertiesComponent& properties = Properties();
         properties.HandleComponentProperties(HashComponent<T>(),prop);

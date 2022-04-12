@@ -93,8 +93,6 @@ Camera::Camera(entt::entity e) : Component(e){
     m_Fov = prop.fov;
     m_DrawNear = prop.drawingNearCutoff;
     m_DrawDistance = prop.drawDistance;
-    GetMasterObject().GetComponent<TransformComponent>().SetPosition(prop.initialPos);
-    GetMasterObject().GetComponent<TransformComponent>().SetRotation(prop.initialRotationRadians);
     m_ViewPort = prop.viewPort;
 }
 

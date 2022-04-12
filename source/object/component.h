@@ -18,7 +18,6 @@ public:
 protected:
     Component(entt::entity master) {
         m_MasterHandle = master;
-        
     }
 
     Component<T,Behavior>& operator=(const Component<T,Behavior>& comp){

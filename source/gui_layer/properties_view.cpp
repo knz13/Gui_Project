@@ -15,7 +15,7 @@ void GuiLayer::PropertiesView::Update(Window& win) {
         
         
         if(ImGui::BeginPopupContextWindow(GuiLayer::GetImGuiID(&randomAddress).c_str(),ImGuiPopupFlags_MouseButtonRight)){
-                
+            
             
             if(ImGui::BeginMenu("Add Component")){
                 for(auto& componentName : Object::GetRegisteredClasses()){
