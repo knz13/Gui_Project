@@ -49,9 +49,9 @@ protected:
     std::function<nlohmann::json()> GetSerializerFunction();
 
 private:
-    void GetCumulativeTransformation(glm::vec3* position=nullptr,glm::vec3* rotation=nullptr,glm::vec3* scale=nullptr);
+    
     glm::mat4 GetCumulativeMatrix(std::vector<glm::mat4>* outVec=nullptr);
-    glm::mat4 CalculateModelMatrix();
+    glm::mat4 CalculateModelMatrix(bool passScale = true);
 
     
 

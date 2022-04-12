@@ -101,11 +101,14 @@ Camera::Camera(entt::entity e) : Component(e){
 
 void Camera::MoveInRelationToView(float rightLeft, float upDown, float frontBack) {
     glm::vec3 right,up,look;
-    glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<TransformComponent>().GetModelMatrix();
+    glm::mat4 modelView = GetView();
 
-    right = modelView[0];
-    up = modelView[1];
-    look  = modelView[2];
+    right = glm::vec3(modelView[0][0],modelView[1][0],modelView[2][0]);
+    right = glm::normalize(right);
+    up = glm::vec3(modelView[0][1],modelView[1][1],modelView[2][1]);
+    up = glm::normalize(up);
+    look  = glm::vec3(modelView[0][2],modelView[1][2],modelView[2][2]);
+    look = glm::normalize(look);
 
     GetMasterObject().GetComponent<TransformComponent>().Move(right * rightLeft);
     GetMasterObject().GetComponent<TransformComponent>().Move(up * upDown);
@@ -115,6 +118,7 @@ void Camera::MoveInRelationToView(float rightLeft, float upDown, float frontBack
 
 glm::vec3 Camera::GetLookDirection() {
     glm::mat4 modelView = GetView() * GetMasterObject().GetComponent<TransformComponent>().GetModelMatrix();
-
-    return modelView[1];
+    glm::vec3 look  = glm::vec3(modelView[0][2],modelView[1][2],modelView[2][2]);
+    look = glm::normalize(look);
+    return look;
 }

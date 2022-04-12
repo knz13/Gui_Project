@@ -19,29 +19,13 @@ bool Math::DecomposeMatrix(const glm::mat4& transform, glm::vec3& translation, g
         LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
         LocalMatrix[3][3] = static_cast<T>(1);
     }
-
-    
-		
-    // rightHandSide is the right hand side of the equation.
-    glm::vec4 RightHandSide;
-    RightHandSide[0] = LocalMatrix[0][3];
-    RightHandSide[1] = LocalMatrix[1][3];
-    RightHandSide[2] = LocalMatrix[2][3];
-    RightHandSide[3] = LocalMatrix[3][3];
-
-    // Clear the perspective partition
-    LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
-    LocalMatrix[3][3] = static_cast<T>(1);
         
     translation = glm::vec3(LocalMatrix[3]);
     LocalMatrix[3] = glm::vec4(0, 0, 0, LocalMatrix[3].w);
 
-    scale.x = glm::length(LocalMatrix[0]);
-    scale.y = glm::length(LocalMatrix[1]);
-    scale.z = glm::length(LocalMatrix[2]);
 
     vec3 Row[3], Pdum3;
-    glm::vec3 Skew;
+    
 
     // Now get scale and shear.
     for(length_t i = 0; i < 3; ++i)
@@ -71,6 +55,35 @@ bool Math::DecomposeMatrix(const glm::mat4& transform, glm::vec3& translation, g
     return true;
 }
 
-glm::mat4 Math::CalculateModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
-    return glm::translate(glm::mat4(1.0f),position) * glm::toMat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f),scale);
+glm::mat4 Math::CalculateModelMatrix(const glm::vec3* position, const glm::vec3* rotation, const glm::vec3* scale,glm::mat4* outPos,glm::mat4* outRot,glm::mat4* outScale) {
+    
+    glm::mat4 finalMatrix(1.0f);
+    glm::mat4 traslateMat(1.0f);
+    glm::mat4 rotateMat(1.0f);
+    glm::mat4 scaleMat(1.0f);
+
+    if(position){
+        traslateMat = glm::translate(glm::mat4(1.0f),*position);
+        finalMatrix *= traslateMat;
+    }
+    if(rotation){
+        rotateMat = glm::toMat4(glm::quat(*rotation));
+        finalMatrix *= rotateMat;
+    }
+    if(scale){
+        scaleMat = glm::scale(glm::mat4(1.0f),*scale);
+        finalMatrix *= scaleMat;
+    }
+
+    if(outPos){
+        *outPos = traslateMat;
+    }
+    if(outRot){
+        *outRot = rotateMat;
+    }
+    if(outScale){
+        *outScale = scaleMat;
+    }
+    
+    return finalMatrix;
 }

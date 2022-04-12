@@ -36,6 +36,7 @@ void GuiLayer::GameView::Update(Window& win) {
             ImGui::Begin("Game View",0,flags);
         });
 
+        
         ImGui::BeginChild("GameRender");
 
 
@@ -106,21 +107,13 @@ void GuiLayer::GameView::Update(Window& win) {
             ImGuizmo::Manipulate(glm::value_ptr(view),glm::value_ptr(proj),(ImGuizmo::OPERATION)imguizmoMode,ImGuizmo::MODE::LOCAL,glm::value_ptr(model),0,snap);
 
 
-            objectTransform.SetFromModelMatrix(model);
-            /*
+            
+            
             if(ImGuizmo::IsUsing()){
-                glm::vec3 position,scale;
-                glm::quat rotation;
-                glm::vec3 skew;
-                glm::vec4 perspective;
-                glm::decompose(model,scale,rotation,position,skew,perspective);
-
-                objectTransform.SetPosition(position);
-                objectTransform.SetRotation(glm::eulerAngles(rotation));
-                objectTransform.SetScale(scale);
+                objectTransform.SetFromModelMatrix(model);
 
             }
-            */
+            
             
 
         }
@@ -137,6 +130,7 @@ void GuiLayer::GameView::Update(Window& win) {
         }
 
         static bool wasMouseDown = false;
+        static bool wasMouseWheelDown = false;
         if((ImGui::IsKeyDown(ImGuiKey_LeftShift) && ImGui::IsMouseDown(ImGuiMouseButton_Left)) || wasMouseDown){
             static ImVec2 lastMousePos;
 
@@ -146,17 +140,38 @@ void GuiLayer::GameView::Update(Window& win) {
                 wasMouseDown = true;
             }
             else{
-                glm::vec3 offset(lastMousePos.x - ImGui::GetMousePos().x,ImGui::GetMousePos().y - lastMousePos.y,0);
-                offset *= 0.03;
-                Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x,offset.y,offset.z);
+                glm::vec3 offset(lastMousePos.x - ImGui::GetMousePos().x,lastMousePos.y - ImGui::GetMousePos().y,0);
+                offset *= 0.2;
+                Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<TransformComponent>().Rotate(offset.y,offset.x,0);
                 lastMousePos = ImGui::GetMousePos();
+            }
+        }
+        if((ImGui::IsKeyDown(ImGuiKey_LeftShift) && ImGui::IsMouseDown(ImGuiMouseButton_Middle)) || wasMouseWheelDown){
+            static ImVec2 lastMouseWheelPos;
+
+
+            if(!wasMouseWheelDown){
+                lastMouseWheelPos = ImGui::GetMousePos();
+                wasMouseWheelDown = true;
+            }
+            else{
+                glm::vec3 offset(lastMouseWheelPos.x - ImGui::GetMousePos().x,ImGui::GetMousePos().y- lastMouseWheelPos.y,0);
+                offset *= 0.03;
+                Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x,offset.y,0);
+                
+                lastMouseWheelPos = ImGui::GetMousePos();
             }
         }
         if(ImGui::IsMouseReleased(ImGuiMouseButton_Left) && wasMouseDown){
             wasMouseDown = false;
         }
+        if(ImGui::IsMouseReleased(ImGuiMouseButton_Middle) && wasMouseWheelDown){
+            wasMouseWheelDown = false;
+        }
+        
 
         
+
         ImGui::EndChild();
 
 

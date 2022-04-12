@@ -15,7 +15,7 @@ public:
     ~Object();
 
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     bool HasComponent(){
         if(!this->Valid()){
             return false;
@@ -37,7 +37,7 @@ public:
         return found;
     }
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     T& GetComponent(){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,m_EntityHandle);
@@ -83,8 +83,9 @@ public:
         }
     }
 
+    
 
-    template<IsDerivedFromComponent T,typename ...Args>
+    template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...,m_EntityHandle);
@@ -110,7 +111,7 @@ public:
 
 
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     void EraseComponent(){
         if(!this->Valid()){
             return;
@@ -140,7 +141,7 @@ public:
         }
     }
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     void EnableComponent() {
         if(!this->Valid()){
             return;
@@ -151,7 +152,7 @@ public:
         }
     }
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     void DisableComponent() {
         if(!this->Valid()){
             return;
@@ -177,7 +178,7 @@ public:
         return Properties().m_MasterHandle;
     }
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     static bool CopyComponent(Object from,Object to){
         if(from.HasComponent<T>() && to.HasComponent<T>()){
             T& first = from.GetComponent<T>();
@@ -196,12 +197,12 @@ public:
 
     
 private:
-    template<IsDerivedFromComponent T>
+    template<typename T>
     static void MakeComponentOmnipresent(){
         m_ClassesToAddEveryTime.push_back(Registry::GetClassName<T>());
     }
 
-    template<IsDerivedFromComponent T>
+    template<typename T>
     static void RegisterClassAsComponent(){
         entt::id_type hash = Registry::HashClassName<T>();
         entt::meta<T>().type(hash).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
@@ -209,7 +210,7 @@ private:
         entt::meta<T>().type(hash).func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
         m_RegisteredComponents.push_back(Registry::GetClassName<T>());
     };
-    template<IsDerivedFromComponent T>
+    template<typename T>
     static entt::id_type HashComponent(){
         return entt::type_hash<T>().value();
     };

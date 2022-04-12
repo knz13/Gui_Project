@@ -13,7 +13,7 @@ public:
      * 
      * @return the color as floats from 0 to 1
      */
-    glm::vec3 Normalized();
+    glm::vec3& Normalized();
     /**
      * 
      * @return the color as integers from 0 to 255
@@ -31,9 +31,9 @@ public:
     
     /**
      * A function to modify the color value as needed
-     * @param  changeFunction -> a lambda or function to use for changing (take a glm::ivec3 as parameter for the color(0-255))
+     * @param  changeFunction -> a lambda or function to use for changing (take a glm::vec3 as parameter for the color(0-1))
      */
-    void Modify(std::function<void(glm::ivec3&)> changeFunction);
+    void Modify(std::function<void(glm::vec3&)> changeFunction);
     
     static Color White;
     static Color Black;
@@ -43,7 +43,7 @@ public:
     
 
 private:
-    glm::ivec3 m_ColorValue;
+    glm::vec3 m_ColorValue;
 
 
 };

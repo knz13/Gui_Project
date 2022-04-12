@@ -59,75 +59,25 @@ void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
     vec.erase(vec.begin());
     
     for(auto it = vec.rbegin();it != vec.rend();it++){
-        matrix *= glm::inverse(*it);
+        matrix = glm::inverse(*it) * matrix;
     }
 
     glm::vec3 position,scale;
-    glm::quat rotation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(matrix,scale,rotation,position,skew,perspective);
+    glm::vec3 rotation;
+    
+    Math::DecomposeMatrix(matrix,position,rotation,scale);
+    
 
     SetPosition(position);
-    SetRotation(glm::eulerAngles(rotation));
+    SetRotation(rotation);
     SetScale(scale);
 }
 
 glm::mat4 TransformComponent::GetModelMatrix() {
-
-
-    return this->GetCumulativeMatrix(); //Math::CalculateModelMatrix(finalPosition,finalRotation,m_Scale);
+    return this->GetCumulativeMatrix();
     
 }
 
-
-void TransformComponent::GetCumulativeTransformation(glm::vec3* position,glm::vec3* rotation,glm::vec3* scale) {
-    std::vector<glm::vec3> positions = {m_Position};
-    std::vector<glm::vec3> scales = {m_Scale};
-    std::vector<glm::vec3> rotations = {m_Rotation};
-    bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
-    Object current = GetMasterObject();
-    while (!foundFinalMatrix){
-        if(current.Properties().GetParent()){
-            current = current.Properties().GetParent().GetAsObject();
-        }
-        else{
-            foundFinalMatrix = true;
-        }
-        positions.push_back(current.Transform().GetPosition());
-        rotations.push_back(current.Transform().GetRotationRadians());
-        scales.push_back(current.Transform().GetScale());
-        
-    }
-
-
-    glm::vec3 finalRotation = glm::vec3(0);
-    glm::vec3 finalPosition = glm::vec3(0);
-    glm::vec3 finalScale = glm::vec3(1);
-    for(auto it = positions.rbegin();it != positions.rend();it++){
-        finalPosition += *it;
-    }
-
-    for(auto it = rotations.rbegin();it != rotations.rend();it++){
-        finalRotation += *it;
-    }
-
-    for(auto it = scales.rbegin();it != scales.rend();it++){
-        finalScale += glm::vec3(1) -*it;
-    }
-
-    if(position){
-        *position = finalPosition;
-    }
-    if(rotation){
-        *rotation = finalRotation;
-    }
-    if(scale){
-        *scale = finalScale;
-    }
-
-
-}
 
 glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec){
     std::vector<glm::mat4> matrices {this->CalculateModelMatrix()};
@@ -140,22 +90,27 @@ glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec
         else{
             foundFinalMatrix = true;
         }
-        matrices.push_back(current.Transform().CalculateModelMatrix());
+        matrices.push_back(current.Transform().CalculateModelMatrix(false));
         
     }
     if(outVec){
         *outVec = matrices;
     }
     glm::mat4 finalMat(1.0f);
-    for(auto it = matrices.rbegin();it != matrices.rend();it++){
-        finalMat *= *it;
+    for(auto it = matrices.begin();it != matrices.end();it++){
+        finalMat = *it * finalMat;
     }
 
     return finalMat;
 };
 
-glm::mat4 TransformComponent::CalculateModelMatrix() {
-    return Math::CalculateModelMatrix(m_Position,m_Rotation,m_Scale);
+glm::mat4 TransformComponent::CalculateModelMatrix(bool passScale) {
+    if(passScale){
+        return Math::CalculateModelMatrix(&m_Position,&m_Rotation,&m_Scale);
+    }
+    else{
+        return Math::CalculateModelMatrix(&m_Position,&m_Rotation,nullptr);
+    }
 }
 
 glm::vec3 TransformComponent::GetRotation() {

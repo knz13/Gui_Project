@@ -37,6 +37,9 @@ VertexArray& Mesh::GetVertexArray() {
 
 Mesh::Mesh(entt::entity e) : Component(e) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
+    this->PreDrawn().Connect([&](Mesh& mesh, Shader& sh){
+        sh.SetUniform3f("MyColor",myColor.Normalized().x,myColor.Normalized().y,myColor.Normalized().z);
+    });
 }
 
 Mesh::~Mesh() {
@@ -104,6 +107,8 @@ void Mesh::Update(float deltaTime) {
 }
 
 void Mesh::ShowProperties() {
+    
+    ImGui::ColorEdit3("Color",&myColor.Normalized().x,ImGuiColorEditFlags_InputRGB);
     
 }
 

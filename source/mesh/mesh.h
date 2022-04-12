@@ -50,7 +50,7 @@ private:
     
     void Draw();
     
-
+    Color myColor = Color::White;
     MeshAttribute::Vertex m_Vertices;
     DrawingMode m_DrawingMode;
     

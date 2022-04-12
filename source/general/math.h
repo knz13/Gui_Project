@@ -8,6 +8,7 @@
 namespace Math {
 
     bool DecomposeMatrix(const glm::mat4& transform,glm::vec3& translation,glm::vec3& rotation,glm::vec3& scale);
-    glm::mat4 CalculateModelMatrix(glm::vec3 position,glm::vec3 rotation,glm::vec3 scale);
+    glm::mat4 CalculateModelMatrix(const glm::vec3* position,const glm::vec3* rotation,const glm::vec3* scale,glm::mat4* outPos=nullptr,glm::mat4* outRot=nullptr,glm::mat4* outScale=nullptr);
+
 
 };
