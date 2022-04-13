@@ -119,15 +119,21 @@ void GuiLayer::GameView::Update(Window& win) {
         }
         ImVec2 gameSize = ImGui::GetWindowSize();
 
-        if(ImGui::IsKeyPressed(ImGuiKey_E)){
-            imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
-        }
-        if(ImGui::IsKeyPressed(ImGuiKey_R)){
-            imguizmoMode = ImGuizmo::OPERATION::ROTATE;
-        }
-        if(ImGui::IsKeyPressed(ImGuiKey_T)){
-            imguizmoMode = ImGuizmo::OPERATION::SCALE;
-        }
+        win.Events().KeyEvent().Connect([&](Window& window,KeyEventProperties keyEvent){
+            
+            if(keyEvent.action == GLFW_PRESS && Math::IsPointInRect(m_ContentRectMin,m_ContentRectMax,ImGui::GetMousePos())){
+                if(keyEvent.key == GLFW_KEY_E){
+                    imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
+                }
+                if(keyEvent.key == GLFW_KEY_R){
+                    imguizmoMode = ImGuizmo::OPERATION::ROTATE;
+                }
+                if(keyEvent.key == GLFW_KEY_T){
+                    imguizmoMode = ImGuizmo::OPERATION::SCALE;
+                }
+            }
+        });
+        
 
         static bool wasMouseDown = false;
         static bool wasMouseWheelDown = false;
@@ -157,7 +163,9 @@ void GuiLayer::GameView::Update(Window& win) {
             else{
                 glm::vec3 offset(lastMouseWheelPos.x - ImGui::GetMousePos().x,ImGui::GetMousePos().y- lastMouseWheelPos.y,0);
                 offset *= 0.03;
-                Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x,offset.y,0);
+                if(Window::GetCurrentWindow().GetCurrentCamera()){
+                    Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x,offset.y,0);
+                };
                 
                 lastMouseWheelPos = ImGui::GetMousePos();
             }
@@ -169,6 +177,23 @@ void GuiLayer::GameView::Update(Window& win) {
             wasMouseWheelDown = false;
         }
         
+        static ImVec2 gameViewRectMin;
+        static ImVec2 gameViewRectMax;
+        static bool hasSetupWheelCallback = false;
+        
+        m_ContentRectMin = ImGui::GetWindowPos();
+        m_ContentRectMax = ImVec2(ImGui::GetWindowSize().x + m_ContentRectMin.x,ImGui::GetWindowSize().y + m_ContentRectMin.y);
+
+        if(!hasSetupWheelCallback){
+            win.Events().MouseScrollEvent().Connect([&](Window& window,MouseScrollEventProperties mouseWheelEventProperties){
+                if(Math::IsPointInRect(m_ContentRectMin,m_ContentRectMax,ImGui::GetMousePos())){
+                    if(window.GetCurrentCamera()){
+                        window.GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(0,0,-mouseWheelEventProperties.offset.y * window.GetDeltaTime() * 400);
+                    }
+                }
+            });
+            hasSetupWheelCallback = true; //making sure to only do it once
+        }
 
         
 

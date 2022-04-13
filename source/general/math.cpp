@@ -87,3 +87,12 @@ glm::mat4 Math::CalculateModelMatrix(const glm::vec3* position, const glm::vec3*
     
     return finalMatrix;
 }
+
+bool Math::IsPointInRect(ImVec2 min, ImVec2 max, ImVec2 point) {
+    if(point.x >= min.x && point.x <= max.x){
+        if(point.y >= min.y && point.y <= max.y){
+            return true;
+        }
+    }
+    return false;
+}

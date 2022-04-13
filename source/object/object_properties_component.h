@@ -80,5 +80,6 @@ private:
 
     template<typename,typename>
     friend class Component;
+    friend class Registry;
     friend class Object;
 };

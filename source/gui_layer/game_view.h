@@ -18,6 +18,7 @@ private:
     static std::shared_ptr<Framebuffer> m_RaycastTexture;
     static inline ClickedObjectProperties m_IsObjectSelected;
     static std::unique_ptr<Framebuffer> m_Buffer;
-
+    static inline ImVec2 m_ContentRectMin;
+    static inline ImVec2 m_ContentRectMax;
 };
 };

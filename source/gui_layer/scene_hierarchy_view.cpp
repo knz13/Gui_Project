@@ -88,6 +88,10 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
                     openRename = true;
                 }
 
+                if(ImGui::MenuItem("Delete")){
+                    Registry::DeleteObject(obj);
+                }
+
                 ImGui::EndPopup();
             }
             

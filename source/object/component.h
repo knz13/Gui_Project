@@ -44,7 +44,7 @@ protected:
 
     ~Component(){}
 
-    Object GetMasterObject() {
+    Object GetMasterObject() const {
         return Object(m_MasterHandle);
     }
 

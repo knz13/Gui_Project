@@ -166,7 +166,7 @@ TransformComponent::TransformComponent(entt::entity e) : Component(e) {
     MakeRemovable(false);
 };
 
-TransformComponent::TransformComponent(const TransformComponent& mov) : Component(this->GetMasterObject().ID()) {
+TransformComponent::TransformComponent(const TransformComponent& mov) : Component(mov.GetMasterObject().ID()) {
     m_Position = mov.m_Position;
     m_Rotation = mov.m_Rotation;
     m_Scale = mov.m_Scale;

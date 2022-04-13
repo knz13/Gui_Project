@@ -66,6 +66,7 @@ int main(){
     dr.SetVertices(vertices);
     dr.SetShader("default_shaders/base_shader");
     
+    
 
     while(win.IsOpen()){
 

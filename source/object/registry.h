@@ -9,7 +9,13 @@ class Registry{
 public:
 
 
-    static void DeleteObject(entt::entity handle);
+    static void DeleteObject(Object obj);
+    
+    
+    /**
+     * Function that needs to be called after every frame, when no components or objects are being used
+     */
+    static void UpdateState();
 
     static reactphysics3d::PhysicsCommon& GetPhysicsCommon();
     static Object CreateObject(std::string name);
@@ -50,6 +56,7 @@ public:
 private:
     static Object DuplicateObject(Object other);
 
+    static inline std::vector<Object> m_ObjectsToDelete;
     static std::mt19937 m_RandomGenerator;
     static reactphysics3d::PhysicsCommon m_PhysicsManager;
     static entt::registry m_Registry;

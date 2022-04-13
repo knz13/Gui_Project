@@ -111,6 +111,7 @@ enum ShaderType {
     Fragment,
 };
 
+
 struct KeyEventProperties {
     int key;
     int scancode;
@@ -135,7 +136,7 @@ struct WindowResizedEventProperties {
 };
 
 struct MouseScrollEventProperties {
-    glm::vec2 offsetFromTopLeft;
+    glm::vec2 offset;
 };
 
 

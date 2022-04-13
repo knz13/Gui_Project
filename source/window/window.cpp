@@ -123,7 +123,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     glfwSetScrollCallback(this->GetContextPointer(),[](GLFWwindow* window, double xoffset, double yoffset){
         Window& win = *Window::GetWindow(window);
         MouseScrollEventProperties prop;
-        prop.offsetFromTopLeft = glm::vec2(xoffset,yoffset);
+        prop.offset = glm::vec2(xoffset,yoffset);
         win.m_MouseScrollFuncs.EmitEvent(win,prop);
     });
 
@@ -330,8 +330,6 @@ void Window::DrawingLoop() {
     PostDrawOperations();
     
     
-    
-    
 
 }
 
@@ -476,4 +474,6 @@ void Window::PostDrawOperations() {
     if(!m_IsOpen){
         m_ClosingCallbackFuncs.EmitEvent(*this);
     }
+
+    Registry::UpdateState();
 }

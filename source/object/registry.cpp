@@ -28,10 +28,8 @@ Object Registry::CreateObject(std::string name) {
 
 }
 
-void Registry::DeleteObject(entt::entity handle) {
-    if(m_Registry.valid(handle)){
-        m_Registry.destroy(handle);
-    }
+void Registry::DeleteObject(Object obj) {
+    m_ObjectsToDelete.push_back(obj);
 }
 
 reactphysics3d::PhysicsCommon& Registry::GetPhysicsCommon() {
@@ -79,4 +77,18 @@ Object Registry::DuplicateObject(Object other) {
     }
 
     return obj;
+}
+
+void Registry::UpdateState() {
+    for(auto& obj : m_ObjectsToDelete){
+        if(obj.Valid()){
+            auto it = obj.Properties().m_AttachedComponentsProperties.begin();
+            while(it != obj.Properties().m_AttachedComponentsProperties.end()){
+                obj.EraseComponent(it->second.m_ClassName);
+                it = obj.Properties().m_AttachedComponentsProperties.begin();
+            }
+            m_Registry.destroy(obj.ID());
+        }
+    }
+    m_ObjectsToDelete.clear();
 }

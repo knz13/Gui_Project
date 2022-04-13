@@ -10,10 +10,14 @@ static inline std::vector<std::string> SplitString(const std::string &str, const
     while (true) {
         std::string::size_type next_index = str.find(delimiter, start_index);
         if (next_index == std::string::npos) {
+            if(str.substr(start_index) != ""){
             tokens.push_back(str.substr(start_index));
+            }
             break;
         } else {
-            tokens.push_back(str.substr(start_index, next_index - start_index));
+            if(str.substr(start_index, next_index - start_index) != ""){
+                tokens.push_back(str.substr(start_index, next_index - start_index));
+            }
             start_index = next_index + delimiter.length();
         }
         if (max_elements > 0 && tokens.size() == max_elements - 1) {
@@ -26,7 +30,7 @@ static inline std::vector<std::string> SplitString(const std::string &str, const
 }
 
 
-void EraseWordFromString(std::string& mainWord, std::string wordToLookFor);
+bool EraseWordFromString(std::string& mainWord, std::string wordToLookFor);
 
 
 
