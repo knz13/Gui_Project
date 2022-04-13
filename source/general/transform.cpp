@@ -162,15 +162,19 @@ const glm::vec3& TransformComponent::GetScale() const {
     return m_Scale;
 }
 
-TransformComponent::TransformComponent(entt::entity e) : Component(e) {
-    MakeRemovable(false);
+TransformComponent::TransformComponent() {
+    
 };
 
-TransformComponent::TransformComponent(const TransformComponent& mov) : Component(mov.GetMasterObject().ID()) {
+TransformComponent::TransformComponent(const TransformComponent& mov)  {
     m_Position = mov.m_Position;
     m_Rotation = mov.m_Rotation;
     m_Scale = mov.m_Scale;
 }
 const glm::vec3& TransformComponent::GetRotationRadians() {
     return m_Rotation;
+}
+
+void TransformComponent::Init() {
+    MakeRemovable(false);
 }

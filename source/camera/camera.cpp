@@ -76,18 +76,17 @@ void Camera::ShowProperties() {
 
 }
 
-Camera::Camera(CameraCreationProperties prop,entt::entity e) : Component(e) {
+Camera::Camera(CameraCreationProperties prop) {
     m_Fov = prop.fov;
     m_DrawNear = prop.drawingNearCutoff;
     m_DrawDistance = prop.drawDistance;
-    GetMasterObject().GetComponent<TransformComponent>().SetPosition(prop.initialPos);
-    GetMasterObject().GetComponent<TransformComponent>().SetRotation(prop.initialRotationRadians);
+    
     m_ViewPort = prop.viewPort;
 
 }
 
 
-Camera::Camera(entt::entity e) : Component(e){
+Camera::Camera() {
     CameraCreationProperties prop;
 
     m_Fov = prop.fov;

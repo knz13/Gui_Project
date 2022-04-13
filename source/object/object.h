@@ -3,10 +3,6 @@
 #include "object_properties_component.h"
 
 
-template<typename T>
-concept IsDerivedFromComponent = requires(T a){
-    std::is_base_of<Component<T>,T>;
-};
 
 class TransformComponent;
 class Object {
@@ -40,8 +36,9 @@ public:
     template<typename T>
     T& GetComponent(){
         if(!this->HasComponent<T>()){
-            T& comp = Registry::Get().emplace<T>(m_EntityHandle,m_EntityHandle);
-            
+            T& comp = Registry::Get().emplace<T>(m_EntityHandle);
+            comp.SetMaster(m_EntityHandle);
+            ((Component<T>*)&comp)->Init();
             this->HandleComponent(comp);
 
             return comp;
@@ -71,15 +68,15 @@ public:
         }
     };
 
-    bool TryAddComponent(std::string stringToHash){
+    void* TryAddComponent(std::string stringToHash){
 
         auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
         if(resolved){
             entt::meta_any owner = resolved.construct(*this);
-            return owner.operator bool();
+            return owner.data();
         }
         else{
-            return false;
+            return nullptr;
         }
     }
 
@@ -88,9 +85,9 @@ public:
     template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
         if(!this->HasComponent<T>()){
-            T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...,m_EntityHandle);
-            
-
+            T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...);
+            comp.SetMaster(m_EntityHandle);
+            ((Component<T>*)&comp)->Init();
             this->HandleComponent(comp);
 
             return comp;
@@ -118,6 +115,9 @@ public:
         }
         if(this->HasComponent<T>()){
             
+            T* comp = &GetComponent<T>();
+            ((Component<T>*)comp)->Destroy();
+
             ObjectPropertiesComponent& properties = Properties();
             properties.EraseComponentProperties(HashComponent<T>());
             

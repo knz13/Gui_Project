@@ -267,6 +267,8 @@ void Window::DrawingLoop() {
 
     auto view = Registry::Get().view<TransformComponent,Mesh>();
     for(auto entity : view){
+        
+
         auto& transform = view.get<TransformComponent>(entity);
         auto& drawable = view.get<Mesh>(entity);
 

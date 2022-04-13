@@ -43,14 +43,18 @@ void GuiLayer::GameView::Update(Window& win) {
         if(!initialized){
             m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
             m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-            GL_CALL(glViewport(0,0,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+            int newW = ImGui::GetWindowSize().y * 4/3.0f;
+            int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
+            GL_CALL(glViewport(left,0,newW,ImGui::GetWindowSize().y));
             initialized = true;
         }
         else{
             if(lastSize.x != m_Buffer.get()->GetSize().x || lastSize.y != m_Buffer.get()->GetSize().y){
                 m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
                 m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-                GL_CALL(glViewport(0,0,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+                int newW = ImGui::GetWindowSize().y * 4/3.0f;
+                int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
+                GL_CALL(glViewport(left,0,newW,ImGui::GetWindowSize().y));
             }
         }
         m_Buffer.get()->Bind();

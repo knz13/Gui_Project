@@ -7,10 +7,8 @@ class Window;
 namespace GuiLayer {
 
 struct SceneHierarchyViewComponent : public Component<SceneHierarchyViewComponent,AddToEveryObject<SceneHierarchyViewComponent>> {
-    SceneHierarchyViewComponent(entt::entity e) : Component(e){
-        this->HideInEditor(true);
-    };
-
+    
+    void Init() { this->HideInEditor(true);};
     void ShowProperties(){};
     void Update(float time){};
 

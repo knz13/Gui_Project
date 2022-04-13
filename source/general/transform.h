@@ -6,10 +6,10 @@
 class TransformComponent : public EventReceiver,public Component<TransformComponent,AddToEveryObject<TransformComponent>> {
     KV_CLASS
 public:
-    TransformComponent(entt::entity e);
+    TransformComponent();
     TransformComponent(const TransformComponent& mov);
 
-    
+    void Init() override;
 
     
     void Rotate(float x,float y,float z);

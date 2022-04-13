@@ -50,13 +50,8 @@ VertexArray& Mesh::GetVertexArray() {
 
 
 
-Mesh::Mesh(entt::entity e) : Component(e),m_DrawingMode(GetMasterObject()) {
-    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
-    SetDrawingMode("Triangles");
+Mesh::Mesh() {
     
-    this->PreDrawn().Connect([&](Mesh& mesh, Shader& sh){
-        sh.SetUniform3f("MyColor",myColor.Normalized().x,myColor.Normalized().y,myColor.Normalized().z);
-    });
 }
 
 Mesh::~Mesh() {
@@ -207,4 +202,18 @@ Shader& Mesh::GetShader() {
     bool found = false;
     Shader& shader = Window::GetCurrentWindow().Create().CachedShader(m_ShaderName,&found);
     return shader;
+}
+
+void Mesh::Init() {
+    m_DrawingMode.SetMaster(this->GetMasterObject());
+    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
+    SetDrawingMode("Triangles");
+    
+    this->PreDrawn().Connect([&](Mesh& mesh, Shader& sh){
+        sh.SetUniform3f("MyColor",myColor.Normalized().x,myColor.Normalized().y,myColor.Normalized().z);
+    });
+}
+
+void Mesh::Destroy() {
+    m_DrawingMode.m_DeleteFunc();    
 }

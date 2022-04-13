@@ -66,6 +66,7 @@ void DrawingModeType::Triangles(DrawingMode& mode) {
 
 void DrawingModeType::Lines(DrawingMode& mode) {
     mode.ResetFuncs();
+    mode.m_CreateFunction = [](){ return GL_LINES;};
     mode.m_ShowPropertiesFunc = [&](){
         static int currentIndex = 0;
         std::vector<std::string> items = {"Line","Line Loop","Line Strip"};
@@ -122,7 +123,7 @@ void DrawingModeType::Points(DrawingMode& mode) {
         ImGui::ColorEdit3(GuiLayer::GetImGuiID(&pointColor).c_str(),&pointColor.Normalized().x,ImGuiColorEditFlags_InputRGB);
 
         if(firstLoop){
-            uint32_t id = mode.m_Master.GetComponent<Mesh>().PreDrawn().Connect([&](Mesh& mesh,Shader&){
+            uint32_t id = mode.GetMasterObject().GetComponent<Mesh>().PreDrawn().Connect([&](Mesh& mesh,Shader&){
             mesh.SetShader("default_shaders/points_shader");
             mesh.GetShader().SetUniform1f("pointSize",pointSize);
             mesh.GetShader().SetUniform3f("pointColor",pointColor.Normalized().x,pointColor.Normalized().y,pointColor.Normalized().z);
@@ -130,7 +131,7 @@ void DrawingModeType::Points(DrawingMode& mode) {
             });
 
             mode.m_DeleteFunc = [&](){
-                mode.m_Master.GetComponent<Mesh>().PreDrawn().Disconnect(id);
+                mode.GetMasterObject().GetComponent<Mesh>().PreDrawn().Disconnect(id);
             };
             firstLoop = false;
         }

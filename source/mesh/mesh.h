@@ -30,9 +30,10 @@ namespace MeshAttribute {
 class Mesh : public EventReceiver,public Component<Mesh>{
 
 public:
-    Mesh(entt::entity e);
+    Mesh();
     
     ~Mesh();
+
 
     bool SetShader(std::string shaderLocation);
     bool SetVertices(MeshAttribute::Vertex vertexAttribute);
@@ -51,7 +52,9 @@ public:
     bool ReadyToDraw();
 private:
     VertexArray& GetVertexArray();
-    
+    void Init() override;
+    void Destroy() override;
+
     void Draw();
     
     Color myColor = Color::White;

@@ -69,6 +69,7 @@ private:
     std::vector<entt::id_type> m_IDsToDelete;
     std::unordered_map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
     
+
     std::vector<entt::entity> m_Children;
     entt::entity m_Parent = entt::null;
     bool active = true;

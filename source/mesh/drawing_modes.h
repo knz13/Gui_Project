@@ -7,14 +7,17 @@ class DrawingMode {
     KV_DRAWING_MODE
 
 public:
-    DrawingMode(Object master) : m_Master(master){
+    DrawingMode() {
         m_CreateFunction = [](){
             return GL_TRIANGLES;
         };
     }
 
+    void SetMaster(Object master) {
+        m_Master = master.ID();
+    };
+
     ~DrawingMode(){
-        m_DeleteFunc();
     };
 
     void ResetFuncs();
@@ -22,8 +25,12 @@ public:
     std::function<GLenum()> m_CreateFunction;
     std::function<void()> m_ShowPropertiesFunc;
     std::function<void()> m_DeleteFunc;
-    Object m_Master;
+    Object GetMasterObject() {
+        return Object(m_Master);
+    }
 protected:
+    entt::entity m_Master = entt::null;
+
 
     GLenum GetDrawingType(){
         return m_CreateFunction();

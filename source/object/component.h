@@ -16,9 +16,9 @@ public:
         return m_IsRemovable;
     }
 protected:
-    Component(entt::entity master) {
-        m_MasterHandle = master;
-    }
+    Component(){
+
+    };
 
     Component<T,Behavior>& operator=(const Component<T,Behavior>& comp){
         m_MyClassTypeID = comp.m_MyClassTypeID;
@@ -28,7 +28,8 @@ protected:
 
     }
 
-    
+    virtual void Init() {};
+    virtual void Destroy() {};
 
     void HideInEditor(bool state){
         m_ShouldHideInEditor = state;
@@ -55,7 +56,10 @@ protected:
     
 
 private:
-   
+
+    void SetMaster(entt::entity entity) {
+        m_MasterHandle = entity;
+    };
     
     entt::id_type m_MyClassTypeID;
     entt::entity m_MasterHandle = entt::null;

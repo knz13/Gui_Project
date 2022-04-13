@@ -188,7 +188,6 @@ struct WindowCreationProperties {
 };
 
 struct RandomDummyComponent : public Component<RandomDummyComponent> {
-    RandomDummyComponent(entt::entity e) : Component(e) {}
     void Update(float) {};
     void ShowProperties() {};
 };
