@@ -50,7 +50,7 @@ VertexArray& Mesh::GetVertexArray() {
 
 
 
-Mesh::Mesh(entt::entity e) : Component(e) {
+Mesh::Mesh(entt::entity e) : Component(e),m_DrawingMode(GetMasterObject()) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
     SetDrawingMode("Triangles");
     
@@ -61,7 +61,7 @@ Mesh::Mesh(entt::entity e) : Component(e) {
 
 Mesh::~Mesh() {
     m_DeletedFuncs.EmitEvent(*this);
-
+    
 }
 
 bool MeshAttribute::Vertex::CheckValid() const {
@@ -95,10 +95,10 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
 void Mesh::Draw() {
     m_VAO->Bind();
     if(m_VAO->HasIndexBuffer()){
-        GL_CALL(glDrawElements(m_DrawingMode.get()->GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
+        GL_CALL(glDrawElements(m_DrawingMode.GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
     }
     else {
-        GL_CALL(glDrawArrays(m_DrawingMode.get()->GetDrawingType(),0,m_VAO->GetDrawCount()));
+        GL_CALL(glDrawArrays(m_DrawingMode.GetDrawingType(),0,m_VAO->GetDrawCount()));
     }
 }
 
@@ -106,22 +106,14 @@ void Mesh::Draw() {
 
 void Mesh::SetDrawingMode(std::string mode) {
     if(mode == "Triangles"){
-        auto deleter = [](DrawingMode* ptr){
-            delete (TriangleMode*)ptr;
-        };
-        m_DrawingMode = std::shared_ptr<DrawingMode>(new TriangleMode(TriangleModeType::Triangle),deleter);
+        
+        DrawingModeType::Triangles(m_DrawingMode);
     }
     if(mode == "Lines"){
-        auto deleter = [](DrawingMode* ptr){
-            delete (LineMode*)ptr;
-        };
-        m_DrawingMode = std::shared_ptr<DrawingMode>(new LineMode(LineModeType::Lines),deleter);
+        DrawingModeType::Lines(m_DrawingMode);
     }
     if(mode == "Points"){
-        auto deleter = [](DrawingMode* ptr){
-            delete (PointsMode*)ptr;
-        };
-        m_DrawingMode = std::shared_ptr<DrawingMode>(new PointsMode(1.0f),deleter);
+        DrawingModeType::Points(m_DrawingMode);
     }
 }
 
@@ -166,7 +158,7 @@ void Mesh::ShowProperties() {
     }
     ImGui::PopItemWidth();
 
-    m_DrawingMode.get()->ShowDerivedProperties();
+    m_DrawingMode.m_ShowPropertiesFunc();
     
 }
 
@@ -209,4 +201,10 @@ Mesh& Mesh::operator=(const Mesh& other) {
     m_DrawingMode = other.m_DrawingMode;
     m_ShaderName = other.m_ShaderName;
     return *this;
+}
+
+Shader& Mesh::GetShader() {
+    bool found = false;
+    Shader& shader = Window::GetCurrentWindow().Create().CachedShader(m_ShaderName,&found);
+    return shader;
 }

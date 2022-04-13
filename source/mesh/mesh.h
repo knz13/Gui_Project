@@ -37,7 +37,7 @@ public:
     bool SetShader(std::string shaderLocation);
     bool SetVertices(MeshAttribute::Vertex vertexAttribute);
     
-
+    Shader& GetShader();
     void SetDrawingMode(std::string mode);
 
     FunctionSink<void(Mesh&,Shader&)> PreDrawn();
@@ -56,7 +56,7 @@ private:
     
     Color myColor = Color::White;
     MeshAttribute::Vertex m_Vertices;
-    std::shared_ptr<DrawingMode> m_DrawingMode;
+    DrawingMode m_DrawingMode;
     std::map<std::string,MeshAttribute::ShaderUniformVariable> m_PublicShaderVariables;
     int m_DrawingModeComboItem = 0;
     VertexArray* m_VAO=nullptr;

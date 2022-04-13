@@ -193,6 +193,13 @@ struct RandomDummyComponent : public Component<RandomDummyComponent> {
     void ShowProperties() {};
 };
 
+struct EventReceiver;
+struct EventReceiverAttachmentProperties {
+    std::function<void(EventReceiver*)> m_CopyFunc;
+    std::function<void(void*,size_t)> m_DeleteFunc;
+};
+
+
 template<typename T>
 struct EventLauncher;
 template<typename T>
@@ -202,8 +209,10 @@ struct EventReceiver {
 
     ~EventReceiver();
 
+    EventReceiver& operator=(const EventReceiver& other);
+
 private:
-    std::map<size_t,std::function<void()>> m_SubscribedEvents;
+    std::map<void*,EventReceiverAttachmentProperties> m_SubscribedEvents;
 
     template<typename T>
     friend struct FunctionSink;
@@ -223,6 +232,7 @@ struct EventLauncher<R(Args...)> {
 
     
     bool DisconnectReceiver(size_t hash) {
+        std::cout << m_Receivers.size() << std::endl;
         if(m_Receivers.find(hash) != m_Receivers.end()){
             m_Receivers.erase(hash);
             return true;
@@ -290,15 +300,23 @@ struct FunctionSink<R(Args...)> {
         
         size_t hash = std::hash<void*>()((void*)key);
         auto deleter = [=](std::function<R(Args...)>* func){
-            key->m_SubscribedEvents.erase(m_Master->m_MyHash);
+            key->m_SubscribedEvents.erase((void*)m_Master);
             delete func;
         };
 
         auto func = new std::function<R(Args...)>(std::bind(windowFunc,key,std::placeholders::_1,std::placeholders::_2));
         m_Master->m_Receivers[hash] = std::shared_ptr<std::function<R(Args...)>>(func,deleter);
-        key->m_SubscribedEvents[m_Master->m_MyHash] = [=](){
-            m_Master->DisconnectReceiver(hash);
+        
+        EventReceiverAttachmentProperties prop;
+        prop.m_CopyFunc = [=](EventReceiver* receiver){
+            FunctionSink<R(Args...)>(*m_Master).Connect(receiver,windowFunc);
         };
+
+        prop.m_DeleteFunc = [](void* ptr,size_t hash){
+                ((EventLauncher<R(Args...)>*)(ptr))->DisconnectReceiver(hash);
+        };
+
+        key->m_SubscribedEvents[(void*)m_Master] = std::move(prop);
         
     };
 

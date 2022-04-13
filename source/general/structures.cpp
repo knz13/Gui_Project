@@ -4,7 +4,12 @@
 
 
 
-
+EventReceiver& EventReceiver::operator=(const EventReceiver& other) {
+    for(auto& [ptr,prop] : other.m_SubscribedEvents){
+        prop.m_CopyFunc(this);
+    }
+    return *this;
+}
 
 
 
@@ -14,7 +19,7 @@ EventReceiver::~EventReceiver() {
     }
     auto it = m_SubscribedEvents.begin();
     while(it != m_SubscribedEvents.end()){
-        it->second();
+        it->second.m_DeleteFunc(it->first,std::hash<void*>()((void*)this));
         it = m_SubscribedEvents.begin();
     }
 }
