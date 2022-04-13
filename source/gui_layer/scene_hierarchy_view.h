@@ -22,9 +22,12 @@ struct SceneHierarchyViewComponent : public Component<SceneHierarchyViewComponen
 
 class SceneHierarchyView : public GuiView {
 public:
+    static void SetupDefaultObjects();
     static void Update(Window& win);
 
 private:
     static void SetupObject(Object obj);
+
+    static inline std::map<std::string,std::function<void()>> m_DefaultObjects;
 };
 };

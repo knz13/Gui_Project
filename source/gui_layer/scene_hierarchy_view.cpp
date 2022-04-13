@@ -24,6 +24,19 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
     }
 
+    if(ImGui::BeginPopupContextWindow("AddingObjectsAndPropertiesPopup",ImGuiPopupFlags_NoOpenOverItems | ImGuiPopupFlags_MouseButtonRight)){
+
+        if(ImGui::BeginMenu("Create Object")){
+            for(auto& [name,func] : m_DefaultObjects){
+                if(ImGui::MenuItem(name.c_str())){
+                    func();
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndPopup();
+    }
     
     
 
@@ -118,4 +131,57 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
 
     
     
+}
+
+void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
+    m_DefaultObjects["Cube"] = [](){
+        MeshAttribute::Vertex vertices;
+
+        vertices.positions = {
+        // front
+        -1.0, -1.0,  1.0,
+        1.0, -1.0,  1.0,
+        1.0,  1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        // back
+        -1.0, -1.0, -1.0,
+        1.0, -1.0, -1.0,
+        1.0,  1.0, -1.0,
+        -1.0,  1.0, -1.0
+        };
+
+        vertices.indices = {
+            // front
+            0, 1, 2,
+            2, 3, 0,
+            // right
+            1, 5, 6,
+            6, 2, 1,
+            // back
+            7, 6, 5,
+            5, 4, 7,
+            // left
+            4, 0, 3,
+            3, 7, 4,
+            // bottom
+            4, 5, 1,
+            1, 0, 4,
+            // top
+            3, 2, 6,
+            6, 7, 3
+        };
+
+        Object obj = Registry::CreateObject("Cube");
+        Mesh& mesh = obj.AddComponent<Mesh>();
+
+        mesh.SetVertices(vertices);
+        mesh.SetShader("default_shaders/base_shader");
+        
+    };
+
+    m_DefaultObjects["Camera"] = [](){
+        Object obj = Registry::CreateObject("Camera");
+        obj.AddComponent<Camera>();
+    };
+
 }

@@ -71,6 +71,8 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     mainCameraObject.AddComponent<Camera>();
 
+    mainCameraObject.Transform().SetPosition(0,0,10);
+
     SetCamera(mainCameraObject);
 
 

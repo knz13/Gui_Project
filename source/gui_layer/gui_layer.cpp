@@ -37,7 +37,7 @@ void GuiLayer::AddUi(Window& win) {
     ImGui::ClearIniSettings();
     
     GuiLayer::GameView::Setup(win);
-
+    GuiLayer::SceneHierarchyView::SetupDefaultObjects();
 
     win.Events().PostDrawingLoopEvent().Connect([&](Window& win){
         
