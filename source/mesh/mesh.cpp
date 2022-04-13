@@ -8,6 +8,21 @@ bool Mesh::SetShader(std::string shaderLocation) {
     Shader& shader = Window::GetCurrentWindow().Create().CachedShader(shaderLocation,&loadResult);
     if(loadResult){
         m_ShaderName = shaderLocation;
+
+        for(auto& [name,prop] : shader.GetUniformLocations()){
+            if(name[0] != 'p'){ 
+                MeshAttribute::ShaderUniformVariable var;
+                if(name[1] != 'c'){
+                    var.type = prop.type;
+                }
+                else{
+                    var.type = "Color";
+                }
+                m_PublicShaderVariables[name] = var;
+            }
+        }
+
+
         return true;
     }
     else {
@@ -37,6 +52,8 @@ VertexArray& Mesh::GetVertexArray() {
 
 Mesh::Mesh(entt::entity e) : Component(e) {
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
+    SetDrawingMode("Triangles");
+    
     this->PreDrawn().Connect([&](Mesh& mesh, Shader& sh){
         sh.SetUniform3f("MyColor",myColor.Normalized().x,myColor.Normalized().y,myColor.Normalized().z);
     });
@@ -78,17 +95,34 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
 void Mesh::Draw() {
     m_VAO->Bind();
     if(m_VAO->HasIndexBuffer()){
-        GL_CALL(glDrawElements(m_DrawingMode.GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
+        GL_CALL(glDrawElements(m_DrawingMode.get()->GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
     }
     else {
-        GL_CALL(glDrawArrays(m_DrawingMode.GetDrawingType(),0,m_VAO->GetDrawCount()));
+        GL_CALL(glDrawArrays(m_DrawingMode.get()->GetDrawingType(),0,m_VAO->GetDrawCount()));
     }
 }
 
 
 
-void Mesh::SetDrawingMode(DrawingMode mode) {
-    m_DrawingMode = mode;
+void Mesh::SetDrawingMode(std::string mode) {
+    if(mode == "Triangles"){
+        auto deleter = [](DrawingMode* ptr){
+            delete (TriangleMode*)ptr;
+        };
+        m_DrawingMode = std::shared_ptr<DrawingMode>(new TriangleMode(TriangleModeType::Triangle),deleter);
+    }
+    if(mode == "Lines"){
+        auto deleter = [](DrawingMode* ptr){
+            delete (LineMode*)ptr;
+        };
+        m_DrawingMode = std::shared_ptr<DrawingMode>(new LineMode(LineModeType::Lines),deleter);
+    }
+    if(mode == "Points"){
+        auto deleter = [](DrawingMode* ptr){
+            delete (PointsMode*)ptr;
+        };
+        m_DrawingMode = std::shared_ptr<DrawingMode>(new PointsMode(1.0f),deleter);
+    }
 }
 
 
@@ -107,8 +141,32 @@ void Mesh::Update(float deltaTime) {
 }
 
 void Mesh::ShowProperties() {
-    
-    ImGui::ColorEdit3("Color",&myColor.Normalized().x,ImGuiColorEditFlags_InputRGB);
+    ImGui::BulletText("Mode:");
+    ImGui::SameLine();
+
+    std::vector<const char*> items = {"Triangles","Lines","Points"};
+    const char* currentItem = items[m_DrawingModeComboItem];
+
+    ImGui::PushItemWidth(120);
+    if(ImGui::BeginCombo((GuiLayer::GetImGuiID(this) + "Combo").c_str(),currentItem)){
+        int index = 0;
+        for(auto& item : items){
+            const bool isSelected = (m_DrawingModeComboItem == index);
+            if(ImGui::Selectable(item,isSelected)){
+                SetDrawingMode(item);
+                m_DrawingModeComboItem = index;
+            }
+
+            if(isSelected){
+                ImGui::SetItemDefaultFocus();
+            }
+            index++;
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+
+    m_DrawingMode.get()->ShowDerivedProperties();
     
 }
 

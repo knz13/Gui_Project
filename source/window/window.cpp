@@ -77,7 +77,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     SetCamera(mainCameraObject);
 
-
+    GL_CALL(glEnable(GL_POINT_SMOOTH));
     GL_CALL(glEnable(GL_PROGRAM_POINT_SIZE));
     GL_CALL(glEnable(GL_STENCIL_TEST));
 

@@ -35,7 +35,7 @@ public:
 	bool SetUniform4f(const string& name, float v0, float v1, float v2, float v3);
 	bool SetUniformMat4f(const string& name, const glm::mat4& mat);
     
-
+    const std::map<std::string,ShaderUniformContainer>& GetUniformLocations();
     void Bind();
     void Unbind();
 

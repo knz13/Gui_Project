@@ -292,3 +292,7 @@ bool Shader::SetUniform2f(const string& name, float v0, float v1) {
         return false;
     }
 }
+
+const std::map<std::string,ShaderUniformContainer>& Shader::GetUniformLocations() {
+    return m_UniformLocations;
+}

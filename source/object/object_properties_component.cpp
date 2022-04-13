@@ -36,7 +36,7 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         
         
         
-        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 6,ImGui::GetCursorPos().y));
+        
         if(!prop.m_IsShowPropertiesChildOpen){
             
             ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,30),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);

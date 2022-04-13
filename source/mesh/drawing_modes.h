@@ -13,11 +13,22 @@ public:
         };
     }
 
+    void ShowDerivedProperties() {
+        ShowProperties();
+    }
+
+    std::string GetName() {
+        return GetDrawingModeName();
+    }
+
+    virtual std::string GetDrawingModeName() { return "None";};
+    virtual void ShowProperties() {};
 protected:
 
     GLenum GetDrawingType(){
         return m_CreateFunction();
     };
+
 
     std::function<GLenum()> m_CreateFunction;
 
@@ -57,9 +68,12 @@ public:
         }
     };
 
+    std::string GetDrawingModeName() override{
+        return "Lines";
+    }
+    void ShowProperties() override;
 private:
-
-    
+    int currentIndex = 0;
 
 };
 
@@ -97,6 +111,14 @@ public:
             break;
         };
     }
+    std::string GetDrawingModeName() override{
+        return "Triangles";
+    }
+
+    void ShowProperties() override;
+private:
+    int currentIndex = 0;
+
 
 };
 
@@ -116,5 +138,13 @@ public:
     void SetPointSize(float size){
         m_CreateFunction = [=](){GL_CALL(glPointSize(size)); return GL_POINTS;};
     };
+
+    void ShowProperties() override;
+    std::string GetDrawingModeName() override{
+        return "Points";
+    }
+private:
+
+    float pointSize = 1;
 
 };

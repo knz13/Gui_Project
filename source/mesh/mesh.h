@@ -21,6 +21,10 @@ namespace MeshAttribute {
         std::vector<float> tangents;
         std::vector<unsigned int> indices;
     };
+
+    struct ShaderUniformVariable {
+        std::string type;
+    };
 };
 
 class Mesh : public EventReceiver,public Component<Mesh>{
@@ -34,7 +38,7 @@ public:
     bool SetVertices(MeshAttribute::Vertex vertexAttribute);
     
 
-    void SetDrawingMode(DrawingMode mode);
+    void SetDrawingMode(std::string mode);
 
     FunctionSink<void(Mesh&,Shader&)> PreDrawn();
     FunctionSink<void(Mesh&)> PostDrawn();
@@ -52,8 +56,9 @@ private:
     
     Color myColor = Color::White;
     MeshAttribute::Vertex m_Vertices;
-    DrawingMode m_DrawingMode;
-    
+    std::shared_ptr<DrawingMode> m_DrawingMode;
+    std::map<std::string,MeshAttribute::ShaderUniformVariable> m_PublicShaderVariables;
+    int m_DrawingModeComboItem = 0;
     VertexArray* m_VAO=nullptr;
     std::string m_ShaderName = "";
 
