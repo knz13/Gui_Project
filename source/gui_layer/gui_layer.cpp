@@ -117,7 +117,7 @@ void GuiLayer::AddUi(Window& win) {
 
         GuiLayer::PropertiesView::Update(win);
         
-        ImGui::ShowDemoWindow();
+       
 
     
     });
