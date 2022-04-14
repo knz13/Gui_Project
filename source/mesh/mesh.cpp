@@ -90,10 +90,10 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
 void Mesh::Draw() {
     m_VAO->Bind();
     if(m_VAO->HasIndexBuffer()){
-        GL_CALL(glDrawElements(m_DrawingMode.GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
+        GL_CALL(glDrawElements(m_DrawingMode.get()->GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
     }
     else {
-        GL_CALL(glDrawArrays(m_DrawingMode.GetDrawingType(),0,m_VAO->GetDrawCount()));
+        GL_CALL(glDrawArrays(m_DrawingMode.get()->GetDrawingType(),0,m_VAO->GetDrawCount()));
     }
 }
 
@@ -101,22 +101,24 @@ void Mesh::Draw() {
 
 void Mesh::SetDrawingMode(std::string mode) {
     if(mode == "Triangles"){
-        
-        DrawingModeType::Triangles(m_DrawingMode);
+        m_DrawingMode = DrawingMode::GetSharedPtr<TriangleMode>(this->GetMasterObject());
+        m_CurrentDrawingMode = mode;
     }
     if(mode == "Lines"){
-        DrawingModeType::Lines(m_DrawingMode);
+        m_DrawingMode = DrawingMode::GetSharedPtr<LineMode>(this->GetMasterObject());
+        m_CurrentDrawingMode = mode;
     }
     if(mode == "Points"){
-        DrawingModeType::Points(m_DrawingMode);
+        m_DrawingMode = DrawingMode::GetSharedPtr<PointsMode>(this->GetMasterObject());
+        m_CurrentDrawingMode = mode;
     }
 }
 
 
 
 
-FunctionSink<void(Mesh&,Shader&)> Mesh::PreDrawn() {
-    return FunctionSink<void(Mesh&,Shader&)>(m_PreDrawFuncs);
+FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> Mesh::PreDrawn() {
+    return FunctionSink<void(Mesh&,Shader&,const glm::mat4&)>(m_PreDrawFuncs);
 }
 
 FunctionSink<void(Mesh&)> Mesh::PostDrawn() {
@@ -153,7 +155,7 @@ void Mesh::ShowProperties() {
     }
     ImGui::PopItemWidth();
 
-    m_DrawingMode.m_ShowPropertiesFunc();
+    m_DrawingMode.get()->ShowProperties();
     
 }
 
@@ -193,7 +195,7 @@ Mesh& Mesh::operator=(const Mesh& other) {
         this->SetVertices(m_Vertices);
     }
 
-    m_DrawingMode = other.m_DrawingMode;
+    this->SetDrawingMode(other.m_CurrentDrawingMode);
     m_ShaderName = other.m_ShaderName;
     return *this;
 }
@@ -205,15 +207,13 @@ Shader& Mesh::GetShader() {
 }
 
 void Mesh::Init() {
-    m_DrawingMode.SetMaster(this->GetMasterObject());
-    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
     SetDrawingMode("Triangles");
+    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
     
-    this->PreDrawn().Connect([&](Mesh& mesh, Shader& sh){
-        sh.SetUniform3f("MyColor",myColor.Normalized().x,myColor.Normalized().y,myColor.Normalized().z);
-    });
+    
 }
 
-void Mesh::Destroy() {
-    m_DrawingMode.m_DeleteFunc();    
+void Mesh::Destroy() { 
+    m_DrawingMode.reset();
+    m_CurrentDrawingMode = "";
 }

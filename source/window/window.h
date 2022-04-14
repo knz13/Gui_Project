@@ -37,7 +37,7 @@ public:
     WindowCreators(Window& wid) : m_Master(wid){}
 
     VertexArray& NewVertexArray();
-    Shader& CachedShader(std::string shaderRelativePath,bool* loadResult);
+    Shader& CachedShader(std::string shaderRelativePath,bool* loadResult=nullptr);
     
 
 private:

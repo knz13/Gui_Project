@@ -230,114 +230,119 @@ WindowEvents Window::Events() {
 void Window::DrawingLoop() {
     static float currentTime=0,oldTime=0;
 
-    
+    while(IsOpen()){
 
-    glfwMakeContextCurrent(m_ContextPointer);
+        glfwMakeContextCurrent(m_ContextPointer);
 
-    m_PreDrawingLoopFuncs.EmitEvent(*this);
-    
-    BeginDrawState();
-    
-    currentTime = glfwGetTime();
-    m_DeltaTime = static_cast<float>(currentTime - oldTime);
-
-    oldTime = currentTime;
-
-    Registry::Get().each([&](auto entity){
-
+        m_PreDrawingLoopFuncs.EmitEvent(*this);
         
-        Object(entity).Properties().CallUpdateFunctions(m_DeltaTime);
+        BeginDrawState();
+        
+        currentTime = glfwGetTime();
+        m_DeltaTime = static_cast<float>(currentTime - oldTime);
 
+        oldTime = currentTime;
+
+        Registry::Get().each([&](auto entity){
+
+            
+            Object(entity).Properties().CallUpdateFunctions(m_DeltaTime);
+
+        });
+
+        if(!GetCurrentCamera()){
+            PostDrawOperations();
+            return;
+        }
+        if(!GetCurrentCamera().GetAsObject().Properties().IsActive()){
+            PostDrawOperations();
+            return;
+        }
+
+        if(!GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetActiveState()){
+            PostDrawOperations();
+            return;
+        }
+
+
+        auto view = Registry::Get().view<TransformComponent,Mesh>();
+        for(auto entity : view){
+        
+
+            auto& transform = view.get<TransformComponent>(entity);
+            auto& drawable = view.get<Mesh>(entity);
+
+            if(!drawable.ReadyToDraw()){
+                continue;
+            }
+
+            Shader& currentObjectShader = *m_CreatedShaders[drawable.m_ShaderName].get();
+
+            glm::mat4 mvp = Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix();
+            currentObjectShader.Bind();
+            currentObjectShader.SetUniformMat4f("MVP", mvp);
+
+            currentObjectShader.SetUniform1i("rayCastTexture",3);
+
+            uint32_t val = (uint32_t)entity;
+            val++;
+
+            float r = ((uint32_t)val & 0x000000FF) >>  0;
+            float g = ((uint32_t)val & 0x0000FF00) >>  8;
+            float b = ((uint32_t)val & 0x00FF0000) >>  16;
+            
+            currentObjectShader.SetUniform3f("UMyIdentifier",r/255.0f,g/255.0f,b/255.0f);
+        
+            drawable.m_PreDrawFuncs.EmitEvent(drawable,currentObjectShader,mvp);
+
+
+            if(Object(entity).Properties().ShouldHighlight()){
+                
+                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF)); 
+                GL_CALL(glStencilMask(0xFF));
+
+
+                drawable.Draw();
+
+                GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
+                GL_CALL(glStencilMask(0x00)); 
+                GL_CALL(glDisable(GL_DEPTH_TEST));
+
+                transform.InstantScaleChange(0.1,0.1,0.1);
+                bool result;
+                Shader& singleColorShader = this->Create().CachedShader("default_Shaders/single_color_shader",&result);
+
+                ObjectPropertiesComponent& comp = Object(entity).Properties();
+
+                singleColorShader.Bind();
+                singleColorShader.SetUniformMat4f("MVP", Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix());
+                singleColorShader.SetUniform3f("desiredColor",comp.GetHighlightColor().Normalized().x,comp.GetHighlightColor().Normalized().y,comp.GetHighlightColor().Normalized().z);
+
+                drawable.Draw();
+
+                transform.InstantScaleChange(-0.1,-0.1,-0.1);
+
+                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+                GL_CALL(glStencilMask(0x00));
+                GL_CALL(glEnable(GL_DEPTH_TEST));
+                
+            }
+            else{
+                drawable.Draw();
+            }
+
+            drawable.m_PostDrawFuncs.EmitEvent(drawable);
+
+        }
+
+        PostDrawOperations();
+        
+    }
+
+    Registry::Get().each([](entt::entity e){
+        Registry::DeleteObject(Object(e));
     });
-
-    if(!GetCurrentCamera()){
-        PostDrawOperations();
-        return;
-    }
-    if(!GetCurrentCamera().GetAsObject().Properties().IsActive()){
-        PostDrawOperations();
-        return;
-    }
-
-    if(!GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetActiveState()){
-        PostDrawOperations();
-        return;
-    }
-
-
-    auto view = Registry::Get().view<TransformComponent,Mesh>();
-    for(auto entity : view){
-      
-
-        auto& transform = view.get<TransformComponent>(entity);
-        auto& drawable = view.get<Mesh>(entity);
-
-        if(!drawable.ReadyToDraw()){
-            continue;
-        }
-
-        Shader& currentObjectShader = *m_CreatedShaders[drawable.m_ShaderName].get();
-
-        currentObjectShader.Bind();
-        currentObjectShader.SetUniformMat4f("MVP", Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix());
-
-        currentObjectShader.SetUniform1i("rayCastTexture",3);
-
-        uint32_t val = (uint32_t)entity;
-        val++;
-
-        float r = ((uint32_t)val & 0x000000FF) >>  0;
-        float g = ((uint32_t)val & 0x0000FF00) >>  8;
-        float b = ((uint32_t)val & 0x00FF0000) >>  16;
-        
-        currentObjectShader.SetUniform3f("UMyIdentifier",r/255.0f,g/255.0f,b/255.0f);
-    
-        drawable.m_PreDrawFuncs.EmitEvent(drawable,currentObjectShader);
-
-
-        if(Object(entity).Properties().ShouldHighlight()){
-            
-            GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF)); 
-            GL_CALL(glStencilMask(0xFF));
-
-
-            drawable.Draw();
-
-            GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
-            GL_CALL(glStencilMask(0x00)); 
-            GL_CALL(glDisable(GL_DEPTH_TEST));
-
-            transform.InstantScaleChange(0.1,0.1,0.1);
-            bool result;
-            Shader& singleColorShader = this->Create().CachedShader("default_Shaders/single_color_shader",&result);
-
-            ObjectPropertiesComponent& comp = Object(entity).Properties();
-
-            singleColorShader.Bind();
-            singleColorShader.SetUniformMat4f("MVP", Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix());
-            singleColorShader.SetUniform3f("desiredColor",comp.GetHighlightColor().Normalized().x,comp.GetHighlightColor().Normalized().y,comp.GetHighlightColor().Normalized().z);
-
-            drawable.Draw();
-
-            transform.InstantScaleChange(-0.1,-0.1,-0.1);
-
-            GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
-            GL_CALL(glStencilMask(0x00));
-            GL_CALL(glEnable(GL_DEPTH_TEST));
-            
-        }
-        else{
-            drawable.Draw();
-        }
-
-        drawable.m_PostDrawFuncs.EmitEvent(drawable);
-
-    }
-
-    PostDrawOperations();
-    
-    
-
+    Registry::UpdateState();
 }
 
 

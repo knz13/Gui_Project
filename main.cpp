@@ -20,12 +20,9 @@ int main(){
 
     GuiLayer::AddUi(win);
     
-    while(win.IsOpen()){
+    
+    win.DrawingLoop();
 
-        
-        win.DrawingLoop();
-
-    }
     
 
 

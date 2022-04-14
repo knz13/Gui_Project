@@ -7,44 +7,82 @@ class DrawingMode {
     KV_DRAWING_MODE
 
 public:
-    DrawingMode() {
+    DrawingMode(Object obj) : m_Master(obj) {
         m_CreateFunction = [](){
             return GL_TRIANGLES;
         };
     }
 
-    void SetMaster(Object master) {
-        m_Master = master.ID();
-    };
-
-    ~DrawingMode(){
-    };
-
-    void ResetFuncs();
-   
-    std::function<GLenum()> m_CreateFunction;
-    std::function<void()> m_ShowPropertiesFunc;
-    std::function<void()> m_DeleteFunc;
-    Object GetMasterObject() {
-        return Object(m_Master);
-    }
+    virtual void ShowProperties() {};
 protected:
-    entt::entity m_Master = entt::null;
-
 
     GLenum GetDrawingType(){
         return m_CreateFunction();
     };
 
+    Object m_Master;
+    std::function<GLenum()> m_CreateFunction;
+
+    template<typename T,typename ...Args>
+    static std::shared_ptr<DrawingMode> GetSharedPtr(Args&&... args) {
+        auto deleter = [](DrawingMode* ptr){
+            delete ((T*)ptr);
+        };
+        return std::shared_ptr<DrawingMode>(new T(args...),deleter);
+    };
+
+};
+
+class LineMode : public DrawingMode {
+    KV_DRAWING_MODE
+public:
+
+    LineMode(Object obj) : DrawingMode(obj){
+        m_CreateFunction = [](){return GL_LINES;};
+    }
+
+   
+    void ShowProperties() override;
+private:
+    int currentIndex = 0;
 
 };
 
 
-namespace DrawingModeType {
+class TriangleMode : public DrawingMode {
+    KV_DRAWING_MODE
+
+public:
+
+    
+
+    TriangleMode(Object obj) : DrawingMode(obj){
+        m_CreateFunction = [](){return GL_TRIANGLES;};
+    };
+    
+
+    void ShowProperties() override;
+private:
+    int currentIndex = 0;
 
 
-    void Points(DrawingMode& mode);
-    void Triangles(DrawingMode& mode);
-    void Lines(DrawingMode& mode);
+};
+
+class PointsMode : public DrawingMode {
+    KV_DRAWING_MODE
+
+public:
+
+    PointsMode(Object obj);
+    ~PointsMode();
+
+    
+    void ShowProperties() override;
+    
+private:
+    size_t id;
+    float pointSize = 1;
+    Color pointColor = Color::White;
+    float pointSizeRange[2];
 
 };

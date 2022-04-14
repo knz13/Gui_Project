@@ -231,7 +231,6 @@ struct EventLauncher<R(Args...)> {
 
     
     bool DisconnectReceiver(size_t hash) {
-        std::cout << m_Receivers.size() << std::endl;
         if(m_Receivers.find(hash) != m_Receivers.end()){
             m_Receivers.erase(hash);
             return true;
@@ -303,7 +302,9 @@ struct FunctionSink<R(Args...)> {
             delete func;
         };
 
-        auto func = new std::function<R(Args...)>(std::bind(windowFunc,key,std::placeholders::_1,std::placeholders::_2));
+        auto func = new std::function<R(Args...)>([=](auto... args){
+            windowFunc(key,args...);
+        });
         m_Master->m_Receivers[hash] = std::shared_ptr<std::function<R(Args...)>>(func,deleter);
         
         EventReceiverAttachmentProperties prop;

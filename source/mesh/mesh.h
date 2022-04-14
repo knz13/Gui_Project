@@ -41,7 +41,7 @@ public:
     Shader& GetShader();
     void SetDrawingMode(std::string mode);
 
-    FunctionSink<void(Mesh&,Shader&)> PreDrawn();
+    FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> PreDrawn();
     FunctionSink<void(Mesh&)> PostDrawn();
 
 
@@ -57,16 +57,16 @@ private:
 
     void Draw();
     
-    Color myColor = Color::White;
+    
     MeshAttribute::Vertex m_Vertices;
-    DrawingMode m_DrawingMode;
+    std::shared_ptr<DrawingMode> m_DrawingMode;
     std::map<std::string,MeshAttribute::ShaderUniformVariable> m_PublicShaderVariables;
     int m_DrawingModeComboItem = 0;
     VertexArray* m_VAO=nullptr;
     std::string m_ShaderName = "";
-
+    std::string m_CurrentDrawingMode = "Triangles";
     
-    EventLauncher<void(Mesh&,Shader&)> m_PreDrawFuncs;
+    EventLauncher<void(Mesh&,Shader&,const glm::mat4&)> m_PreDrawFuncs;
     EventLauncher<void(Mesh&)> m_PostDrawFuncs;
     EventLauncher<void(Mesh&)> m_DeletedFuncs;
 
