@@ -45,8 +45,8 @@ public:
     FunctionSink<void(Mesh&)> PostDrawn();
 
 
-    void Update(float deltaTime);
-    void ShowProperties();
+    void Update(float deltaTime) override;
+    void ShowProperties() override;
 
     Mesh& operator=(const Mesh& other);
     bool ReadyToDraw();

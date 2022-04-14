@@ -45,7 +45,7 @@ void GuiLayer::GameView::Update(Window& win) {
             m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
             int newW = ImGui::GetWindowSize().y * 4/3.0f;
             int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
-            GL_CALL(glViewport(left,0,newW,ImGui::GetWindowSize().y));
+            GL_CALL(glViewport(0,0,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
             initialized = true;
         }
         else{
@@ -54,7 +54,7 @@ void GuiLayer::GameView::Update(Window& win) {
                 m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
                 int newW = ImGui::GetWindowSize().y * 4/3.0f;
                 int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
-                GL_CALL(glViewport(left,0,newW,ImGui::GetWindowSize().y));
+                GL_CALL(glViewport(0,0,ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
             }
         }
         m_Buffer.get()->Bind();

@@ -11,4 +11,3 @@
 #include "object/object.h"
 #include "object/object_properties_component.h"
 #include "gui_layer/gui_layer.h"
-#include "object/hidden_in_editor.h"

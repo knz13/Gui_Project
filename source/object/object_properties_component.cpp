@@ -14,8 +14,8 @@ bool ObjectPropertiesComponent::IsActive() const{
 
 
 void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
-    for(auto& [handle,prop] : m_AttachedComponentsProperties){
-        prop.m_UpdateFunc(deltaTime);
+    for(auto& name : GetComponentClassNames()){
+        Object(m_MasterHandle).GetComponentByName(name)->Update(deltaTime);
     }
 }
 
@@ -39,10 +39,10 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         
         if(!prop.m_IsShowPropertiesChildOpen){
             
-            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,30),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);
+            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop).c_str(),ImVec2(0,30),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);
         }
         else{
-            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop.m_ShowPropertiesFunc).c_str(),ImVec2(0,200),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);
+            ImGui::BeginChild(GuiLayer::GetImGuiID(&prop).c_str(),ImVec2(0,200),true,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_AlwaysUseWindowPadding);
         
         }
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 6,ImGui::GetCursorPos().y));
@@ -75,13 +75,8 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
         if(prop.m_IsShowPropertiesChildOpen){
             if(!passed){
                 ImGui::Spacing();
-                prop.m_ShowPropertiesFunc();
-                
-            
             }
-            else {
-                prop.m_ShowPropertiesFunc();
-            }
+            Object(m_MasterHandle).GetComponentByName(prop.m_ClassName)->ShowProperties();
             ImGui::TreePop();
             passed = true;
         }
@@ -126,17 +121,19 @@ Color ObjectPropertiesComponent::GetHighlightColor() const {
 }
 
 void ObjectPropertiesComponent::HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop) {
+    m_CurrentComponentNames.clear();
     m_AttachedComponentsProperties[type] = prop;
 }
 
 void ObjectPropertiesComponent::EraseComponentProperties(entt::id_type type) {
     if(m_AttachedComponentsProperties.find(type) != m_AttachedComponentsProperties.end()){
-            m_AttachedComponentsProperties.erase(type);
-        }
+        m_CurrentComponentNames.clear();
+        m_AttachedComponentsProperties.erase(type);
+    }
 }
 
 
-std::string ObjectPropertiesComponent::GetComponentByName(entt::id_type type) const {
+std::string ObjectPropertiesComponent::GetComponentNameByID(entt::id_type type) const {
     if(this->m_AttachedComponentsProperties.find(type) != this->m_AttachedComponentsProperties.end()){
         return this->m_AttachedComponentsProperties.at(type).m_ClassName;
     }
@@ -208,3 +205,12 @@ void ObjectPropertiesComponent::ClearParent() {
     m_Parent = entt::null;
 }
 
+
+const std::vector<std::string>& ObjectPropertiesComponent::GetComponentClassNames() {
+    if(m_CurrentComponentNames.size() == 0){
+        for(auto& [id,prop] : m_AttachedComponentsProperties){
+            m_CurrentComponentNames.push_back(prop.m_ClassName);
+        }
+    }
+    return m_CurrentComponentNames;
+}

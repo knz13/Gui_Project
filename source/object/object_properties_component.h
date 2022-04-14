@@ -12,8 +12,6 @@ using namespace std;
 
 
 struct AttachedComponentProperties {
-    std::function<void(float)> m_UpdateFunc;
-    std::function<void()> m_ShowPropertiesFunc;
     bool* m_ActiveState = nullptr;
     bool* m_HideInEditor = nullptr;
     bool* m_IsDeletable = nullptr;
@@ -48,6 +46,8 @@ public:
     
     ObjectHandle GetParent();
     const std::vector<entt::entity>& GetChildren();
+    const std::vector<std::string>& GetComponentClassNames();
+
     void SetParent(Object e);
     void ClearParent();
     bool IsInChildren(Object obj);
@@ -60,7 +60,7 @@ public:
     std::string GetName() const;
     void SetName(std::string name);
 
-    std::string GetComponentByName(entt::id_type type) const;
+    std::string GetComponentNameByID(entt::id_type type) const;
     
 private:
     void HandleComponentProperties(entt::id_type type, AttachedComponentProperties prop);
@@ -68,7 +68,7 @@ private:
 
     std::vector<entt::id_type> m_IDsToDelete;
     std::unordered_map<entt::id_type,AttachedComponentProperties> m_AttachedComponentsProperties;
-    
+    std::vector<std::string> m_CurrentComponentNames;
 
     std::vector<entt::entity> m_Children;
     entt::entity m_Parent = entt::null;

@@ -3,7 +3,8 @@
 #include "object_properties_component.h"
 
 
-
+template<typename T,typename B>
+class Component;
 class TransformComponent;
 class Object {
 public:
@@ -24,13 +25,8 @@ public:
     }
 
     bool HasComponent(std::string type){
-        bool found = false;
-        for(auto& [id,prop] : Properties().m_AttachedComponentsProperties){
-            if(type == prop.m_ClassName){
-                found = true;
-            }
-        }
-        return found;
+        auto& vec = Properties().GetComponentClassNames();
+        return std::find(vec.begin(),vec.end(),type) != vec.end();
     }
 
     template<typename T>
@@ -68,19 +64,9 @@ public:
         }
     };
 
-    void* TryAddComponent(std::string stringToHash){
+    Component<const void*,const void*>* TryAddComponent(std::string stringToHash);
 
-        auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
-        if(resolved){
-            entt::meta_any owner = resolved.construct(*this);
-            return owner.data();
-        }
-        else{
-            return nullptr;
-        }
-    }
-
-    
+    Component<const void*,const void*>* GetComponentByName(std::string stringToHash);
 
     template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
@@ -219,14 +205,6 @@ private:
     void HandleComponent(T& comp){
 
         AttachedComponentProperties prop;
-        prop.m_UpdateFunc = [&](float time){
-            comp.Update(time);
-        };
-
-        prop.m_ShowPropertiesFunc = [&](){
-            comp.ShowProperties();
-        };
-
 
         comp.m_MyClassTypeID = HashComponent<T>();
         prop.m_ClassName = Registry::GetClassName<T>();

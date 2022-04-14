@@ -68,11 +68,11 @@ Object Registry::DuplicateObject(Object other) {
         }
         if(storage.contains(other.ID()) && !storage.contains(obj.ID())){
                 void* oldData = storage.get(other.ID());
-                obj.TryCopyComponent(other.Properties().GetComponentByName(id),other);
+                obj.TryCopyComponent(other.Properties().GetComponentNameByID(id),other);
         }
         else if(storage.contains(obj.ID())){
             
-            obj.TryCopyComponent(obj.Properties().GetComponentByName(id),other);
+            obj.TryCopyComponent(obj.Properties().GetComponentNameByID(id),other);
         }
     }
 
