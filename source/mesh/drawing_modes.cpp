@@ -112,28 +112,35 @@ void DrawingModeType::Points(DrawingMode& mode) {
     mode.m_ShowPropertiesFunc = [&](){
         static Color pointColor = Color::White;
         static float pointSize = 1;
+        static float pointSizeRange[2]; 
         static bool firstLoop = true;
+        if(firstLoop){
+            uint32_t id = mode.GetMasterObject().GetComponent<Mesh>().PreDrawn().Connect([&](Mesh& mesh,Shader&){
+            mesh.SetShader("default_shaders/points_shader");
+            if(Window::GetCurrentWindow().GetCurrentCamera()){
+                float distance = glm::distance(Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().Transform().GetPosition(),mode.GetMasterObject().Transform().GetPosition());
+                mesh.GetShader().SetUniform1f("cameraDistance",distance);
+            }
+            mesh.GetShader().SetUniform1f("pointSize",pointSize);
+            mesh.GetShader().SetUniform3f("pointColor",pointColor.Normalized().x,pointColor.Normalized().y,pointColor.Normalized().z);
+
+            });
+
+            GL_CALL(glGetFloatv(GL_POINT_SIZE_RANGE,pointSizeRange));
+            mode.m_DeleteFunc = [&](){
+                mode.GetMasterObject().GetComponent<Mesh>().PreDrawn().Disconnect(id);
+            };
+            firstLoop = false;
+        }
+
         ImGui::BulletText("Point Size");
 
-        ImGui::SliderFloat(GuiLayer::GetImGuiID(&pointSize).c_str(),&pointSize,0,10);
+        ImGui::SliderFloat(GuiLayer::GetImGuiID(&pointSize).c_str(),&pointSize,pointSizeRange[0],pointSizeRange[1]);
 
         ImGui::BulletText("Point Color");
         ImGui::SameLine();
 
         ImGui::ColorEdit3(GuiLayer::GetImGuiID(&pointColor).c_str(),&pointColor.Normalized().x,ImGuiColorEditFlags_InputRGB);
 
-        if(firstLoop){
-            uint32_t id = mode.GetMasterObject().GetComponent<Mesh>().PreDrawn().Connect([&](Mesh& mesh,Shader&){
-            mesh.SetShader("default_shaders/points_shader");
-            mesh.GetShader().SetUniform1f("pointSize",pointSize);
-            mesh.GetShader().SetUniform3f("pointColor",pointColor.Normalized().x,pointColor.Normalized().y,pointColor.Normalized().z);
-
-            });
-
-            mode.m_DeleteFunc = [&](){
-                mode.GetMasterObject().GetComponent<Mesh>().PreDrawn().Disconnect(id);
-            };
-            firstLoop = false;
-        }
     };
 }

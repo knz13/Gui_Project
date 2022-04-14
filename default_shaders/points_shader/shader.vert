@@ -4,9 +4,10 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
 layout(location = 3) in vec3 tangent;
 
+uniform float cameraDistance;
 uniform float pointSize;
 uniform mat4 MVP;
 void main(){
     gl_Position = MVP * vec4(pos,1.0);
-    gl_PointSize = pointSize;
+    gl_PointSize = pointSize/cameraDistance;
 }
