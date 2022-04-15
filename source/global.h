@@ -37,7 +37,6 @@
 #include "../vendor/imguizmo/ImGuizmo.h"
 #include "object/registry.h"
 #include "object/add_to_every_object.h"
-#include "object/add_when_called.h"
 #include "general/math.h"
 #include "general/helpers.h"
 #include "object/component.h"

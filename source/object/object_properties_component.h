@@ -79,7 +79,7 @@ private:
     Color m_HighlightColor = Color::Red;
     
 
-    template<typename,typename>
+    template<typename,typename...>
     friend class Component;
     friend class Registry;
     friend class Object;

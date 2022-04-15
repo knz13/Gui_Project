@@ -2,8 +2,11 @@
 #include "registry.h"
 #include "object_properties_component.h"
 
+namespace ComponentHelpers {
+    class Null;
+}
 
-template<typename T,typename B>
+template<typename,typename...>
 class Component;
 class TransformComponent;
 class Object {
@@ -64,9 +67,9 @@ public:
         }
     };
 
-    Component<const void*,const void*>* TryAddComponent(std::string stringToHash);
+    Component<ComponentHelpers::Null>* TryAddComponent(std::string stringToHash);
 
-    Component<const void*,const void*>* GetComponentByName(std::string stringToHash);
+    Component<ComponentHelpers::Null>* GetComponentByName(std::string stringToHash);
 
     template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
@@ -226,10 +229,9 @@ private:
     template<typename>
     friend class AddToEveryObject;
 
-    template<typename>
-    friend class AddWhenCalled;
+   
 
-    template<typename,typename>
+    template<typename,typename...>
     friend class Component;
 };
 
