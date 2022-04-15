@@ -7,7 +7,7 @@
 
 
 
-void TriangleMode::ShowProperties() {
+void TrianglesMode::ShowProperties() {
     static int currentItem = 0;
     std::vector<std::string> items = {"Triangle","Triangle Strip","Triangle Fan"};
     const char* current = items[currentItem].c_str();
@@ -45,7 +45,7 @@ void TriangleMode::ShowProperties() {
 }
 
 
-void LineMode::ShowProperties() {
+void LinesMode::ShowProperties() {
     static int currentIndex = 0;
     std::vector<std::string> items = {"Line","Line Loop","Line Strip"};
     const char* current = items[currentIndex].c_str();

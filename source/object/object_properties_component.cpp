@@ -21,6 +21,7 @@ void ObjectPropertiesComponent::CallUpdateFunctions(float deltaTime) {
 
 void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
     static std::vector<std::string> idsToErase;
+    ImGui::Text(("Handle = " + std::to_string((size_t)m_MasterHandle)).c_str());
     for(auto& [handle,prop] : m_AttachedComponentsProperties){
         
         if(*prop.m_HideInEditor){
@@ -76,6 +77,10 @@ void ObjectPropertiesComponent::CallShowPropertiesFunctions() {
             if(!passed){
                 ImGui::Spacing();
             }
+
+
+
+            ImGui::Text(("m_MasterHandle = " + std::to_string((size_t)Object(m_MasterHandle).GetComponentByName(prop.m_ClassName)->m_MasterHandle)).c_str());
             Object(m_MasterHandle).GetComponentByName(prop.m_ClassName)->ShowProperties();
             ImGui::TreePop();
             passed = true;
@@ -213,4 +218,6 @@ const std::vector<std::string>& ObjectPropertiesComponent::GetComponentClassName
         }
     }
     return m_CurrentComponentNames;
+    
 }
+

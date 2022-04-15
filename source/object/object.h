@@ -107,7 +107,7 @@ public:
             ObjectPropertiesComponent& properties = Properties();
             properties.EraseComponentProperties(HashComponent<T>());
             
-            Registry::Get().erase<T>(m_EntityHandle);
+            Registry::Get().storage<T>().erase(m_EntityHandle);
         }
     };
 
@@ -239,12 +239,18 @@ public:
     ObjectHandle(entt::entity ent){
         m_Handle = ent;
     };
+    ObjectHandle(){
+        isNull = true;
+    }
 
     Object GetAsObject(){
         return Object(m_Handle);
     };
 
     operator bool(){
+        if(isNull){
+            return false;
+        }
         return Registry::Get().valid(m_Handle);
     };
 
@@ -252,6 +258,6 @@ public:
 
 private:
     entt::entity m_Handle = entt::null;
-
+    bool isNull = false;
     
 };

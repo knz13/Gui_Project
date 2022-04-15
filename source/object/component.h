@@ -105,9 +105,7 @@ public:
         return m_IsRemovable;
     }
 
-    bool IsAvailableDuringPlay() {
-        return m_IsAvailableDuringPlay;
-    }
+    
 protected:
     Component(){
 
@@ -143,10 +141,6 @@ protected:
         m_IsRemovable = state;
     }
 
-    void SetDisabledInPlay(bool state) {
-        m_IsAvailableDuringPlay = !state;
-    }
-
     ~Component(){}
 
     Object GetMasterObject() const {
@@ -170,7 +164,7 @@ private:
     bool m_BaseComponentActiveState = true;
     bool m_ShouldHideInEditor = false;
     bool m_IsRemovable = true;
-    bool m_IsAvailableDuringPlay = true;
+    
     static inline bool Initialized = true;
 
     friend class Object;

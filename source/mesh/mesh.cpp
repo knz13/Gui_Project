@@ -55,7 +55,7 @@ Mesh::Mesh() {
 }
 
 Mesh::~Mesh() {
-    m_DeletedFuncs.EmitEvent(*this);
+    
     
 }
 
@@ -100,22 +100,12 @@ void Mesh::Draw() {
 
 
 void Mesh::SetDrawingMode(std::string mode) {
-    if(mode == "Triangles"){
-        m_DrawingMode = DrawingMode::GetSharedPtr<TriangleMode>(this->GetMasterObject());
-        m_CurrentDrawingMode = mode;
-    }
-    if(mode == "Lines"){
-        m_DrawingMode = DrawingMode::GetSharedPtr<LineMode>(this->GetMasterObject());
-        m_CurrentDrawingMode = mode;
-    }
-    if(mode == "Points"){
-        m_DrawingMode = DrawingMode::GetSharedPtr<PointsMode>(this->GetMasterObject());
+    if(auto ptr = DrawingModeHelpers::GetSharedPtrFromName(mode,this->GetMasterObject()); ptr){
+        m_DrawingMode = ptr;
+        m_DrawingModeComboItem = DrawingModeStorage::GetTypeIndex(mode);
         m_CurrentDrawingMode = mode;
     }
 }
-
-
-
 
 FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> Mesh::PreDrawn() {
     return FunctionSink<void(Mesh&,Shader&,const glm::mat4&)>(m_PreDrawFuncs);
@@ -133,17 +123,16 @@ void Mesh::ShowProperties() {
     ImGui::BulletText("Mode:");
     ImGui::SameLine();
 
-    std::vector<const char*> items = {"Triangles","Lines","Points"};
-    const char* currentItem = items[m_DrawingModeComboItem];
+    const std::vector<std::string>& items = DrawingModeStorage::GetRegisteredTypes();
+    const char* currentItem = items[m_DrawingModeComboItem].c_str();
 
     ImGui::PushItemWidth(120);
     if(ImGui::BeginCombo((GuiLayer::GetImGuiID(this) + "Combo").c_str(),currentItem)){
         int index = 0;
         for(auto& item : items){
             const bool isSelected = (m_DrawingModeComboItem == index);
-            if(ImGui::Selectable(item,isSelected)){
+            if(ImGui::Selectable(item.c_str(),isSelected)){
                 SetDrawingMode(item);
-                m_DrawingModeComboItem = index;
             }
 
             if(isSelected){
@@ -196,6 +185,10 @@ Mesh& Mesh::operator=(const Mesh& other) {
     }
 
     this->SetDrawingMode(other.m_CurrentDrawingMode);
+    if(m_CurrentDrawingMode != "" ){
+        DrawingModeHelpers::CopyStats(m_CurrentDrawingMode,m_DrawingMode.get(),other.m_DrawingMode.get());
+    }
+
     m_ShaderName = other.m_ShaderName;
     return *this;
 }
@@ -216,4 +209,5 @@ void Mesh::Init() {
 void Mesh::Destroy() { 
     m_DrawingMode.reset();
     m_CurrentDrawingMode = "";
+    m_DeletedFuncs.EmitEvent(*this);
 }

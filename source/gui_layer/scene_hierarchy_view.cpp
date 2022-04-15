@@ -139,15 +139,15 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
 
         vertices.positions = {
         // front
-        -1.0, -1.0,  1.0,
-        1.0, -1.0,  1.0,
-        1.0,  1.0,  1.0,
-        -1.0,  1.0,  1.0,
+        -0.5, -0.5,  0.5,
+        0.5, -0.5,  0.5,
+        0.5,  0.5,  0.5,
+        -0.5,  0.5,  0.5,
         // back
-        -1.0, -1.0, -1.0,
-        1.0, -1.0, -1.0,
-        1.0,  1.0, -1.0,
-        -1.0,  1.0, -1.0
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5,  0.5, -0.5,
+        -0.5,  0.5, -0.5
         };
 
         vertices.indices = {
@@ -179,9 +179,32 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
         
     };
 
+    m_DefaultObjects["Plane"] = [](){
+        MeshAttribute::Vertex vertices;
+
+        vertices.positions = {
+            -0.5f,-0.5f,0.0f,
+            0.5f,-0.5f,0.0f,
+            0.5f,0.5f,0.0f,
+            -0.5f,0.5f,0.0f
+        };
+
+        vertices.indices = {
+            0,1,2,
+            2,3,0
+        };
+
+        Object obj = Registry::CreateObject("Plane");
+        Mesh& mesh = obj.AddComponent<Mesh>();
+
+        mesh.SetVertices(vertices);
+        mesh.SetShader("default_shaders/base_shader");
+    };
+
     m_DefaultObjects["Camera"] = [](){
         Object obj = Registry::CreateObject("Camera");
         obj.AddComponent<Camera>();
     };
+
 
 }

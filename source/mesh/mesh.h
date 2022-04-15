@@ -8,6 +8,11 @@
 class Shader;
 class Mesh;
 
+namespace DrawingModeHelpers {
+    class Null;
+
+};
+
 namespace MeshAttribute {
 
     struct Vertex {
@@ -59,7 +64,7 @@ private:
     
     
     MeshAttribute::Vertex m_Vertices;
-    std::shared_ptr<DrawingMode> m_DrawingMode;
+    std::shared_ptr<DrawingMode<DrawingModeHelpers::Null>> m_DrawingMode;
     std::map<std::string,MeshAttribute::ShaderUniformVariable> m_PublicShaderVariables;
     int m_DrawingModeComboItem = 0;
     VertexArray* m_VAO=nullptr;

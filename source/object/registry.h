@@ -5,6 +5,7 @@
 #include <random>
 
 class Object;
+class ObjectHandle;
 class Registry{
 public:
 
@@ -46,6 +47,7 @@ public:
         return name;
     }
 
+    static ObjectHandle FindObjectByName(std::string name);
 
     template<typename T>
     static entt::id_type HashClassName() {

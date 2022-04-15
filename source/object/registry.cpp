@@ -14,6 +14,18 @@ entt::registry& Registry::Get() {
 Object Registry::CreateObject(std::string name) {
     entt::entity ent = m_Registry.create();
 
+    int index = 1;
+    if(Registry::FindObjectByName(name)){
+        if(name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)){
+            name += "(" + std::to_string(index) + ")";
+        }
+    }
+
+    while(Registry::FindObjectByName(name)){
+        index++;
+        name.replace(name.find_last_of("(")+1,std::to_string(index-1).size(),std::to_string(index));
+    }
+
     m_Registry.emplace<ObjectPropertiesComponent>(ent,name,ent);
 
 
@@ -67,7 +79,7 @@ Object Registry::DuplicateObject(Object other) {
             continue;
         }
         if(storage.contains(other.ID()) && !storage.contains(obj.ID())){
-                void* oldData = storage.get(other.ID());
+                obj.TryAddComponent(other.Properties().GetComponentNameByID(id));
                 obj.TryCopyComponent(other.Properties().GetComponentNameByID(id),other);
         }
         else if(storage.contains(obj.ID())){
@@ -91,4 +103,19 @@ void Registry::UpdateState() {
         }
     }
     m_ObjectsToDelete.clear();
+}
+
+ObjectHandle Registry::FindObjectByName(std::string name) {
+    
+    
+    for(auto [handle,comp] : Registry::Get().storage<ObjectPropertiesComponent>().each()){
+        if(Object(handle).HasComponent<DisableInPlay>()){
+            continue;
+        }
+
+        if(comp.GetName() == name){
+            return ObjectHandle(handle);
+        }
+    }
+    return ObjectHandle();
 }
