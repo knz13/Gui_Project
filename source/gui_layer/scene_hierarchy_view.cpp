@@ -71,6 +71,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
             ImGui::SameLine();
 
             ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,10);
+            ImGui::SetKeyboardFocusHere();
             if(ImGui::InputText("##",&nameToRename,ImGuiInputTextFlags_EnterReturnsTrue)){
                 obj.Properties().SetName(nameToRename);
                 openRename = false;
@@ -83,8 +84,16 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
         }
     }
     else{
+
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
+        if(GameView::AnyObjectSelected()){
+            if(GameView::AnyObjectSelected().objectID == obj.ID()){
+                flags |= ImGuiTreeNodeFlags_Selected;
+            }
+        }
+
         ImGui::SetNextItemOpen(true);
-        if(ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(),ImGuiTreeNodeFlags_SpanFullWidth)){
+        if(ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(),flags)){
             
             if(ImGui::BeginDragDropSource()){
 
