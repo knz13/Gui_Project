@@ -207,6 +207,9 @@ bool ObjectPropertiesComponent::IsInChildren(Object obj) {
 }
 
 void ObjectPropertiesComponent::ClearParent() {
+    if(m_Parent != entt::null){
+        Object(m_Parent).Properties().RemoveChildren(Object(m_MasterHandle));
+    }
     m_Parent = entt::null;
 }
 

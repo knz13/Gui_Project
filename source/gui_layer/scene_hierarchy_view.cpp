@@ -8,6 +8,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
     });
 
     
+    
 
 
    
@@ -24,7 +25,23 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
     }
 
-    if(ImGui::BeginPopupContextWindow("AddingObjectsAndPropertiesPopup",ImGuiPopupFlags_NoOpenOverItems | ImGuiPopupFlags_MouseButtonRight)){
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(0,0));
+    ImGui::InvisibleButton("InvisibleButton",ImVec2(ImGui::GetWindowSize().x - ImGui::GetCursorPosX() - ImGui::GetWindowSize().x/15.0f,ImGui::GetWindowSize().y - ImGui::GetCursorPosY() - ImGui::GetWindowSize().y/30.0f));
+    ImGui::PopStyleVar();
+
+    if(ImGui::BeginDragDropTarget()){
+
+        const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AddChildren",ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
+
+        if(payload){
+            Object unParentTarget(*(entt::entity*)payload->Data);
+            unParentTarget.Properties().ClearParent();
+        }
+
+        ImGui::EndDragDropTarget();
+    }
+
+    if(ImGui::BeginPopupContextItem("AddingObjectsAndPropertiesPopup", ImGuiPopupFlags_MouseButtonRight)){
 
         if(ImGui::BeginMenu("Create Object")){
             for(auto& [name,func] : m_DefaultObjects){
@@ -81,10 +98,8 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
                 const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AddChildren");
                 if(payload){
                     Object maybeChildren(*(entt::entity*)payload->Data);
-                    if(maybeChildren.Properties().IsInChildren(obj)){
+                    if(!maybeChildren.Properties().IsInChildren(obj)){
                         maybeChildren.Properties().ClearParent();
-                    }
-                    else{
                         maybeChildren.Properties().SetParent(obj);
                     }
                 }
@@ -103,6 +118,12 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
 
                 if(ImGui::MenuItem("Delete")){
                     Registry::DeleteObject(obj);
+                }
+
+                if(obj.Properties().GetParent()){
+                    if(ImGui::MenuItem("Make Independent")){
+                        obj.Properties().ClearParent();
+                    }
                 }
 
                 ImGui::EndPopup();
