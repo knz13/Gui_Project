@@ -55,7 +55,11 @@ void Camera::ShowProperties() {
     }
     bool stateHolder = isCurrent;
 
-    ImGui::Checkbox("Set Current",&isCurrent);
+
+    ImGui::AlignedText("Set Current");
+    ImGui::SameLine();
+    ImGui::AlignNextCheckboxRight();
+    ImGui::Checkbox(GuiLayer::GetImGuiID(&m_DrawNear).c_str(),&isCurrent);
 
     if(stateHolder && !isCurrent){
         Window::GetCurrentWindow().DisableCamera();
@@ -65,12 +69,19 @@ void Camera::ShowProperties() {
         Window::GetCurrentWindow().SetCamera(GetMasterObject());
     }
 
-
-    ImGui::BulletText("Fov");
-    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_Fov).c_str(),&m_Fov,0.1,0,180);
-    ImGui::BulletText("Render Distance");
+    
+    
+    ImGui::AlignedText("Fov");
+    ImGui::SameLine();
+    ImGui::AlignNextRight();
+    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_Fov).c_str(),&m_Fov,0.1,0,150);
+    ImGui::AlignedText("Render Distance");
+    ImGui::SameLine();
+    ImGui::AlignNextRight();
     ImGui::DragFloat(GuiLayer::GetImGuiID(&m_DrawDistance).c_str(),&m_DrawDistance,0.1,0);
-    ImGui::BulletText("Render Cuttoff");
+    ImGui::AlignedText("Render Cutoff");
+    ImGui::SameLine();
+    ImGui::AlignNextRight();
     ImGui::DragFloat(GuiLayer::GetImGuiID(&m_DrawNear).c_str(),&m_DrawNear,0.1,0);
 
 

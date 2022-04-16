@@ -267,50 +267,6 @@ set(${PROJECT_NAME}_LIBRARIES )
 
 
 
-# repository download and settings for imgui...
-
-    dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
-
-
-    # adding includes:
-
-
-        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/imgui)
-
-    
-    # adding sources
-
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_tables.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_widgets.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp)
-
-        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/misc/cpp/imgui_stdlib.cpp)
-
-
-    if(NOT ${imgui_exists})
-        FetchContent_Declare(IMGUI
-        GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG origin/docking
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imgui
-        )
-
-        FetchContent_MakeAvailable(IMGUI)
-
-    endif()
-                    
-
-
 # repository download and settings for json...
 
     dir_exists(json_exists ${PROJECT_SOURCE_DIR}/vendor/json)
@@ -359,6 +315,50 @@ set(${PROJECT_NAME}_LIBRARIES )
         )
 
         FetchContent_MakeAvailable(ENTT)
+
+    endif()
+                    
+
+
+# repository download and settings for imgui...
+
+    dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/imgui)
+
+    
+    # adding sources
+
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_tables.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_widgets.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/vendor/imgui/misc/cpp/imgui_stdlib.cpp)
+
+
+    if(NOT ${imgui_exists})
+        FetchContent_Declare(IMGUI
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+        GIT_TAG origin/docking
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imgui
+        )
+
+        FetchContent_MakeAvailable(IMGUI)
 
     endif()
                     
@@ -441,7 +441,7 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/obj
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/general/math.cpp)
 
 
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/component.cpp)
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/components/component.cpp)
 
 
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/gui_layer/explorer_view.cpp)
@@ -460,6 +460,9 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/general/he
 
 
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/gui_layer/gui_view.cpp)
+
+
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/gui_layer/gui_useful_implementations.cpp)
 
 
 #creating executable

@@ -94,14 +94,14 @@ private:
     void EndDrawState();
     void PostDrawOperations();
     
-    reactphysics3d::PhysicsWorld* m_PhysicsWorld;
+    
     bool m_IsOpen = true;
     WindowCreationProperties m_Properties;
     GLFWwindow* m_ContextPointer=nullptr;
 
     entt::entity m_MainCamera = entt::null;
     
-
+    
 
     float m_DeltaTime = 0;
 

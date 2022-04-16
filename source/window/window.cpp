@@ -165,8 +165,8 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     Window::m_StartWindowFuncs.EmitEvent(*this);
 
+    
 
-    this->m_PhysicsWorld = Registry::GetPhysicsCommon().createPhysicsWorld();
 }
 
 Window::~Window() {
@@ -174,6 +174,8 @@ Window::~Window() {
     
     m_CreatedShaders.clear();
     m_CreatedVertexArrays.clear();
+
+    
 
     Window::m_CurrentWindows.erase(m_ContextPointer);
 

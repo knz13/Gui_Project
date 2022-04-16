@@ -120,12 +120,13 @@ void Mesh::Update(float deltaTime) {
 }
 
 void Mesh::ShowProperties() {
-    ImGui::BulletText("Mode:");
+    ImGui::AlignedText("Mode:");
     ImGui::SameLine();
 
     const std::vector<std::string>& items = DrawingModeStorage::GetRegisteredTypes();
     const char* currentItem = items[m_DrawingModeComboItem].c_str();
 
+    
     ImGui::PushItemWidth(120);
     if(ImGui::BeginCombo((GuiLayer::GetImGuiID(this) + "Combo").c_str(),currentItem)){
         int index = 0;

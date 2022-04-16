@@ -36,10 +36,10 @@
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/imguizmo/ImGuizmo.h"
 #include "object/registry.h"
-#include "object/add_to_every_object.h"
+#include "components/add_to_every_object.h"
 #include "general/math.h"
 #include "general/helpers.h"
-#include "object/component.h"
+#include "components/component.h"
 #include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
 using namespace std;
 

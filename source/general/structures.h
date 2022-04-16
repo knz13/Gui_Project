@@ -27,7 +27,7 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../object/object.h"
-#include "../object/component.h"
+#include "../components/component.h"
 using namespace std;
 
 

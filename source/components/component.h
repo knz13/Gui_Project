@@ -19,8 +19,10 @@ public:
         return m_IsRemovable;
     }
 
-    bool IsAvailableDuringPlay() {
-        return m_IsAvailableDuringPlay;
+    
+
+    bool CanBeDisabled() {
+        return m_CanBeDisabled;
     }
 protected:
     Component() {
@@ -57,9 +59,11 @@ protected:
         m_IsRemovable = state;
     }
 
-    void SetDisabledInPlay(bool state) {
-        m_IsAvailableDuringPlay = !state;
+    void MakeAlwaysEnabled(bool state){
+        m_CanBeDisabled = !state;
     }
+
+    
 
     ~Component(){}
 
@@ -83,8 +87,9 @@ private:
     entt::entity m_MasterHandle = entt::null;
     bool m_BaseComponentActiveState = true;
     bool m_ShouldHideInEditor = false;
+    bool m_CanBeDisabled = true;
     bool m_IsRemovable = true;
-    bool m_IsAvailableDuringPlay = true;
+    
     static inline bool Initialized = [](){
         if(entt::type_id<T>().name() != entt::type_id<ComponentHelpers::Null>().name()){
             Object::RegisterClassAsComponent<T>(); 

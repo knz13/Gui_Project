@@ -3,7 +3,7 @@
 #include "../opengl_wrappers/vertex_array.h"
 #include "drawing_modes.h"
 #include "../general/transform.h"
-#include "../object/component.h"
+#include "../components/component.h"
 
 class Shader;
 class Mesh;

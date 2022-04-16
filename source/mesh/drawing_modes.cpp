@@ -11,8 +11,8 @@ void TrianglesMode::ShowProperties() {
     static int currentItem = 0;
     std::vector<std::string> items = {"Triangle","Triangle Strip","Triangle Fan"};
     const char* current = items[currentItem].c_str();
-
-    ImGui::BulletText("Triangle Type");
+    
+    ImGui::AlignedText("Triangle Type");
 
     if(ImGui::BeginCombo(("##Triangle Type Combo" + GuiLayer::GetImGuiID(&currentItem)).c_str(),current)){
 
@@ -50,7 +50,7 @@ void LinesMode::ShowProperties() {
     std::vector<std::string> items = {"Line","Line Loop","Line Strip"};
     const char* current = items[currentIndex].c_str();
 
-    ImGui::BulletText("Line Type");
+    ImGui::AlignedText("Line Type");
 
     if(ImGui::BeginCombo(("##Line Type Combo" + GuiLayer::GetImGuiID(&currentIndex)).c_str(),current)){
 
@@ -85,11 +85,11 @@ void LinesMode::ShowProperties() {
 
 void PointsMode::ShowProperties() {
     
-    ImGui::BulletText("Point Size");
+    ImGui::AlignedText("Point Size");
 
     ImGui::SliderFloat(GuiLayer::GetImGuiID(&pointSize).c_str(),&pointSize,pointSizeRange[0],pointSizeRange[1]);
 
-    ImGui::BulletText("Point Color");
+    ImGui::AlignedText("Point Color");
 
     ImGui::ColorEdit3(GuiLayer::GetImGuiID(&pointColor).c_str(),&pointColor.Normalized().x,ImGuiColorEditFlags_InputRGB);
 }
