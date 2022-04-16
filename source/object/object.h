@@ -192,12 +192,13 @@ private:
     }
 
     template<typename T>
-    static void RegisterClassAsComponent(){
+    static bool RegisterClassAsComponent(){
         entt::id_type hash = Registry::HashClassName<T>();
-        entt::meta<T>().type(hash).ctor<&Object::GetComponent<T>,entt::as_ref_t>();
-        entt::meta<T>().type(hash).func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
-        entt::meta<T>().type(hash).func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
+        entt::meta<T>().type(hash).template ctor<&Object::GetComponent<T>,entt::as_ref_t>();
+        entt::meta<T>().type(hash).template func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
+        entt::meta<T>().type(hash).template func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
         m_RegisteredComponents.push_back(Registry::GetClassName<T>());
+        return true;
     };
     template<typename T>
     static entt::id_type HashComponent(){

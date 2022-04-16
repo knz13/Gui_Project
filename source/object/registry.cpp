@@ -4,6 +4,7 @@
 #include "../kv.h"
 #include <ctime>
 
+std::vector<Object> Registry::m_ObjectsToDelete;
 reactphysics3d::PhysicsCommon Registry::m_PhysicsManager;
 entt::registry Registry::m_Registry;
 std::mt19937 Registry::m_RandomGenerator(time(nullptr));

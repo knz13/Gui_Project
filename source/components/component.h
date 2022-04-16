@@ -26,7 +26,7 @@ public:
     }
 protected:
     Component() {
-
+        (void*)Component::Initialized;
     };
 
     Component<T,Behaviors...>& operator=(const Component<T,Behaviors...>& comp){
@@ -75,7 +75,6 @@ protected:
         return m_BaseComponentActiveState;
     }
 
-    
 
 private:
 
@@ -90,12 +89,15 @@ private:
     bool m_CanBeDisabled = true;
     bool m_IsRemovable = true;
     
+    
+    
     static inline bool Initialized = [](){
         if(entt::type_id<T>().name() != entt::type_id<ComponentHelpers::Null>().name()){
             Object::RegisterClassAsComponent<T>(); 
         }
         return true;
     }();
+
 
     friend class Object;
     friend class ObjectPropertiesComponent;

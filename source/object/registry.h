@@ -58,7 +58,7 @@ public:
 private:
     static Object DuplicateObject(Object other);
 
-    static inline std::vector<Object> m_ObjectsToDelete;
+    static std::vector<Object> m_ObjectsToDelete;
     static std::mt19937 m_RandomGenerator;
     static reactphysics3d::PhysicsCommon m_PhysicsManager;
     static entt::registry m_Registry;
