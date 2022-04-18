@@ -42,6 +42,11 @@ bool Mesh::ReadyToDraw() {
     return m_ShaderName != "" && shaderValid && GetActiveState();
 }
 
+void Mesh::TrySetMesh(std::string path)
+{
+
+}
+
 
 
 VertexArray& Mesh::GetVertexArray() {

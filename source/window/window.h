@@ -19,7 +19,7 @@ struct WindowEvents {
     FunctionSink<void(Window&,MouseEventProperties)> MouseEnteredWindowEvent();
     FunctionSink<void(Window&,MouseEventProperties)> MouseLeftWindowEvent();
     FunctionSink<void(Window&,KeyEventProperties)> KeyEvent();
-    FunctionSink<void(Window&,MouseEventProperties)> MouseEvent();
+    FunctionSink<void(Window&,MouseEventProperties)> MouseMovedEvent();
     FunctionSink<void(Window&)> PreDrawingLoopEvent();
     FunctionSink<void(Window&)> PostDrawingLoopEvent();
     FunctionSink<void(Window&)> ClosingEvent();
@@ -69,6 +69,7 @@ public:
     
     void DisableCamera();
     void SetCamera(Object obj);
+    void SetViewPort(int x,int y,int width,int height);
 
     const WindowCreationProperties& Properties() const;
     GLFWwindow* GetContextPointer();

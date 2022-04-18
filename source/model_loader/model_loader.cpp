@@ -108,7 +108,7 @@ LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh,Mesh& model,
 LoadedModelResult ModelLoader::LoadModel(std::string fileName,Mesh& drawable,LoadingModelProperties prop) {
     if(!std::filesystem::exists(fileName)){
 		LOG("Couldn't load model at " + fileName + " because the file was not found!");
-		LoadedModelResult(false);
+		return LoadedModelResult(false);
 	}
 
 	prop.fileName = fileName;

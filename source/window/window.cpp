@@ -150,12 +150,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     this->Events().ResizedEvent().Connect([](Window& win,WindowResizedEventProperties prop){
         win.m_Properties.width = prop.width;
         win.m_Properties.height = prop.height;
-        if(win.GetCurrentCamera()){
-
-            glm::vec4 viewport = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetViewPort();
-            GL_CALL(glViewport(viewport.x*win.m_Properties.width,viewport.y*win.m_Properties.height,viewport.z*win.m_Properties.width,viewport.w*win.m_Properties.height));
-        }
-       
+        
 
     });
     
@@ -218,6 +213,16 @@ const WindowCreationProperties& Window::Properties() const {
 void Window::SetCamera(Object obj) {
     if(obj.HasComponent<Camera>()){
         m_MainCamera = obj.ID();
+    }
+}
+
+void Window::SetViewPort(int x, int y, int width, int height)
+{
+    if (GetCurrentCamera()) {
+        m_Properties.width = width - x;
+        m_Properties.height = height - y;
+        glm::vec4 viewport = GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetViewPort();
+        GL_CALL(glViewport(x,y,width,height));
     }
 }
 
@@ -449,6 +454,11 @@ FunctionSink<void(Window&,WindowResizedEventProperties)> WindowEvents::ResizedEv
 
 FunctionSink<void(Window&,KeyEventProperties)> WindowEvents::KeyEvent() {
     return FunctionSink<void(Window&,KeyEventProperties)>(m_Master.m_KeyEventFuncs);
+}
+
+FunctionSink<void(Window&, MouseEventProperties)> WindowEvents::MouseMovedEvent()
+{
+    return FunctionSink<void(Window&, MouseEventProperties)>(m_Master.m_MouseMovedFuncs);
 }
 
 FunctionSink<void(Window&)> Window::WindowCreationEvent() {

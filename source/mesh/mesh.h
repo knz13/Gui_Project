@@ -30,6 +30,11 @@ namespace MeshAttribute {
     struct ShaderUniformVariable {
         std::string type;
     };
+
+    struct LoadResult {
+       
+
+    };
 };
 
 class Mesh : public EventReceiver,public Component<Mesh>{
@@ -55,6 +60,9 @@ public:
 
     Mesh& operator=(const Mesh& other);
     bool ReadyToDraw();
+
+    void TrySetMesh(std::string path);
+
 private:
     VertexArray& GetVertexArray();
     void Init() override;

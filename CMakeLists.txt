@@ -296,30 +296,6 @@ set(${PROJECT_NAME}_LIBRARIES )
 
 
 
-# repository download and settings for entt...
-
-    dir_exists(entt_exists ${PROJECT_SOURCE_DIR}/vendor/entt)
-
-
-    # adding includes:
-
-
-        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
-
-
-    if(NOT ${entt_exists})
-        FetchContent_Declare(ENTT
-        GIT_REPOSITORY https://github.com/skypjack/entt
-        GIT_TAG origin/master
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
-        )
-
-        FetchContent_MakeAvailable(ENTT)
-
-    endif()
-                    
-
-
 # repository download and settings for imgui...
 
     dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
@@ -359,6 +335,30 @@ set(${PROJECT_NAME}_LIBRARIES )
         )
 
         FetchContent_MakeAvailable(IMGUI)
+
+    endif()
+                    
+
+
+# repository download and settings for entt...
+
+    dir_exists(entt_exists ${PROJECT_SOURCE_DIR}/vendor/entt)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
+
+
+    if(NOT ${entt_exists})
+        FetchContent_Declare(ENTT
+        GIT_REPOSITORY https://github.com/skypjack/entt
+        GIT_TAG origin/master
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
+        )
+
+        FetchContent_MakeAvailable(ENTT)
 
     endif()
                     
