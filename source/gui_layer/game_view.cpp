@@ -2,7 +2,7 @@
 #include "../kv.h"
 
 std::shared_ptr<Framebuffer> GuiLayer::GameView::m_RaycastTexture;
-std::unique_ptr<Framebuffer> GuiLayer::GameView::m_Buffer;
+ObjectHandle GuiLayer::GameView::m_EditorCamera;
 bool GuiLayer::GameView::m_CanSelect = true;
 RayCastHit GuiLayer::GameView::RayCast(ImVec2 pos) {
     m_RaycastTexture.get()->Bind();
@@ -45,29 +45,36 @@ void GuiLayer::GameView::Update(Window& win) {
         float windowPositionY = ImGui::GetWindowPos().y - ImGui::GetMainViewport()->Pos.y;
 
         if(!initialized){
-            m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-            m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-            int newW = ImGui::GetWindowSize().y * 4/3.0f;
+            
+            int newW = ImGui::GetWindowSize().y * 4 / 3.0f;
             int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
-            win.SetViewPort(0,0, ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+            //m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x,  ImGui::GetWindowSize().y);
+            //win.SetViewPort(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             initialized = true;
         }
         else{
-            if(lastSize.x != m_Buffer.get()->GetSize().x || lastSize.y != m_Buffer.get()->GetSize().y){
-                m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-                m_Buffer = std::make_unique<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
-                int newW = ImGui::GetWindowSize().y * 4/3.0f;
+            glm::vec2 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
+            if(lastSize.x != currentSize.x || lastSize.y != currentSize.y){
+                
+                int newW = ImGui::GetWindowSize().y * 4 / 3.0f;
                 int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
-                win.SetViewPort(0,0, ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+                //m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+                //win.SetViewPort(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             }
         }
-        m_Buffer.get()->Bind();
+        
+
+        
+        
+
+
+
         lastSize = ImGui::GetWindowSize();
         // Get the size of the child (i.e. the whole draw size of the windows).
         ImVec2 wsize = ImGui::GetWindowSize();
         
-
-        ImGui::Image((ImTextureID)m_Buffer.get()->GetAttachedTexture().GetID(),wsize, ImVec2(0, 1), ImVec2(1, 0));
+        //m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget()
+        ImGui::Image((ImTextureID)m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget().GetAttachedTexture().GetID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
         
 
         HandleSelectionGuizmo(win);
@@ -82,39 +89,132 @@ void GuiLayer::GameView::Update(Window& win) {
 
         ImGui::End();
 
+        m_RaycastTexture.get()->Clear();
 
-        m_RaycastTexture.get()->Bind();
-
-        GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-
-        m_RaycastTexture.get()->Unbind();
-
-        if(m_Buffer.get()->Status()){
-
-            m_Buffer.get()->Bind();
-        }
-
-
-        m_RaycastTexture.get()->GetAttachedTexture().Bind();
-        GL_CALL(glBindImageTexture(3,m_RaycastTexture.get()->GetAttachedTexture().GetID(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F));
+       
 
 }
 
 void GuiLayer::GameView::Setup(Window& win) {
+    Object obj = Registry::CreateObject("Editor Camera");
+    obj.AddComponent<Camera>();
+    
+    obj.AddComponent<InternalUse>();
+    obj.Transform().SetPosition(0,5,20);
+    obj.GetComponent<Camera>().SetLookAt(0, 0, 0);
 
-    win.Events().PostDrawingLoopEvent().Connect([&](Window& window){
-        GL_CALL(glMemoryBarrier(GL_ALL_BARRIER_BITS));
-        m_Buffer.get()->Unbind();
+
+    m_EditorCamera = ObjectHandle(obj.ID());
+
+    SetupEditorCameraDrawing();
+
+    m_RaycastTexture = std::make_shared<Framebuffer>(win.Properties().width, win.Properties().height);
+    m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(win.Properties().width, win.Properties().height));
+
+    win.Events().ResizedEvent().Connect([=](Window&, WindowResizedEventProperties prop) {
+        m_RaycastTexture = std::make_shared<Framebuffer>(prop.width,prop.height);
+        m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(prop.width,prop.height));
+
     });
 
     win.Events().ClosingEvent().Connect([&](Window& win){
         m_RaycastTexture.reset();
-        m_Buffer.reset();
     });
 }
 
 ClickedObjectProperties& GuiLayer::GameView::AnyObjectSelected() {
     return m_IsObjectSelected;
+}
+
+void GuiLayer::GameView::SetupEditorCameraDrawing()
+{
+
+    m_EditorCamera.GetAsObject().GetComponent<Camera>().SetDrawingFunction([=](Camera& camera) {
+        
+
+        m_RaycastTexture.get()->GetAttachedTexture().Bind();
+        GL_CALL(glBindImageTexture(3, m_RaycastTexture.get()->GetAttachedTexture().GetID(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F));
+
+        auto view = Registry::Get().view<TransformComponent, Mesh>();
+        for (auto entity : view) {
+
+
+            auto& transform = view.get<TransformComponent>(entity);
+            auto& drawable = view.get<Mesh>(entity);
+
+            if (!drawable.ReadyToDraw()) {
+                continue;
+            }
+
+            Shader& currentObjectShader = drawable.GetShader();
+
+            glm::mat4 mvp = camera.GetViewProjection(Window::GetCurrentWindow()) * transform.GetModelMatrix();
+            currentObjectShader.Bind();
+            currentObjectShader.SetUniformMat4f("MVP", mvp);
+
+            currentObjectShader.SetUniform1i("rayCastTexture", 3);
+
+            uint32_t val = (uint32_t)entity;
+            val++;
+
+            float r = ((uint32_t)val & 0x000000FF) >> 0;
+            float g = ((uint32_t)val & 0x0000FF00) >> 8;
+            float b = ((uint32_t)val & 0x00FF0000) >> 16;
+
+            currentObjectShader.SetUniform3f("UMyIdentifier", r / 255.0f, g / 255.0f, b / 255.0f);
+
+            
+
+
+            if (Object(entity).Properties().ShouldHighlight()) {
+
+                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+                GL_CALL(glStencilMask(0xFF));
+
+
+                drawable.Draw(mvp);
+
+                GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
+                GL_CALL(glStencilMask(0x00));
+                GL_CALL(glDisable(GL_DEPTH_TEST));
+
+                transform.InstantScaleChange(0.1, 0.1, 0.1);
+                bool result;
+                std::string currentShaderName = drawable.GetShaderName();
+                Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("default_Shaders/single_color_shader", &result);
+
+                ObjectPropertiesComponent& comp = Object(entity).Properties();
+
+                glm::mat4 mvpSecond = camera.GetViewProjection(Window::GetCurrentWindow()) * transform.GetModelMatrix();
+
+                singleColorShader.Bind();
+                singleColorShader.SetUniformMat4f("MVP", mvpSecond);
+                singleColorShader.SetUniform3f("desiredColor", comp.GetHighlightColor().Normalized().x, comp.GetHighlightColor().Normalized().y, comp.GetHighlightColor().Normalized().z);
+
+                drawable.Draw(mvpSecond);
+
+                drawable.SetShader(currentShaderName);
+
+                transform.InstantScaleChange(-0.1, -0.1, -0.1);
+
+                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+                GL_CALL(glStencilMask(0x00));
+                GL_CALL(glEnable(GL_DEPTH_TEST));
+
+            }
+            else {
+                drawable.Draw(mvp);
+            }
+
+            
+
+        }
+        GL_CALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
+
+        
+
+    });
+    
 }
 
 void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
@@ -135,7 +235,7 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
         else {
             glm::vec3 offset(lastMousePos.x - ImGui::GetMousePos().x, lastMousePos.y - ImGui::GetMousePos().y, 0);
             offset *= 0.2;
-            Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<TransformComponent>().Rotate(offset.y, offset.x, 0);
+            m_EditorCamera.GetAsObject().GetComponent<TransformComponent>().Rotate(offset.y, offset.x, 0);
             lastMousePos = ImGui::GetMousePos();
         }
     }
@@ -153,9 +253,9 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
           
             glm::vec3 offset(lastMouseWheelPos.x - ImGui::GetMousePos().x, ImGui::GetMousePos().y - lastMouseWheelPos.y, 0);
             offset *= 0.03;
-            if (Window::GetCurrentWindow().GetCurrentCamera()) {
-                Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x, offset.y, 0);
-            };
+            
+            m_EditorCamera.GetAsObject().GetComponent<Camera>().MoveInRelationToView(offset.x, offset.y, 0);
+            
             lastMouseWheelPos = ImGui::GetMousePos();
         }
     }
@@ -181,9 +281,9 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
     if (!hasSetupWheelCallback) {
         win.Events().MouseScrollEvent().Connect([&](Window& window, MouseScrollEventProperties mouseWheelEventProperties) {
             if (Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
-                if (window.GetCurrentCamera()) {
-                    window.GetCurrentCamera().GetAsObject().GetComponent<Camera>().MoveInRelationToView(0, 0, -mouseWheelEventProperties.offset.y * window.GetDeltaTime() * 400);
-                }
+                
+                m_EditorCamera.GetAsObject().GetComponent<Camera>().MoveInRelationToView(0, 0, -mouseWheelEventProperties.offset.y * window.GetDeltaTime() * 400);
+                
             }
         });
         hasSetupWheelCallback = true; //making sure to only do it once
@@ -194,14 +294,14 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
 void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
 {
     static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
-    if (m_IsObjectSelected && win.GetCurrentCamera()) {
+    if (m_IsObjectSelected && m_EditorCamera) {
 
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
         Object clickedObject(m_IsObjectSelected.objectID);
-        glm::mat4 proj = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetProjection(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-        glm::mat4 view = win.GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetView();
+        glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+        glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
         TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
 
         if (objectTransform.GetScale().x == 0) {
@@ -255,9 +355,16 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
 void GuiLayer::GameView::HandleObjectSelection(Window& win)
 {
     if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && m_CanSelect) {
+
+        float ratioX = win.Properties().width / ImGui::GetWindowSize().x;
+        float ratioY = win.Properties().height / ImGui::GetWindowSize().y;
+
         ImVec2 pos;
         pos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
+        pos.x *= ratioX;
+
         pos.y = ImGui::GetWindowSize().y - (ImGui::GetMousePos().y - ImGui::GetWindowPos().y);
+        pos.y *= ratioY;
         RayCastHit hit = RayCast(pos);
         if (hit) {
             if (m_IsObjectSelected) {

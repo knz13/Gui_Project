@@ -16,6 +16,9 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
         
         Registry::Get().each([&](const entt::entity e){
             Object obj(e);
+            if (obj.HasComponent<InternalUse>()) {
+                return;
+            }
             if(obj.Properties().GetParent()){
                 return;
             }

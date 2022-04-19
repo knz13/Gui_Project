@@ -92,7 +92,12 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
     return true;
 }
 
-void Mesh::Draw() {
+void Mesh::Draw(const glm::mat4& mvp) {
+
+    GetShader().Bind();
+    m_PreDrawFuncs.EmitEvent(*this, GetShader(), mvp);
+
+
     m_VAO->Bind();
     if(m_VAO->HasIndexBuffer()){
         GL_CALL(glDrawElements(m_DrawingMode.get()->GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
@@ -100,6 +105,8 @@ void Mesh::Draw() {
     else {
         GL_CALL(glDrawArrays(m_DrawingMode.get()->GetDrawingType(),0,m_VAO->GetDrawCount()));
     }
+
+    m_PostDrawFuncs.EmitEvent(*this);
 }
 
 
@@ -197,6 +204,11 @@ Mesh& Mesh::operator=(const Mesh& other) {
 
     m_ShaderName = other.m_ShaderName;
     return *this;
+}
+
+std::string Mesh::GetShaderName()
+{
+    return m_ShaderName;
 }
 
 Shader& Mesh::GetShader() {

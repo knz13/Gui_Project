@@ -82,7 +82,7 @@ private:
         m_MasterHandle = entity;
     };
     
-    entt::id_type m_MyClassTypeID;
+    entt::id_type m_MyClassTypeID = 0;
     entt::entity m_MasterHandle = entt::null;
     bool m_BaseComponentActiveState = true;
     bool m_ShouldHideInEditor = false;

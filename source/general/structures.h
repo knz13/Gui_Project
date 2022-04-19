@@ -33,7 +33,7 @@ using namespace std;
 
 #define GL_SIZEOF(x) TestSize(x)
 #define KV_CLASS private: \
-                    friend class Registry; friend class Window; friend class Object;
+                    friend class Registry; friend class Window; friend class Object; friend class Camera;
 #define KV_DRAWING_MODE private: friend class Mesh;
 #define KV_REGISTER_CLASS_AS_COMPONENT(className) void* __UNUSEDVARIABLE##className = [](){ Object::RegisterClassAsComponent<className>();return nullptr;}()
 
@@ -181,6 +181,7 @@ struct CameraCreationProperties {
 struct WindowCreationProperties {
     int width=640;
     int height=480;
+    
     std::string title="Base Title";
     uint32_t windowFlags = WindowFlag::None;
     int openGLVersionMajor = 4;

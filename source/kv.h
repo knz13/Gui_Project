@@ -12,3 +12,4 @@
 #include "object/object_properties_component.h"
 #include "gui_layer/gui_layer.h"
 #include "components/disable_in_play.h"
+#include "components/internal_use.h"

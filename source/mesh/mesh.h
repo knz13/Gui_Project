@@ -38,7 +38,7 @@ namespace MeshAttribute {
 };
 
 class Mesh : public EventReceiver,public Component<Mesh>{
-
+    KV_CLASS
 public:
     Mesh();
     
@@ -48,6 +48,7 @@ public:
     bool SetShader(std::string shaderLocation);
     bool SetVertices(MeshAttribute::Vertex vertexAttribute);
     
+    std::string GetShaderName();
     Shader& GetShader();
     void SetDrawingMode(std::string mode);
 
@@ -62,13 +63,13 @@ public:
     bool ReadyToDraw();
 
     void TrySetMesh(std::string path);
+    void Draw(const glm::mat4& mvp);
 
 private:
     VertexArray& GetVertexArray();
     void Init() override;
     void Destroy() override;
 
-    void Draw();
     
     
     MeshAttribute::Vertex m_Vertices;

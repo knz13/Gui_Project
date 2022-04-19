@@ -76,6 +76,16 @@ bool Framebuffer::Status() {
 
 }
 
+void Framebuffer::Clear(Color color)
+{
+    this->Bind();
+    glm::vec3 normColor = color.Normalized();
+    GL_CALL(glClearColor(normColor.x,normColor.y,normColor.z,1.0f));
+    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+
+    this->Unbind();
+}
+
 const glm::vec2& Framebuffer::GetSize() {
     return m_Size;    
 }

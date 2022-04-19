@@ -67,15 +67,17 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     }
 
 
-    Object mainCameraObject = Registry::CreateObject("Main Camera");
+    
 
-    mainCameraObject.AddComponent<Camera>();
+    Object mainCamera = Registry::CreateObject("Main Camera");
+    mainCamera.AddComponent<Camera>();
+    mainCamera.Transform().SetPosition(0, 5, 2);
 
-    mainCameraObject.Transform().SetPosition(0,10,20);
+    mainCamera.GetComponent<Camera>().SetLookAt(0, 0, 0);
 
-    mainCameraObject.GetComponent<Camera>().SetLookAt(0,0,0);
+    m_MainCamera = mainCamera.ID();
 
-    SetCamera(mainCameraObject);
+    
 
     
     GL_CALL(glEnable(GL_PROGRAM_POINT_SIZE));
@@ -186,10 +188,16 @@ GLFWwindow* Window::GetContextPointer() {
 }
 
 void Window::EndDrawState() {
+    m_PostDrawingLoopFuncs.EmitEvent(*this);
+    
+    
     glfwSwapBuffers(m_ContextPointer);
+
 }
 
 void Window::BeginDrawState() {
+    m_PreDrawingLoopFuncs.EmitEvent(*this);
+
     glfwPollEvents();
 
     glm::vec3 color = m_ClearColor.Normalized();
@@ -216,15 +224,19 @@ void Window::SetCamera(Object obj) {
     }
 }
 
+
+
 void Window::SetViewPort(int x, int y, int width, int height)
 {
     if (GetCurrentCamera()) {
         m_Properties.width = width - x;
         m_Properties.height = height - y;
-        glm::vec4 viewport = GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetViewPort();
-        GL_CALL(glViewport(x,y,width,height));
+        //glm::vec4 viewport = GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetViewPort();
+        //GL_CALL(glViewport(x,y,width,height));
     }
 }
+
+
 
 ObjectHandle Window::GetCurrentCamera() {
     return ObjectHandle(m_MainCamera);
@@ -243,7 +255,7 @@ void Window::DrawingLoop() {
 
         glfwMakeContextCurrent(m_ContextPointer);
 
-        m_PreDrawingLoopFuncs.EmitEvent(*this);
+        
         
         BeginDrawState();
         
@@ -259,90 +271,23 @@ void Window::DrawingLoop() {
 
         });
 
-        if(!GetCurrentCamera()){
-            PostDrawOperations();
-            return;
-        }
-        if(!GetCurrentCamera().GetAsObject().Properties().IsActive()){
-            PostDrawOperations();
-            return;
-        }
-
-        if(!GetCurrentCamera().GetAsObject().GetComponent<Camera>().GetActiveState()){
-            PostDrawOperations();
-            return;
-        }
-
-
-        auto view = Registry::Get().view<TransformComponent,Mesh>();
-        for(auto entity : view){
-        
-
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& drawable = view.get<Mesh>(entity);
-
-            if(!drawable.ReadyToDraw()){
+        auto view = Registry::Get().view<Camera>();
+        for (auto entity : view) {
+            Camera& camera = view.get<Camera>(entity);
+            if (!Object(entity).Properties().IsActive()) {
+                continue;
+            }
+            if (!camera.IsEnabled()) {
+                continue;
+            }
+            if (!camera.HasRenderTarget()) {
                 continue;
             }
 
-            Shader& currentObjectShader = *m_CreatedShaders[drawable.m_ShaderName].get();
-
-            glm::mat4 mvp = Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix();
-            currentObjectShader.Bind();
-            currentObjectShader.SetUniformMat4f("MVP", mvp);
-
-            currentObjectShader.SetUniform1i("rayCastTexture",3);
-
-            uint32_t val = (uint32_t)entity;
-            val++;
-
-            float r = ((uint32_t)val & 0x000000FF) >>  0;
-            float g = ((uint32_t)val & 0x0000FF00) >>  8;
-            float b = ((uint32_t)val & 0x00FF0000) >>  16;
-            
-            currentObjectShader.SetUniform3f("UMyIdentifier",r/255.0f,g/255.0f,b/255.0f);
-        
-            drawable.m_PreDrawFuncs.EmitEvent(drawable,currentObjectShader,mvp);
-
-
-            if(Object(entity).Properties().ShouldHighlight()){
-                
-                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF)); 
-                GL_CALL(glStencilMask(0xFF));
-
-
-                drawable.Draw();
-
-                GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
-                GL_CALL(glStencilMask(0x00)); 
-                GL_CALL(glDisable(GL_DEPTH_TEST));
-
-                transform.InstantScaleChange(0.1,0.1,0.1);
-                bool result;
-                Shader& singleColorShader = this->Create().CachedShader("default_Shaders/single_color_shader",&result);
-
-                ObjectPropertiesComponent& comp = Object(entity).Properties();
-
-                singleColorShader.Bind();
-                singleColorShader.SetUniformMat4f("MVP", Object(m_MainCamera).GetComponent<Camera>().GetViewProjection(*this)*transform.GetModelMatrix());
-                singleColorShader.SetUniform3f("desiredColor",comp.GetHighlightColor().Normalized().x,comp.GetHighlightColor().Normalized().y,comp.GetHighlightColor().Normalized().z);
-
-                drawable.Draw();
-
-                transform.InstantScaleChange(-0.1,-0.1,-0.1);
-
-                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
-                GL_CALL(glStencilMask(0x00));
-                GL_CALL(glEnable(GL_DEPTH_TEST));
-                
-            }
-            else{
-                drawable.Draw();
-            }
-
-            drawable.m_PostDrawFuncs.EmitEvent(drawable);
-
+            camera.Render();
         }
+
+        EndDrawState();
 
         PostDrawOperations();
         
@@ -493,9 +438,9 @@ void Window::DisableCamera() {
 }
 
 void Window::PostDrawOperations() {
-    m_PostDrawingLoopFuncs.EmitEvent(*this);
+    
 
-    EndDrawState();
+    
 
     if(!m_IsOpen){
         m_ClosingCallbackFuncs.EmitEvent(*this);

@@ -63,17 +63,19 @@ public:
 
     WindowCreators Create();
     
-
+    
     ObjectHandle GetCurrentCamera();
     void SetClearColor(Color color);
     
     void DisableCamera();
     void SetCamera(Object obj);
+    
     void SetViewPort(int x,int y,int width,int height);
 
     const WindowCreationProperties& Properties() const;
     GLFWwindow* GetContextPointer();
     float GetDeltaTime();
+    
 
     void DrawingLoop();
     
@@ -100,6 +102,7 @@ private:
     WindowCreationProperties m_Properties;
     GLFWwindow* m_ContextPointer=nullptr;
 
+    
     entt::entity m_MainCamera = entt::null;
     
     

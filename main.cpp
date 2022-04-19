@@ -14,6 +14,7 @@ int main(){
     prop.openGLVersionMajor = 4;
     prop.openGLVersionMinor = 3;
     prop.width = 1280;
+    
     prop.height = 720;
     prop.title = "window";
     Window win(prop);

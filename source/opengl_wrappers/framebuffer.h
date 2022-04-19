@@ -9,6 +9,7 @@ public:
     void Bind();
     void Unbind();
     bool Status();
+    void Clear(Color color = Color::Black);
     
     Texture& GetAttachedTexture();
     const glm::vec2& GetSize();
