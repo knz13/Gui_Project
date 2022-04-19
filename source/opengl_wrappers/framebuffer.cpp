@@ -56,11 +56,11 @@ Framebuffer::Framebuffer(float sizeX,float sizeY) : m_Size(sizeX,sizeY){
             GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, *m_RenderBufferID.get()));  
             GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER,0));
         }
-
         
         
         
         
+        assert(this->Status());
         
         this->Unbind();
 

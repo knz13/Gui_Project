@@ -34,6 +34,8 @@ Camera::~Camera() {
 
 void Camera::Init()
 {
+    m_ViewPort.z = Window::GetCurrentWindow().Properties().width;
+    m_ViewPort.w = Window::GetCurrentWindow().Properties().height;
     this->SetDrawingFunction([](Camera& camera) {
 
         auto view = Registry::Get().view<TransformComponent, Mesh>();
@@ -72,8 +74,9 @@ void Camera::LookAt(Object& obj) {
     this->SetLookAt(obj.GetComponent<TransformComponent>().GetPosition().x,obj.GetComponent<TransformComponent>().GetPosition().y,obj.GetComponent<TransformComponent>().GetPosition().z);
 }
 
-glm::mat4 Camera::GetProjection(float viewPortWidth, float viewPortHeight) const{
-    return glm::perspective(glm::radians(m_Fov),viewPortWidth/viewPortHeight,m_DrawNear,m_DrawDistance);
+glm::mat4 Camera::GetProjection() const{
+    float aspect = (m_ViewPort.z - m_ViewPort.x) / (m_ViewPort.w - m_ViewPort.y);
+    return glm::perspective(glm::radians(m_Fov),aspect,m_DrawNear,m_DrawDistance);
 }
 
 glm::mat4 Camera::GetView() const{
@@ -82,7 +85,9 @@ glm::mat4 Camera::GetView() const{
 
 void Camera::ShowProperties() {
     static std::string fovRand = ("##" + std::to_string(Registry::GenerateRandomNumber()));
-    bool isCurrent;
+    //bool isCurrent;
+
+    /*
     if(Window::GetCurrentWindow().GetCurrentCamera()){
         isCurrent = (Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().ID() == this->GetMasterObject().ID());
     }
@@ -104,7 +109,7 @@ void Camera::ShowProperties() {
     if(!stateHolder && isCurrent){
         Window::GetCurrentWindow().SetCamera(GetMasterObject());
     }
-
+    */
     
     
     ImGui::AlignedText("Fov");
@@ -193,7 +198,7 @@ void Camera::Render()
     if (HasRenderTarget()) {
         m_RenderTarget.get()->Clear();
         m_RenderTarget.get()->Bind();
-        GL_CALL(glViewport(m_ViewPort.x, m_ViewPort.y, Window::GetCurrentWindow().Properties().width * m_ViewPort.z, Window::GetCurrentWindow().Properties().height * m_ViewPort.w));
+        GL_CALL(glViewport(m_ViewPort.x,m_ViewPort.y,m_ViewPort.z,m_ViewPort.w));
         m_DrawingFunc(*this);
         m_RenderTarget.get()->Unbind();
     }
@@ -213,13 +218,10 @@ void Camera::SetRenderTarget(std::shared_ptr<Framebuffer> framebuffer)
 
 void Camera::SetViewport(float x, float y, float width, float height)
 {
-    m_ViewPort = glm::vec4(x/Window::GetCurrentWindow().Properties().width, y/ Window::GetCurrentWindow().Properties().height, width/ Window::GetCurrentWindow().Properties().width, height/ Window::GetCurrentWindow().Properties().height);
+    m_ViewPort = glm::vec4(x,y,width,height);
     
 }
 
-void Camera::SetRelativeViewport(float x, float y, float width, float height)
-{
-    m_ViewPort = glm::vec4(x, y, width, height);
-}
+
 
 

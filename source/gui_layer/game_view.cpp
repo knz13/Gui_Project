@@ -5,16 +5,27 @@ std::shared_ptr<Framebuffer> GuiLayer::GameView::m_RaycastTexture;
 ObjectHandle GuiLayer::GameView::m_EditorCamera;
 bool GuiLayer::GameView::m_CanSelect = true;
 RayCastHit GuiLayer::GameView::RayCast(ImVec2 pos) {
+    uint32_t max = 0;
+    max--;
+    if (!m_RaycastTexture.get()->Status()) {
+        return RayCastHit((entt::entity)max);
+    }
     m_RaycastTexture.get()->Bind();
+    
+    
+    //m_RaycastTexture.get()->Clear(Color::White);
+
     unsigned char data[4];
     GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
     GL_CALL(glReadPixels(pos.x,pos.y,1,1,GL_RGBA,GL_UNSIGNED_BYTE,data));
     
-    uint32_t pickedID = data[0] + data[1]*256 + data[2]*256*256;
+    //data[0] *= 255;
+    //data[1] *= 255;
+    //data[2] *= 255;
+
+    uint32_t pickedID = data[0] + data[1] * 256 + data[2] * 256 * 256;
     pickedID--;
     
-    uint32_t max = 0;
-    max--;
     if(pickedID == max){
         return RayCastHit((entt::entity)max);
     }
@@ -41,25 +52,24 @@ void GuiLayer::GameView::Update(Window& win) {
         
         ImGui::BeginChild("GameRender");
 
-        float windowPositionX = ImGui::GetWindowPos().x - ImGui::GetMainViewport()->Pos.x;
-        float windowPositionY = ImGui::GetWindowPos().y - ImGui::GetMainViewport()->Pos.y;
-
+        float windowPositionX = ImGui::GetWindowPos().x;
+        float windowPositionY = ImGui::GetWindowPos().y;
+        float windowSizeX = ImGui::GetWindowSize().x;
+        float windowSizeY = ImGui::GetWindowSize().y;
+        
         if(!initialized){
             
-            int newW = ImGui::GetWindowSize().y * 4 / 3.0f;
-            int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
-            //m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x,  ImGui::GetWindowSize().y);
-            //win.SetViewPort(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+            m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+            m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
+            m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0,0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             initialized = true;
         }
         else{
-            glm::vec2 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
-            if(lastSize.x != currentSize.x || lastSize.y != currentSize.y){
-                
-                int newW = ImGui::GetWindowSize().y * 4 / 3.0f;
-                int left = (ImGui::GetWindowSize().x - newW) / 2.0f;
-                //m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-                //win.SetViewPort(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+            glm::vec4 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
+            if(lastSize.x != currentSize.z || lastSize.y != currentSize.w) {
+                m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+                m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
+                m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             }
         }
         
@@ -81,14 +91,16 @@ void GuiLayer::GameView::Update(Window& win) {
         
         HandleEditorCameraMovement(win);
 
+
         HandleObjectSelection(win);
+
 
         ImGui::EndChild();
 
-
-
         ImGui::End();
 
+
+        
         m_RaycastTexture.get()->Clear();
 
        
@@ -108,14 +120,6 @@ void GuiLayer::GameView::Setup(Window& win) {
 
     SetupEditorCameraDrawing();
 
-    m_RaycastTexture = std::make_shared<Framebuffer>(win.Properties().width, win.Properties().height);
-    m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(win.Properties().width, win.Properties().height));
-
-    win.Events().ResizedEvent().Connect([=](Window&, WindowResizedEventProperties prop) {
-        m_RaycastTexture = std::make_shared<Framebuffer>(prop.width,prop.height);
-        m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(prop.width,prop.height));
-
-    });
 
     win.Events().ClosingEvent().Connect([&](Window& win){
         m_RaycastTexture.reset();
@@ -148,7 +152,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
 
             Shader& currentObjectShader = drawable.GetShader();
 
-            glm::mat4 mvp = camera.GetViewProjection(Window::GetCurrentWindow()) * transform.GetModelMatrix();
+            glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
             currentObjectShader.Bind();
             currentObjectShader.SetUniformMat4f("MVP", mvp);
 
@@ -161,7 +165,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
             float g = ((uint32_t)val & 0x0000FF00) >> 8;
             float b = ((uint32_t)val & 0x00FF0000) >> 16;
 
-            currentObjectShader.SetUniform3f("UMyIdentifier", r / 255.0f, g / 255.0f, b / 255.0f);
+            currentObjectShader.SetUniform3f("UMyIdentifier", r/255.0f, g / 255.0f, b / 255.0f);
 
             
 
@@ -185,7 +189,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
 
                 ObjectPropertiesComponent& comp = Object(entity).Properties();
 
-                glm::mat4 mvpSecond = camera.GetViewProjection(Window::GetCurrentWindow()) * transform.GetModelMatrix();
+                glm::mat4 mvpSecond = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
 
                 singleColorShader.Bind();
                 singleColorShader.SetUniformMat4f("MVP", mvpSecond);
@@ -300,7 +304,7 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
         ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
         Object clickedObject(m_IsObjectSelected.objectID);
-        glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+        glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection();
         glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
         TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
 
@@ -354,17 +358,19 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
 
 void GuiLayer::GameView::HandleObjectSelection(Window& win)
 {
+    
+
     if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && m_CanSelect) {
 
-        float ratioX = win.Properties().width / ImGui::GetWindowSize().x;
-        float ratioY = win.Properties().height / ImGui::GetWindowSize().y;
+        
+      
 
         ImVec2 pos;
         pos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
-        pos.x *= ratioX;
+        
 
         pos.y = ImGui::GetWindowSize().y - (ImGui::GetMousePos().y - ImGui::GetWindowPos().y);
-        pos.y *= ratioY;
+        
         RayCastHit hit = RayCast(pos);
         if (hit) {
             if (m_IsObjectSelected) {
