@@ -1,7 +1,7 @@
 #pragma once
 #include "registry.h"
 #include "object_properties.h"
-#include "object_property"
+#include "object_property_register.h"
 
 
 
@@ -40,7 +40,7 @@ public:
             comp.SetMaster(m_EntityHandle);
             comp.Init();
             
-            Properties().AddComponent(HashComponent<T>(),Registry::GetClassName<T>());
+            Properties().AddComponent(HelperFunctions::HashClassName<T>(), HelperFunctions::GetClassName<T>());
 
             return comp;
         }
@@ -85,7 +85,7 @@ public:
             comp.Init();
             
 
-            Properties().AddComponent(HashComponent<T>(), Registry::GetClassName<T>());
+            Properties().AddComponent(HelperFunctions::HashClassName<T>(), HelperFunctions::GetClassName<T>());
 
             return comp;
         }
@@ -110,7 +110,7 @@ public:
             comp->Destroy();
 
             
-            Properties().EraseComponent(HashComponent<T>());
+            Properties().EraseComponent(HelperFunctions::HashClassName<T>());
             
             Registry::Get().storage<T>().erase(m_EntityHandle);
         }
@@ -205,43 +205,48 @@ public:
 
         ObjectPropertyRegister::InitializeObject<T>(ent);
 
-        return GameObject(ent);
+        return T(ent);
     }
+
+
+    static const std::vector<std::string>& GetRegisteredComponents();
 
 protected:
     virtual void Init() {};
     virtual void Destroy() {};
 
+    template<typename T>
+    T& GetPropertyStorage() {
+        return Registry::Get().get_or_emplace<T>(m_EntityHandle);
+    }
     
 private:
-    
-    template<typename T>
-    static entt::id_type HashComponent(){
-        return entt::type_hash<T>().value();
-    };
 
     template<typename T>
     static entt::id_type RegisterClassAsComponent() {
-        entt::id_type hash = Registry::HashClassName<T>();
+        entt::id_type hash = HelperFunctions::HashClassName<T>();
         entt::meta<T>().type(hash).template ctor<&Object::GetComponent<T>, entt::as_ref_t>();
         entt::meta<T>().type(hash).template func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
         entt::meta<T>().type(hash).template func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
         entt::meta<T>().type(hash).template func<&Object::HasComponent<T>>(entt::hashed_string("Has Component"));
-        entt::meta<T>().type(hash).template func<&Registry::GetClassDisplayName<T>>(entt::hashed_string("Get Display Name"));
+        entt::meta<T>().type(hash).template func<&HelperFunctions::GetClassDisplayName<T>>(entt::hashed_string("Get Display Name"));
         return hash;
     }
     
+    inline static std::vector<std::string> m_RegisteredComponents;
 
     entt::entity m_EntityHandle;
     
-
+    friend class ObjectPropertyRegister;
 
     friend class Registry;
 
-    template<typename>
+    template<typename,typename>
     friend class ObjectPropertyStorage;
 
-    
+    template<typename,typename...>
+    friend class DeriveFromComponent;
+
     friend class Component;
 };
 

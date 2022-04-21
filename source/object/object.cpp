@@ -58,3 +58,8 @@ std::string Object::GetComponentNameByID(entt::id_type id)
     }
     return "";
 }
+
+const std::vector<std::string>& Object::GetRegisteredComponents()
+{
+    return m_RegisteredComponents;
+}

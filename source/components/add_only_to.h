@@ -7,10 +7,13 @@ template<typename Master,typename... Dependents>
 class AddOnlyTo {
 public:
 	AddOnlyTo() {
-		(void*)m_DummyVar;
+		m_DummyVar = true;
 	};
 
 private:
-	static inline bool m_DummyVar = []() {ObjectPropertyRegister::MakeComponentPresentIn<Dependents...>(); return false; }();
+	static inline bool m_DummyVar = []() {
+		ObjectPropertyRegister::MakeComponentPresentIn<Master,Dependents...>(); 
+		return false; 
+	}();
 
 };

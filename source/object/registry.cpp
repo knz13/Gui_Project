@@ -1,6 +1,6 @@
 #include "registry.h"
 #include "object.h"
-#include "object_properties_component.h"
+#include "object_properties.h"
 #include "../kv.h"
 #include <ctime>
 

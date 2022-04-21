@@ -30,7 +30,7 @@ protected:
 };
 
 
-class GameObjectProperties : public ObjectPropertyStorage<GameObject> {
+class GameObjectProperties : public ObjectPropertyStorage<GameObjectProperties,GameObject> {
 private:
 
 	bool m_Active = true;

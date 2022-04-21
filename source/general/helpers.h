@@ -60,7 +60,7 @@ namespace HelperFunctions {
 
     template<typename T>
     static entt::id_type HashClassName() {
-        return entt::hashed_string(Registry::GetClassName<T>().c_str());
+        return entt::hashed_string(GetClassName<T>().c_str());
     }
 
 

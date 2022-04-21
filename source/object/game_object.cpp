@@ -1,7 +1,7 @@
 #include "game_object.h"
 #include "../kv.h"
 
-GameObject::GameObject(entt::entity e) : Object(e)
+GameObject::GameObject(entt::entity e) : TaggedObject(e)
 {
 
 }
@@ -13,42 +13,42 @@ TransformComponent& GameObject::Transform()
 
 void GameObject::SetHighlightState(bool state)
 {
-	GetComponent<GameObjectProperties>().m_HighlightState = state;
+    GetPropertyStorage<GameObjectProperties>().m_HighlightState = state;
 }
 
 void GameObject::SetHighlightColor(Color color)
 {
-	GetComponent<GameObjectProperties>().m_HighlightColor = color;
+    GetPropertyStorage<GameObjectProperties>().m_HighlightColor = color;
 }
 
 Color GameObject::GetHighlightColor()
 {
-    return GetComponent<GameObjectProperties>().m_HighlightColor;
+    return GetPropertyStorage<GameObjectProperties>().m_HighlightColor;
 }
 
 
 
 bool GameObject::IsActive()
 {
-	return GetComponent<GameObjectProperties>().m_Active;
+	return GetPropertyStorage<GameObjectProperties>().m_Active;
 }
 
 bool GameObject::GetHighlightState()
 {
-	return GetComponent<GameObjectProperties>().m_HighlightState;
+	return GetPropertyStorage<GameObjectProperties>().m_HighlightState;
 }
 
 
 void GameObject::SetActiveState(bool state)
 {
-	GetComponent<GameObjectProperties>().m_Active = state;
+    GetPropertyStorage<GameObjectProperties>().m_Active = state;
 }
 
 
 void GameObject::ShowProperties()
 {
     static std::vector<std::string> idsToErase;
-    if (ImGui::BeginTable(GuiLayer::GetImGuiID(&GetComponent<GameObjectProperties>()).c_str(),1,ImGuiTableFlags_Borders)) {
+    if (ImGui::BeginTable(GuiLayer::GetImGuiID(&GetPropertyStorage<GameObjectProperties>()).c_str(),1,ImGuiTableFlags_Borders)) {
         //ImGui::Text(("Handle = " + std::to_string((size_t)m_MasterHandle)).c_str());
         for (auto& [id, name] : Properties().GetComponentsWithIDAndName()) {
             Component* comp = GetComponentByName(name);
