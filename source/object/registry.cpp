@@ -12,33 +12,29 @@ entt::registry& Registry::Get() {
     return Registry::m_Registry;
 }
 
-Object Registry::CreateObject(std::string name) {
-    entt::entity ent = m_Registry.create();
 
-    int index = 1;
-    if(Registry::FindObjectByName(name)){
-        if(name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)){
-            name += "(" + std::to_string(index) + ")";
+
+std::string Registry::GetComponentDisplayName(std::string componentClassName)
+{
+    auto resolved = entt::resolve(entt::hashed_string(componentClassName.c_str()));
+
+    if (resolved) {
+        if (auto func = resolved.func(entt::hashed_string("Get Display Name")); func) {
+
+            if (auto result = func.invoke({}); result) {
+                return result.cast<std::string>();
+            }
+            else {
+                return "";
+            }
+        }
+        else {
+            return "";
         }
     }
-
-    while(Registry::FindObjectByName(name)){
-        index++;
-        name.replace(name.find_last_of("(")+1,std::to_string(index-1).size(),std::to_string(index));
+    else {
+        return "";
     }
-
-    m_Registry.emplace<ObjectPropertiesComponent>(ent,name,ent);
-
-
-    Object obj(ent);
-
-
-    for(auto& className : Object::m_ClassesToAddEveryTime){
-        obj.TryAddComponent(className);
-    }
-
-    return obj;
-
 }
 
 void Registry::DeleteObject(Object obj) {
@@ -73,35 +69,59 @@ Object Registry::CopyEntity(Object other) {
 }
 
 Object Registry::DuplicateObject(Object other) {
-    Object obj = Registry::CreateObject(other.Properties().GetName());
+    Object obj = Object::CreateNew<Object>(other.Properties().GetName());
 
     for(auto [id,storage] : m_Registry.storage()){
-        if(id == entt::type_hash<ObjectPropertiesComponent>().value()){
+        if(id == entt::type_hash<ObjectProperties>().value()){
             continue;
         }
         if(storage.contains(other.ID()) && !storage.contains(obj.ID())){
-                obj.TryAddComponent(other.Properties().GetComponentNameByID(id));
-                obj.TryCopyComponent(other.Properties().GetComponentNameByID(id),other);
+                obj.AddComponentByName(other.GetComponentNameByID(id));
+                obj.CopyComponentByName(other.GetComponentNameByID(id),other);
         }
         else if(storage.contains(obj.ID())){
             
-            obj.TryCopyComponent(obj.Properties().GetComponentNameByID(id),other);
+            obj.CopyComponentByName(obj.GetComponentNameByID(id),other);
         }
     }
 
     return obj;
 }
 
-void Registry::UpdateState() {
-    for(auto& obj : m_ObjectsToDelete){
-        if(obj.Valid()){
-            auto it = obj.Properties().m_AttachedComponentsProperties.begin();
-            while(it != obj.Properties().m_AttachedComponentsProperties.end()){
-                obj.EraseComponent(it->second.m_ClassName);
-                it = obj.Properties().m_AttachedComponentsProperties.begin();
-            }
-            m_Registry.destroy(obj.ID());
+
+
+void Registry::GetAllChildren(Object current, std::vector<Object>& objects)
+{
+    current.Properties().ClearParent();
+
+    objects.push_back(current);
+
+    for (auto handle : current.Properties().GetChildren()) {
+        if (handle.GetAsObject().Valid()) {
+            GetAllChildren(handle.GetAsObject(), objects);
         }
+    }
+}
+
+
+
+void Registry::UpdateState() {
+    for (auto& obj : m_ObjectsToDelete) {
+        std::vector<Object> objectAndAllChildren;
+        if(obj.Valid()){
+            GetAllChildren(obj, objectAndAllChildren);
+        }
+
+        for (auto& object : objectAndAllChildren) {
+            auto it = object.Properties().m_ComponentClassNamesByType.begin();
+            while (it != object.Properties().m_ComponentClassNamesByType.end()) {
+                object.EraseComponentByName(it->second);
+                it = object.Properties().m_ComponentClassNamesByType.begin();
+            }
+
+            m_Registry.destroy(object.ID());
+        }
+
     }
     m_ObjectsToDelete.clear();
 }
@@ -109,7 +129,7 @@ void Registry::UpdateState() {
 ObjectHandle Registry::FindObjectByName(std::string name) {
     
     
-    for(auto [handle,comp] : Registry::Get().storage<ObjectPropertiesComponent>().each()){
+    for(auto [handle,comp] : Registry::Get().storage<ObjectProperties>().each()){
         if(Object(handle).HasComponent<DisableInPlay>()){
             continue;
         }

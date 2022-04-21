@@ -108,7 +108,7 @@ void GuiLayer::GameView::Update(Window& win) {
 }
 
 void GuiLayer::GameView::Setup(Window& win) {
-    Object obj = Registry::CreateObject("Editor Camera");
+    GameObject obj = Object::CreateNew<GameObject>("Editor Camera");
     obj.AddComponent<Camera>();
     
     obj.AddComponent<InternalUse>();
@@ -170,7 +170,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
             
 
 
-            if (Object(entity).Properties().ShouldHighlight()) {
+            if (GameObject(entity).GetHighlightState()) {
 
                 GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
                 GL_CALL(glStencilMask(0xFF));
@@ -187,7 +187,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
                 std::string currentShaderName = drawable.GetShaderName();
                 Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("default_Shaders/single_color_shader", &result);
 
-                ObjectPropertiesComponent& comp = Object(entity).Properties();
+                GameObject comp(entity);
 
                 glm::mat4 mvpSecond = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
 
@@ -374,16 +374,16 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
         RayCastHit hit = RayCast(pos);
         if (hit) {
             if (m_IsObjectSelected) {
-                Object(m_IsObjectSelected.objectID).Properties().SetHightlightState(false);
+                GameObject(m_IsObjectSelected.objectID).SetHighlightState(false);
             }
             m_IsObjectSelected = ClickedObjectProperties(hit.hitObjectID);
-            Object(m_IsObjectSelected.objectID).Properties().SetHightlightState(true);
+            GameObject(m_IsObjectSelected.objectID).SetHighlightState(true);
         }
 
     }
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()) {
         if (m_IsObjectSelected) {
-            Object(m_IsObjectSelected.objectID).Properties().SetHightlightState(false);
+            GameObject(m_IsObjectSelected.objectID).SetHighlightState(false);
         }
         m_IsObjectSelected = ClickedObjectProperties();
     }

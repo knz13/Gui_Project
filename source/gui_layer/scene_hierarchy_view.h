@@ -6,7 +6,7 @@ class Window;
 
 namespace GuiLayer {
 
-struct SceneHierarchyViewComponent : public Component<SceneHierarchyViewComponent,AddToEveryObject<SceneHierarchyViewComponent>> {
+struct SceneHierarchyViewComponent : public DeriveFromComponent<SceneHierarchyViewComponent,AddToEveryObject<SceneHierarchyViewComponent>> {
     
     void Init() { this->HideInEditor(true);};
     void ShowProperties(){};

@@ -3,7 +3,7 @@
 
 
 
-class TransformComponent : public EventReceiver,public Component<TransformComponent,AddToEveryObject<TransformComponent>> {
+class TransformComponent : public EventReceiver,public DeriveFromComponent<TransformComponent,AddOnlyTo<TransformComponent,GameObject>> {
     KV_CLASS
 public:
     TransformComponent();
@@ -41,12 +41,11 @@ public:
     const glm::vec3& GetRotationRadians();
     const glm::vec3& GetPosition();
 
-    void Update(float deltaTime);
-    void ShowProperties();
+    void Update(float deltaTime) override;
+    void ShowProperties() override;
     void SetFromModelMatrix(glm::mat4 matrix);
     glm::mat4 GetModelMatrix();
-protected:
-    std::function<nlohmann::json()> GetSerializerFunction();
+
 
 private:
     

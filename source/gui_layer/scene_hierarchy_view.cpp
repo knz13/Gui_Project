@@ -147,14 +147,14 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
                 if(GameView::AnyObjectSelected()){
-                    Object(GameView::AnyObjectSelected().objectID).Properties().SetHightlightState(false);
+                    GameObject(GameView::AnyObjectSelected().objectID).SetHighlightState(false);
                 }
                 GameView::AnyObjectSelected() = ClickedObjectProperties(obj.ID());
-                Object(GameView::AnyObjectSelected().objectID).Properties().SetHightlightState(true);
+                GameObject(GameView::AnyObjectSelected().objectID).SetHighlightState(true);
             }
 
-            for(auto& id : obj.Properties().GetChildren()){
-                SetupObject(Object(id));
+            for(auto id : obj.Properties().GetChildren()){
+                SetupObject(id.GetAsObject());
             }
 
             ImGui::TreePop();
@@ -204,7 +204,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             6, 7, 3
         };
 
-        Object obj = Registry::CreateObject("Cube");
+        GameObject obj = Object::CreateNew<GameObject>("Cube");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
@@ -227,7 +227,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             2,3,0
         };
 
-        Object obj = Registry::CreateObject("Plane");
+        GameObject obj = Object::CreateNew<GameObject>("Plane");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
@@ -235,7 +235,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
     };
 
     m_DefaultObjects["Camera"] = [](){
-        Object obj = Registry::CreateObject("Camera");
+        GameObject obj = Object::CreateNew<GameObject>("Camera");
         obj.AddComponent<Camera>();
     };
 

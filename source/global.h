@@ -40,6 +40,9 @@
 #include "general/math.h"
 #include "general/helpers.h"
 #include "components/component.h"
+#include "object/object.h"
+#include "components/add_only_to.h"
+#include "object/game_object.h"
 #include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
 using namespace std;
 

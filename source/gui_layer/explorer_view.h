@@ -8,8 +8,10 @@ class ExplorerView : public GuiView {
 public:
     static void Update(Window& win);
 
-
-
+    static void Setup(Window& win);
+    
+private:
+    static inline size_t m_CurrentRenamingFileHash = 0;
 
 };
 };

@@ -10,8 +10,8 @@ void GuiLayer::PropertiesView::Update(Window& win) {
     
 
     if(GameView::AnyObjectSelected()){
-        Object selected(GameView::AnyObjectSelected().objectID);
-        selected.Properties().CallShowPropertiesFunctions();
+        GameObject selected(GameView::AnyObjectSelected().objectID);
+        selected.ShowProperties();
         
         
         if(ImGui::BeginPopupContextWindow(GuiLayer::GetImGuiID(&randomAddress).c_str(),ImGuiPopupFlags_MouseButtonRight)){
@@ -21,7 +21,7 @@ void GuiLayer::PropertiesView::Update(Window& win) {
                 for(auto& componentName : Object::GetRegisteredClasses()){
                     if(!selected.HasComponent(componentName)){
                         if(ImGui::MenuItem(componentName.c_str())){
-                            selected.TryAddComponent(componentName);
+                            selected.AddComponentByName(componentName);
                         }
                     }
                 }

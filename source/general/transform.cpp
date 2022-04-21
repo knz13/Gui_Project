@@ -170,8 +170,8 @@ const glm::vec3& TransformComponent::GetScale() const {
 }
 
 TransformComponent::TransformComponent() {
-    MakeAlwaysEnabled(true);
-};
+
+}
 
 TransformComponent::TransformComponent(const TransformComponent& mov)  {
     m_Position = mov.m_Position;
@@ -183,5 +183,6 @@ const glm::vec3& TransformComponent::GetRotationRadians() {
 }
 
 void TransformComponent::Init() {
+    MakeAlwaysEnabled(true);
     MakeRemovable(false);
 }

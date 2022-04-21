@@ -267,35 +267,6 @@ set(${PROJECT_NAME}_LIBRARIES )
 
 
 
-# repository download and settings for json...
-
-    dir_exists(json_exists ${PROJECT_SOURCE_DIR}/vendor/json)
-
-
-    # adding includes:
-
-
-        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/json/include)
-
-
-    if(NOT ${json_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
-        ExternalProject_Add(JSON
-        GIT_REPOSITORY https://github.com/nlohmann/json
-        GIT_TAG v3.10.5
-        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/json
-                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                    -DJSON_BuildTests=OFF
-                        
-        BUILD_BYPRODUCTS 
-        )
-
-        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD JSON)
-
-    endif()
-
-
-
-
 # repository download and settings for imgui...
 
     dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
@@ -362,6 +333,41 @@ set(${PROJECT_NAME}_LIBRARIES )
 
     endif()
                     
+
+
+# repository download and settings for ryml...
+
+    dir_exists(ryml_exists ${PROJECT_SOURCE_DIR}/vendor/ryml)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/ryml/include)
+
+
+    # adding libraries
+
+
+        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}c4core${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ryml${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+
+    if(NOT ${ryml_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
+        ExternalProject_Add(RYML
+        GIT_REPOSITORY https://github.com/biojppm/rapidyaml
+        GIT_TAG v0.4.1
+        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/ryml
+                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}c4core${CMAKE_STATIC_LIBRARY_SUFFIX} ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ryml${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+
+        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD RYML)
+
+    endif()
+
+
 
 
 # finding package and adding settings for alias OpenGL...
@@ -435,9 +441,6 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/obj
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/registry.cpp)
 
 
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/object_properties_component.cpp)
-
-
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/general/math.cpp)
 
 
@@ -463,6 +466,12 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/gui_layer/
 
 
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/gui_layer/gui_useful_implementations.cpp)
+
+
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/game_object.cpp)
+
+
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/object/object_properties.cpp)
 
 
 #creating executable

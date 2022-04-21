@@ -112,6 +112,7 @@ void Mesh::Draw(const glm::mat4& mvp) {
 
 
 void Mesh::SetDrawingMode(std::string mode) {
+    
     if(auto ptr = DrawingModeHelpers::GetSharedPtrFromName(mode,this->GetMasterObject()); ptr){
         m_DrawingMode = ptr;
         m_DrawingModeComboItem = DrawingModeStorage::GetTypeIndex(mode);
@@ -196,15 +197,17 @@ Mesh& Mesh::operator=(const Mesh& other) {
         m_Vertices = other.m_Vertices;
         this->SetVertices(m_Vertices);
     }
+    if (other.m_CurrentDrawingMode != "" && other.m_DrawingMode.operator bool()) {
+        this->SetDrawingMode(other.m_CurrentDrawingMode);
 
-    this->SetDrawingMode(other.m_CurrentDrawingMode);
-    if(m_CurrentDrawingMode != "" ){
-        DrawingModeHelpers::CopyStats(m_CurrentDrawingMode,m_DrawingMode.get(),other.m_DrawingMode.get());
+        DrawingModeHelpers::CopyStats(m_CurrentDrawingMode, m_DrawingMode.get(), other.m_DrawingMode.get());
     }
-
+    m_DrawingModeComboItem = other.m_DrawingModeComboItem;
     m_ShaderName = other.m_ShaderName;
     return *this;
 }
+
+
 
 std::string Mesh::GetShaderName()
 {

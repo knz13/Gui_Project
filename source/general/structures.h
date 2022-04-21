@@ -22,12 +22,13 @@
 #include "../vendor/assimp/include/assimp/cimport.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "../components/derive_from_component.h"
 #include "gui_layer/gui_useful_implementations.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
-#include "../object/object.h"
-#include "../components/component.h"
+#include "../vendor/ryml/include/ryml.hpp"
+#include "../vendor/ryml/include/ryml_std.hpp"
 using namespace std;
 
 
@@ -143,8 +144,6 @@ struct MouseScrollEventProperties {
 
 
 
-
-
 struct ClickedObjectProperties {
     
     ClickedObjectProperties(entt::entity ent = entt::null){
@@ -188,7 +187,7 @@ struct WindowCreationProperties {
     int openGLVersionMinor = 0;
 };
 
-struct RandomDummyComponent : public Component<RandomDummyComponent> {
+struct RandomDummyComponent : public DeriveFromComponent<RandomDummyComponent> {
     void Update(float) {};
     void ShowProperties() {};
 };

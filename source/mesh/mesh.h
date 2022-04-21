@@ -37,12 +37,13 @@ namespace MeshAttribute {
     };
 };
 
-class Mesh : public EventReceiver,public Component<Mesh>{
+class Mesh : public EventReceiver,public DeriveFromComponent<Mesh>{
     KV_CLASS
 public:
     Mesh();
     
     ~Mesh();
+
 
 
     bool SetShader(std::string shaderLocation);
@@ -60,6 +61,8 @@ public:
     void ShowProperties() override;
 
     Mesh& operator=(const Mesh& other);
+    
+
     bool ReadyToDraw();
 
     void TrySetMesh(std::string path);

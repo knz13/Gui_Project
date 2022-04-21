@@ -1,13 +1,14 @@
 #pragma once 
-#include "add_to_every_object.h"
+#include "../object/object.h"
 #include <concepts>
+#include "../../vendor/entt/single_include/entt/entt.hpp"
 
-namespace ComponentHelpers {
-    class Null;
-};
 
-template<typename T=ComponentHelpers::Null,typename ... Behaviors>
-class Component : public Behaviors...{
+
+
+
+
+class Component {
 public:
     bool IsEnabled(){
         return GetActiveState();
@@ -19,17 +20,17 @@ public:
         return m_IsRemovable;
     }
 
-    
+    bool Valid() {
+        return Registry::Get().valid(m_MasterHandle);
+    }
 
     bool CanBeDisabled() {
         return m_CanBeDisabled;
     }
+    virtual void ShowProperties() {};
 protected:
-    Component() {
-        (void*)Component::Initialized;
-    };
-
-    Component<T,Behaviors...>& operator=(const Component<T,Behaviors...>& comp){
+    
+    Component& operator=(const Component& comp){
         m_MyClassTypeID = comp.m_MyClassTypeID;
         m_ShouldHideInEditor = comp.m_ShouldHideInEditor;
         m_BaseComponentActiveState = comp.m_BaseComponentActiveState;
@@ -46,7 +47,6 @@ protected:
     virtual void Destroy() {};
 
     virtual void Update(float deltaTime) {};
-    virtual void ShowProperties() {};
 
     void HideInEditor(bool state){
         m_ShouldHideInEditor = state;
@@ -91,24 +91,12 @@ private:
     
     
     
-    static inline bool Initialized = [](){
-        if(entt::type_id<T>().name() != entt::type_id<ComponentHelpers::Null>().name()){
-            Object::RegisterClassAsComponent<T>(); 
-        }
-        return true;
-    }();
+    
 
 
     friend class Object;
-    friend class ObjectPropertiesComponent;
     
-
-};
-
-
-namespace ComponentHelpers {
-    class Null : public Component<Null>{
-    };
+    friend class ObjectProperties;
 
 };
 

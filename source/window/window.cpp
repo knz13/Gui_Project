@@ -69,7 +69,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     
 
-    Object mainCamera = Registry::CreateObject("Main Camera");
+    GameObject mainCamera = Object::CreateNew<GameObject>("Main Camera");
     mainCamera.AddComponent<Camera>();
     mainCamera.Transform().SetPosition(0, 5, 2);
 
@@ -274,7 +274,7 @@ void Window::DrawingLoop() {
         auto view = Registry::Get().view<Camera>();
         for (auto entity : view) {
             Camera& camera = view.get<Camera>(entity);
-            if (!Object(entity).Properties().IsActive()) {
+            if (!GameObject(entity).IsActive()) {
                 continue;
             }
             if (!camera.IsEnabled()) {

@@ -4,7 +4,7 @@
 class Framebuffer;
 class Object;
 class Window;
-class Camera : public Component<Camera> {
+class Camera : public DeriveFromComponent<Camera> {
 
     KV_CLASS
     

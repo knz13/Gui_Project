@@ -1,12 +1,14 @@
 #pragma once
 #include "registry.h"
-#include "object_properties_component.h"
+#include "object_properties.h"
+#include "object_property"
+
+
 
 namespace ComponentHelpers {
     class Null;
 }
 
-template<typename,typename...>
 class Component;
 class TransformComponent;
 class Object {
@@ -24,21 +26,21 @@ public:
     };
 
     bool HasComponent(entt::id_type type) {
-        return Properties().m_AttachedComponentsProperties.find(type) != Properties().m_AttachedComponentsProperties.end();
+        return Properties().m_ComponentClassNamesByType.find(type) != Properties().m_ComponentClassNamesByType.end();
     }
 
-    bool HasComponent(std::string type){
-        auto& vec = Properties().GetComponentClassNames();
-        return std::find(vec.begin(),vec.end(),type) != vec.end();
-    }
+    bool HasComponent(std::string type);
+
+    
 
     template<typename T>
     T& GetComponent(){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle);
             comp.SetMaster(m_EntityHandle);
-            ((Component<T>*)&comp)->Init();
-            this->HandleComponent(comp);
+            comp.Init();
+            
+            Properties().AddComponent(HashComponent<T>(),Registry::GetClassName<T>());
 
             return comp;
         }
@@ -50,7 +52,7 @@ public:
     TransformComponent& Transform();
     
 
-    bool TryCopyComponent(std::string stringToHash,Object from){
+    bool CopyComponentByName(std::string stringToHash,Object from){
         auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
         
         if(resolved){
@@ -67,17 +69,23 @@ public:
         }
     };
 
-    Component<ComponentHelpers::Null>* TryAddComponent(std::string stringToHash);
+    Component* AddComponentByName(std::string stringToHash);
 
-    Component<ComponentHelpers::Null>* GetComponentByName(std::string stringToHash);
+    Component* GetComponentByName(std::string stringToHash);
+
+    std::string GetComponentNameByID(entt::id_type id);
+
+    
 
     template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
         if(!this->HasComponent<T>()){
             T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...);
             comp.SetMaster(m_EntityHandle);
-            ((Component<T>*)&comp)->Init();
-            this->HandleComponent(comp);
+            comp.Init();
+            
+
+            Properties().AddComponent(HashComponent<T>(), Registry::GetClassName<T>());
 
             return comp;
         }
@@ -86,13 +94,7 @@ public:
         }
     }
 
-    const AttachedComponentProperties* GetComponentData(entt::id_type type){
-        if(!HasComponent(type)){
-            return nullptr;
-        }
-
-        return &Properties().m_AttachedComponentsProperties[type];
-    } 
+  
 
 
 
@@ -105,16 +107,16 @@ public:
         if(this->HasComponent<T>()){
             
             T* comp = &GetComponent<T>();
-            ((Component<T>*)comp)->Destroy();
+            comp->Destroy();
 
-            ObjectPropertiesComponent& properties = Properties();
-            properties.EraseComponentProperties(HashComponent<T>());
+            
+            Properties().EraseComponent(HashComponent<T>());
             
             Registry::Get().storage<T>().erase(m_EntityHandle);
         }
     };
 
-    bool EraseComponent(std::string componentName){
+    bool EraseComponentByName(std::string componentName){
         auto resolved = entt::resolve(entt::hashed_string(componentName.c_str()));
         
         if(resolved){
@@ -159,12 +161,12 @@ public:
 
     
     
-    ObjectPropertiesComponent& Properties() {
-        return Registry::Get().get<ObjectPropertiesComponent>(m_EntityHandle);
+    ObjectProperties& Properties() {
+        return Registry::Get().get<ObjectProperties>(m_EntityHandle);
     };
 
     const entt::entity& ID(){
-        return Properties().m_MasterHandle;
+        return m_EntityHandle;
     }
 
     template<typename T>
@@ -180,87 +182,66 @@ public:
         }
     };
 
-    static const std::vector<std::string>& GetRegisteredClasses(){
-        return m_RegisteredComponents;
+    
+    template<typename T>
+    static T CreateNew(std::string name) {
+        static_assert(std::is_base_of<Object, T>::value);
+
+        entt::entity ent = Registry::Get().create();
+
+        int index = 1;
+        if (Registry::FindObjectByName(name)) {
+            if (name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)) {
+                name += "(" + std::to_string(index) + ")";
+            }
+        }
+
+        while (Registry::FindObjectByName(name)) {
+            index++;
+            name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
+        }
+
+        Registry::Get().emplace<ObjectProperties>(ent, name, ent);
+
+        ObjectPropertyRegister::InitializeObject<T>(ent);
+
+        return GameObject(ent);
     }
+
+protected:
+    virtual void Init() {};
+    virtual void Destroy() {};
 
     
 private:
-    template<typename T>
-    static void MakeComponentOmnipresent(){
-        m_ClassesToAddEveryTime.push_back(Registry::GetClassName<T>());
-    }
-
-    template<typename T>
-    static bool RegisterClassAsComponent(){
-        entt::id_type hash = Registry::HashClassName<T>();
-        entt::meta<T>().type(hash).template ctor<&Object::GetComponent<T>,entt::as_ref_t>();
-        entt::meta<T>().type(hash).template func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
-        entt::meta<T>().type(hash).template func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
-        m_RegisteredComponents.push_back(Registry::GetClassName<T>());
-        return true;
-    };
+    
     template<typename T>
     static entt::id_type HashComponent(){
         return entt::type_hash<T>().value();
     };
 
     template<typename T>
-    void HandleComponent(T& comp){
-
-        AttachedComponentProperties prop;
-
-        comp.m_MyClassTypeID = HashComponent<T>();
-        prop.m_ClassName = Registry::GetClassName<T>();
-        prop.m_SizeInBytes = sizeof(T);
-        prop.m_DisplayName = Registry::GetClassDisplayName<T>();
-        prop.m_HideInEditor = &comp.m_ShouldHideInEditor;
-        prop.m_IsDeletable = &comp.m_IsRemovable;
-        prop.m_ActiveState = &comp.m_BaseComponentActiveState;
-        ObjectPropertiesComponent& properties = Properties();
-        properties.HandleComponentProperties(HashComponent<T>(),prop);
+    static entt::id_type RegisterClassAsComponent() {
+        entt::id_type hash = Registry::HashClassName<T>();
+        entt::meta<T>().type(hash).template ctor<&Object::GetComponent<T>, entt::as_ref_t>();
+        entt::meta<T>().type(hash).template func<&Object::CopyComponent<T>>(entt::hashed_string("Copy Component"));
+        entt::meta<T>().type(hash).template func<&Object::EraseComponent<T>>(entt::hashed_string("Erase Component"));
+        entt::meta<T>().type(hash).template func<&Object::HasComponent<T>>(entt::hashed_string("Has Component"));
+        entt::meta<T>().type(hash).template func<&Registry::GetClassDisplayName<T>>(entt::hashed_string("Get Display Name"));
+        return hash;
     }
+    
 
     entt::entity m_EntityHandle;
-    static inline std::vector<std::string> m_ClassesToAddEveryTime;
-    static inline std::vector<std::string> m_RegisteredComponents;
+    
 
 
     friend class Registry;
+
     template<typename>
-    friend class AddToEveryObject;
+    friend class ObjectPropertyStorage;
 
-   
-
-    template<typename,typename...>
+    
     friend class Component;
 };
 
-
-class ObjectHandle {
-public:
-    ObjectHandle(entt::entity ent){
-        m_Handle = ent;
-    };
-    ObjectHandle(){
-        isNull = true;
-    }
-
-    Object GetAsObject(){
-        return Object(m_Handle);
-    };
-
-    operator bool(){
-        if(isNull){
-            return false;
-        }
-        return Registry::Get().valid(m_Handle);
-    };
-
-
-
-private:
-    entt::entity m_Handle = entt::null;
-    bool isNull = false;
-    
-};

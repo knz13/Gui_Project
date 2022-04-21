@@ -19,44 +19,20 @@ public:
     static void UpdateState();
 
     static reactphysics3d::PhysicsCommon& GetPhysicsCommon();
-    static Object CreateObject(std::string name);
+    
+    static std::string GetComponentDisplayName(std::string componentClassName);
+
     static entt::registry& Get();
     static size_t GenerateRandomNumber();
     static Object CopyEntity(Object other);
 
-    template<typename T>
-    static std::string GetClassName(){
-        std::string name = std::string(entt::type_id<T>().name());
-        HelperFunctions::EraseWordFromString(name,"class ");
-        HelperFunctions::EraseWordFromString(name,"struct ");
-        if(auto loc = name.find_last_of(':'); loc != std::string::npos){
-            name = std::string(name.begin() + loc + 1,name.end());
-        }
-        return name;
-    }
-
-    template<typename T>
-    static std::string GetClassDisplayName(){
-        std::string name = std::string(entt::type_id<T>().name());
-        HelperFunctions::EraseWordFromString(name,"Component");
-        HelperFunctions::EraseWordFromString(name,"class ");
-        HelperFunctions::EraseWordFromString(name,"struct ");
-        if(auto loc = name.find_last_of(':'); loc != std::string::npos){
-            name = std::string(name.begin() + loc + 1,name.end());
-        }
-        return name;
-    }
-
     static ObjectHandle FindObjectByName(std::string name);
 
-    template<typename T>
-    static entt::id_type HashClassName() {
-        return entt::hashed_string(Registry::GetClassName<T>().c_str());
-    }
 
 
 private:
     static Object DuplicateObject(Object other);
+    static void GetAllChildren(Object current,std::vector<Object>& objects);
 
     static std::vector<Object> m_ObjectsToDelete;
     static std::mt19937 m_RandomGenerator;
