@@ -67,8 +67,8 @@ protected:
 
     ~Component(){}
 
-    Object GetMasterObject() const {
-        return Object(m_MasterHandle);
+    ObjectHandle GetMasterObject() const {
+        return ObjectHandle(m_MasterHandle);
     }
 
     bool GetActiveState() {

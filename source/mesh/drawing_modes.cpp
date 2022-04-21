@@ -115,5 +115,7 @@ PointsMode::PointsMode(Object obj) : DrawingMode(obj) {
 }
 
 PointsMode::~PointsMode() {
-    m_Master.GetComponent<Mesh>().PreDrawn().Disconnect(id);
+    if (m_Master.Valid()) {
+        m_Master.GetComponent<Mesh>().PreDrawn().Disconnect(id);
+    }
 }

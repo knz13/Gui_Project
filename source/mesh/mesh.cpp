@@ -112,11 +112,12 @@ void Mesh::Draw(const glm::mat4& mvp) {
 
 
 void Mesh::SetDrawingMode(std::string mode) {
-    
-    if(auto ptr = DrawingModeHelpers::GetSharedPtrFromName(mode,this->GetMasterObject()); ptr){
-        m_DrawingMode = ptr;
-        m_DrawingModeComboItem = DrawingModeStorage::GetTypeIndex(mode);
-        m_CurrentDrawingMode = mode;
+    if(GetMasterObject()){
+        if(auto ptr = DrawingModeHelpers::GetSharedPtrFromName(mode,this->GetMasterObject().GetAsObject()); ptr){
+            m_DrawingMode = ptr;
+            m_DrawingModeComboItem = DrawingModeStorage::GetTypeIndex(mode);
+            m_CurrentDrawingMode = mode;
+        }
     }
 }
 
@@ -190,6 +191,7 @@ void MeshAttribute::Vertex::SetEqualSize() {
 }
 
 Mesh& Mesh::operator=(const Mesh& other) {
+    
     Component::operator=(other);
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
 
@@ -197,9 +199,8 @@ Mesh& Mesh::operator=(const Mesh& other) {
         m_Vertices = other.m_Vertices;
         this->SetVertices(m_Vertices);
     }
-    if (other.m_CurrentDrawingMode != "" && other.m_DrawingMode.operator bool()) {
+    if (other.m_CurrentDrawingMode != "" && other.m_DrawingMode.operator bool() && other.GetMasterObject()) {
         this->SetDrawingMode(other.m_CurrentDrawingMode);
-
         DrawingModeHelpers::CopyStats(m_CurrentDrawingMode, m_DrawingMode.get(), other.m_DrawingMode.get());
     }
     m_DrawingModeComboItem = other.m_DrawingModeComboItem;

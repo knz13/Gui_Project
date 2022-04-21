@@ -140,7 +140,9 @@ protected:
     Object m_Master;
     std::function<GLenum()> m_CreateFunction;
 
-    
+    std::string GetName() {
+        return HelperFunctions::GetClassName<T>();
+    }
 
     
     static inline bool m_DummyVar = [](){

@@ -110,7 +110,7 @@ public:
             comp->Destroy();
 
             
-            Properties().EraseComponent(HelperFunctions::HashClassName<T>());
+            Properties().EraseComponent(entt::type_hash<T>().value());
             
             Registry::Get().storage<T>().erase(m_EntityHandle);
         }
