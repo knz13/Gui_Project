@@ -54,6 +54,7 @@ ObjectHandle ObjectProperties::GetParent()
 void ObjectProperties::SetParent(Object e)
 {
 	this->m_Parent = ObjectHandle(e.ID());
+	e.Properties().AddChildren(m_Master.GetAsObject());
 }
 
 void ObjectProperties::ClearParent()

@@ -108,7 +108,7 @@ void GuiLayer::GameView::Update(Window& win) {
 }
 
 void GuiLayer::GameView::Setup(Window& win) {
-    GameObject obj = Object::CreateNew<GameObject>("Editor Camera");
+    GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Editor Camera");
     obj.AddComponent<Camera>();
     
     obj.AddComponent<InternalUse>();
@@ -297,6 +297,7 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
 
 void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
 {
+    static bool first = true;
     static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
     if (m_IsObjectSelected && m_EditorCamera) {
 
@@ -337,20 +338,23 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
     }
     ImVec2 gameSize = ImGui::GetWindowSize();
 
-    win.Events().KeyEvent().Connect([&](Window& window, KeyEventProperties keyEvent) {
+    if(first){
+        win.Events().KeyEvent().Connect([&](Window& window, KeyEventProperties keyEvent) {
 
-        if (keyEvent.action == GLFW_PRESS && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
-            if (keyEvent.key == GLFW_KEY_E) {
-                imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
+            if (keyEvent.action == GLFW_PRESS && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
+                if (keyEvent.key == GLFW_KEY_E) {
+                    imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
+                }
+                if (keyEvent.key == GLFW_KEY_R) {
+                    imguizmoMode = ImGuizmo::OPERATION::ROTATE;
+                }
+                if (keyEvent.key == GLFW_KEY_T) {
+                    imguizmoMode = ImGuizmo::OPERATION::SCALE;
+                }
             }
-            if (keyEvent.key == GLFW_KEY_R) {
-                imguizmoMode = ImGuizmo::OPERATION::ROTATE;
-            }
-            if (keyEvent.key == GLFW_KEY_T) {
-                imguizmoMode = ImGuizmo::OPERATION::SCALE;
-            }
-        }
-    });
+        });
+        first = false;
+    }
 
 
 

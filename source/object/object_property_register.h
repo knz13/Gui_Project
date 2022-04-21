@@ -69,9 +69,72 @@ public:
 
 	}
 
+	template<typename T>
+	static T CopyObject(T other) {
+		entt::entity firstObject = entt::null;
+		entt::entity lastObject = entt::null;
+
+		other.Properties().ApplyFuncToSelfAndChildren([&](T current) {
+			T newOne = DuplicateObject<T>(current);
+			if (firstObject == entt::null) {
+				firstObject = newOne.ID();
+			}
+			if (lastObject != entt::null) {
+				newOne.Properties().SetParent(T(lastObject));
+			}
+			lastObject = newOne.ID();
+			});
+		return T(firstObject);
+	};
+
+
+	template<typename T>
+	static T CreateNew(std::string name) {
+		static_assert(std::is_base_of<Object, T>::value);
+
+		entt::entity ent = Registry::Get().create();
+
+		int index = 1;
+		if (Registry::FindObjectByName(name)) {
+			if (name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)) {
+				name += "(" + std::to_string(index) + ")";
+			}
+		}
+
+		while (Registry::FindObjectByName(name)) {
+			index++;
+			name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
+		}
+
+		Registry::Get().emplace<ObjectProperties>(ent, name, ent);
+
+		ObjectPropertyRegister::InitializeObject<T>(ent);
+
+		return T(ent);
+	}
 
 
 private:
+	template<typename T>
+	static T DuplicateObject(T other) {
+		T obj = ObjectPropertyRegister::CreateNew<T>(other.Properties().GetName());
+
+		for (auto [id, storage] : Registry::Get().storage()) {
+			if (id == entt::type_hash<ObjectProperties>().value()) {
+				continue;
+			}
+			if (storage.contains(other.ID()) && !storage.contains(obj.ID())) {
+				obj.AddComponentByName(other.GetComponentNameByID(id));
+				obj.CopyComponentByName(other.GetComponentNameByID(id), other);
+			}
+			else if (storage.contains(obj.ID())) {
+
+				obj.CopyComponentByName(obj.GetComponentNameByID(id), other);
+			}
+		}
+
+		return obj;
+	};
 
 	template<typename Tag,typename Attached>
 	static void ForEachByTag(std::function<void(Attached)> func) {

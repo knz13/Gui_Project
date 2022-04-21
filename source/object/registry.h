@@ -24,14 +24,14 @@ public:
 
     static entt::registry& Get();
     static size_t GenerateRandomNumber();
-    static Object CopyEntity(Object other);
+    
 
     static ObjectHandle FindObjectByName(std::string name);
 
 
 
 private:
-    static Object DuplicateObject(Object other);
+   
     static void GetAllChildren(Object current,std::vector<Object>& objects);
 
     static std::vector<Object> m_ObjectsToDelete;

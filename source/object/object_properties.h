@@ -70,6 +70,7 @@ private:
 	std::string m_Name;
 	ObjectHandle m_Master;
 
+	friend class ObjectPropertyRegister;
 	friend class Object;
 	friend class Registry;
 };

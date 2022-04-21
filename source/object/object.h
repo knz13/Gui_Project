@@ -40,7 +40,7 @@ public:
             comp.SetMaster(m_EntityHandle);
             comp.Init();
             
-            Properties().AddComponent(HelperFunctions::HashClassName<T>(), HelperFunctions::GetClassName<T>());
+            Properties().AddComponent(entt::type_hash<T>().value(), HelperFunctions::GetClassName<T>());
 
             return comp;
         }
@@ -85,7 +85,7 @@ public:
             comp.Init();
             
 
-            Properties().AddComponent(HelperFunctions::HashClassName<T>(), HelperFunctions::GetClassName<T>());
+            Properties().AddComponent(entt::type_hash<T>().value(), HelperFunctions::GetClassName<T>());
 
             return comp;
         }
@@ -183,31 +183,7 @@ public:
     };
 
     
-    template<typename T>
-    static T CreateNew(std::string name) {
-        static_assert(std::is_base_of<Object, T>::value);
-
-        entt::entity ent = Registry::Get().create();
-
-        int index = 1;
-        if (Registry::FindObjectByName(name)) {
-            if (name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)) {
-                name += "(" + std::to_string(index) + ")";
-            }
-        }
-
-        while (Registry::FindObjectByName(name)) {
-            index++;
-            name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
-        }
-
-        Registry::Get().emplace<ObjectProperties>(ent, name, ent);
-
-        ObjectPropertyRegister::InitializeObject<T>(ent);
-
-        return T(ent);
-    }
-
+    
 
     static const std::vector<std::string>& GetRegisteredComponents();
 

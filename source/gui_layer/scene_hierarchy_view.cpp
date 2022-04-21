@@ -121,7 +121,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
             if(ImGui::BeginPopupContextItem(GuiLayer::GetImGuiID(&obj.Transform()).c_str())){
                 
                 if(ImGui::MenuItem("Duplicate")){
-                    Registry::CopyEntity(obj);
+                    ObjectPropertyRegister::CopyObject(obj);
                 }
                 if(ImGui::MenuItem("Rename")){
                     nameToRename = obj.Properties().GetName();
@@ -204,7 +204,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             6, 7, 3
         };
 
-        GameObject obj = Object::CreateNew<GameObject>("Cube");
+        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Cube");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
@@ -227,7 +227,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             2,3,0
         };
 
-        GameObject obj = Object::CreateNew<GameObject>("Plane");
+        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Plane");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
@@ -235,7 +235,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
     };
 
     m_DefaultObjects["Camera"] = [](){
-        GameObject obj = Object::CreateNew<GameObject>("Camera");
+        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Camera");
         obj.AddComponent<Camera>();
     };
 

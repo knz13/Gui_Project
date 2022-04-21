@@ -69,7 +69,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     
 
-    GameObject mainCamera = Object::CreateNew<GameObject>("Main Camera");
+    GameObject mainCamera = ObjectPropertyRegister::CreateNew<GameObject>("Main Camera");
     mainCamera.AddComponent<Camera>();
     mainCamera.Transform().SetPosition(0, 5, 2);
 

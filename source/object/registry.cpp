@@ -51,42 +51,9 @@ size_t Registry::GenerateRandomNumber() {
 
 
 
-Object Registry::CopyEntity(Object other) {
-    entt::entity firstObject = entt::null;
-    entt::entity lastObject = entt::null;
-    
-    other.Properties().ApplyFuncToSelfAndChildren([&](Object current){
-        Object newOne = Registry::DuplicateObject(current);
-        if(firstObject == entt::null){
-            firstObject = newOne.ID();
-        }
-        if(lastObject != entt::null){
-            newOne.Properties().SetParent(Object(lastObject));
-        }
-        lastObject = newOne.ID();
-    });
-    return Object(firstObject);
-}
 
-Object Registry::DuplicateObject(Object other) {
-    Object obj = Object::CreateNew<Object>(other.Properties().GetName());
 
-    for(auto [id,storage] : m_Registry.storage()){
-        if(id == entt::type_hash<ObjectProperties>().value()){
-            continue;
-        }
-        if(storage.contains(other.ID()) && !storage.contains(obj.ID())){
-                obj.AddComponentByName(other.GetComponentNameByID(id));
-                obj.CopyComponentByName(other.GetComponentNameByID(id),other);
-        }
-        else if(storage.contains(obj.ID())){
-            
-            obj.CopyComponentByName(obj.GetComponentNameByID(id),other);
-        }
-    }
 
-    return obj;
-}
 
 
 
