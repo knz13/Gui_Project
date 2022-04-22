@@ -12,7 +12,7 @@ bool Object::HasComponent(std::string type)
 
     if (resolved) {
         if (auto func = resolved.func(entt::hashed_string("Has Component")); func) {
-            return func.invoke({}, this->ID()).operator bool();
+            return *((bool*)func.invoke({}, this->ID()).data());
         }
         else {
             return false;

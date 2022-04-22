@@ -13,6 +13,11 @@ glm::ivec3 Color::AsIntegers() {
     return glm::ivec3(m_ColorValue*255.0f);
 }
 
+ImVec4 Color::AsImVec4()
+{
+    return ImVec4(Normalized().x,Normalized().y,Normalized().z,1.0f);
+}
+
 glm::vec3& Color::Normalized() {
     return m_ColorValue;
 }
@@ -33,9 +38,9 @@ void Color::Modify(std::function<void(glm::vec3&)> changeFunction) {
     changeFunction(m_ColorValue);
 }
 Color::Color(unsigned char r,unsigned char g,unsigned char b) {
-    m_ColorValue.x = r/255;
-    m_ColorValue.y = g/255;
-    m_ColorValue.z = b/255;
+    m_ColorValue.x = r/255.0f;
+    m_ColorValue.y = g/255.0f;
+    m_ColorValue.z = b/255.0f;
 }
 
 Color::Color() {

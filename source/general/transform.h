@@ -9,7 +9,6 @@ public:
     TransformComponent();
     TransformComponent(const TransformComponent& mov);
 
-    void Init() override;
 
     
     void Rotate(float x,float y,float z);
@@ -48,6 +47,7 @@ public:
 
 
 private:
+    void Init() override;
     
     glm::mat4 GetCumulativeMatrix(std::vector<glm::mat4>* outVec=nullptr);
     glm::mat4 CalculateModelMatrix(bool passScale = true);

@@ -3,7 +3,7 @@
 
 void GuiLayer::SceneHierarchyView::Update(Window& win) {
     
-    GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
+    GuiLayer::SetupWindowStyle("Scene Hierarchy",[&](ImGuiWindowFlags flags){
         ImGui::Begin("Scene Hierarchy",0,flags );
     });
 
@@ -85,17 +85,24 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
             ImGui::TreePop();
         }
     }
-    else{
+    else {
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
-        if(GameView::AnyObjectSelected()){
-            if(GameView::AnyObjectSelected().objectID == obj.ID()){
+        if (GameView::AnyObjectSelected()) {
+            if (GameView::AnyObjectSelected().objectID == obj.ID()) {
                 flags |= ImGuiTreeNodeFlags_Selected;
             }
         }
 
         ImGui::SetNextItemOpen(true);
-        if(ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(),flags)){
+        bool isOpen = false;
+
+        GuiLayer::SetupStaticTreeNodeStyle([&]() {
+            isOpen = ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
+        });
+
+
+        if (isOpen){
             
             if(ImGui::BeginDragDropSource()){
 

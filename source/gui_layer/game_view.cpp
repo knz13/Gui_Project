@@ -45,33 +45,34 @@ void GuiLayer::GameView::Update(Window& win) {
     
     static ImVec2 lastSize;
 
-    GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    GuiLayer::SetupWindowStyle("Game View",[&](ImGuiWindowFlags flags){
             ImGui::Begin("Game View",0,flags);
-        });
+    });
+    
+    ImGui::PopStyleVar();
 
+    ImGui::BeginChild("GameRender");
+    float windowPositionX = ImGui::GetWindowPos().x;
+    float windowPositionY = ImGui::GetWindowPos().y;
+    float windowSizeX = ImGui::GetWindowSize().x;
+    float windowSizeY = ImGui::GetWindowSize().y;
         
-        ImGui::BeginChild("GameRender");
-
-        float windowPositionX = ImGui::GetWindowPos().x;
-        float windowPositionY = ImGui::GetWindowPos().y;
-        float windowSizeX = ImGui::GetWindowSize().x;
-        float windowSizeY = ImGui::GetWindowSize().y;
-        
-        if(!initialized){
+    if(!initialized){
             
-            m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+        m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+        m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
+        m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0,0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+        initialized = true;
+    }
+    else{
+        glm::vec4 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
+        if(lastSize.x != currentSize.z || lastSize.y != currentSize.w) {
+            m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
-            m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0,0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-            initialized = true;
+            m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
         }
-        else{
-            glm::vec4 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
-            if(lastSize.x != currentSize.z || lastSize.y != currentSize.w) {
-                m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-                m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
-                m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-            }
-        }
+    }
         
 
         
@@ -79,29 +80,29 @@ void GuiLayer::GameView::Update(Window& win) {
 
 
 
-        lastSize = ImGui::GetWindowSize();
-        // Get the size of the child (i.e. the whole draw size of the windows).
-        ImVec2 wsize = ImGui::GetWindowSize();
+    lastSize = ImGui::GetWindowSize();
+    // Get the size of the child (i.e. the whole draw size of the windows).
+    ImVec2 wsize = ImGui::GetWindowSize();
         
-        //m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget()
-        ImGui::Image((ImTextureID)m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget().GetAttachedTexture().GetID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
+    //m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget()
+    ImGui::Image((ImTextureID)m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget().GetAttachedTexture().GetID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
         
 
-        HandleSelectionGuizmo(win);
+    HandleSelectionGuizmo(win);
         
-        HandleEditorCameraMovement(win);
+    HandleEditorCameraMovement(win);
 
 
-        HandleObjectSelection(win);
+    HandleObjectSelection(win);
 
 
-        ImGui::EndChild();
+    ImGui::EndChild();
 
-        ImGui::End();
+    ImGui::End();
 
 
         
-        m_RaycastTexture.get()->Clear();
+    m_RaycastTexture.get()->Clear();
 
        
 

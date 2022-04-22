@@ -6,7 +6,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     static std::string currentPath = std::filesystem::current_path().string() + "/Assets";
     std::replace(currentPath.begin(),currentPath.end(),'\\','/');
 
-    GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
+    GuiLayer::SetupWindowStyle("Explorer",[&](ImGuiWindowFlags flags){
         ImGui::Begin("Explorer",0,flags );
     });
     

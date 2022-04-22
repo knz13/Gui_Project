@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "../../vendor/glm/glm/glm.hpp"
+#include "../../vendor/imgui/imgui.h"
 
 
 class Color {
@@ -19,6 +20,8 @@ public:
      * @return the color as integers from 0 to 255
      */
     glm::ivec3 AsIntegers();
+
+    ImVec4 AsImVec4();
     
     /**
      * Sets the color from rgb values normalized
