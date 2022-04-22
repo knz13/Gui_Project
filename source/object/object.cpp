@@ -32,14 +32,9 @@ Object::Object(entt::entity ent) {
     m_EntityHandle = ent;
 }
 
-
-
-std::string Object::GetComponentNameByID(entt::id_type id)
+entt::id_type Object::GetTypeOfObject()
 {
-    if (Properties().m_ComponentClassNamesByType.find(id) != Properties().m_ComponentClassNamesByType.end()) {
-        return Properties().m_ComponentClassNamesByType[id];
-    }
-    return "";
+    return Properties().m_MasterType;
 }
 
 bool Object::HasSameObjectTypeAs(Object other)
@@ -47,7 +42,3 @@ bool Object::HasSameObjectTypeAs(Object other)
     return Properties().m_MasterType == other.Properties().m_MasterType;
 }
 
-const std::vector<std::string>& Object::GetRegisteredComponents()
-{
-    return m_RegisteredComponents;
-}

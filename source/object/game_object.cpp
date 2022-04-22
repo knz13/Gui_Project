@@ -50,7 +50,7 @@ void GameObject::ShowProperties()
     static std::vector<std::string> idsToErase;
     if (ImGui::BeginTable(GuiLayer::GetImGuiID(&GetPropertyStorage<GameObjectProperties>()).c_str(),1,ImGuiTableFlags_Borders)) {
         //ImGui::Text(("Handle = " + std::to_string((size_t)m_MasterHandle)).c_str());
-        for (auto& [id, name] : Properties().GetComponentsWithIDAndName()) {
+        for (auto& name : Properties().GetComponentsNames()) {
             auto* comp = GetComponentByName(name);
 
             if (!comp->IsVisibleInEditor()) {

@@ -265,7 +265,7 @@ void Window::DrawingLoop() {
         oldTime = currentTime;
 
         GameObject::ForEach([&](GameObject obj) {
-            for (auto& [id, name] : obj.Properties().GetComponentsWithIDAndName()) {
+            for (auto& name : obj.Properties().GetComponentsNames()) {
                 obj.GetComponentByName(name)->Update(m_DeltaTime);
             }
         });

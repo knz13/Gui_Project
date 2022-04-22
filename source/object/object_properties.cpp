@@ -104,20 +104,15 @@ const std::vector<ObjectHandle>& ObjectProperties::GetChildren() const
 	return m_Children;
 }
 
-const std::unordered_map<entt::id_type, std::string>& ObjectProperties::GetComponentsWithIDAndName() const
+const std::vector<std::string>& ObjectProperties::GetComponentsNames() const
 {
-	return m_ComponentClassNamesByType;
+	return m_ComponentClassNames;
 }
 
-void ObjectProperties::AddComponent(entt::id_type id, std::string name)
+void ObjectProperties::SetComponentsNames(std::vector<std::string> vec)
 {
-	m_ComponentClassNamesByType[id] = name;
+	m_ComponentClassNames = vec;
 }
 
-void ObjectProperties::EraseComponent(entt::id_type id )
-{
-	if (m_ComponentClassNamesByType.find(id) != m_ComponentClassNamesByType.end()) {
-		m_ComponentClassNamesByType.erase(id);
-	}
-}
+
 

@@ -7,7 +7,7 @@
 #include "registry.h"
 #include "../general/helpers.h"
 #include "../../vendor/entt/single_include/entt/entt.hpp"
-
+#include "object_properties.h"
 
 template<typename T>
 struct NamedComponentHandle {
@@ -62,6 +62,7 @@ public:
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
 		};
+		m_RegisteredTagsByType[hash] = entt::type_hash<Tag>().value();
 	}
 
 	template<typename T>
@@ -144,9 +145,15 @@ public:
 	static void RegisterClassAsComponentOfType() {
 		m_RegisteredComponentsByType[HelperFunctions::HashClassName<ComponentType>()].push_back(HelperFunctions::GetClassName<Component>());
 		RegisterClassAsComponent<Component>();
+		m_RegisteredComponentsNames[entt::type_hash<Component>().value()] = HelperFunctions::GetClassName<Component>();
 	};
+	
+	static std::vector<std::string> GetObjectComponents(entt::entity e);
 
 protected:
+	static std::string GetComponentNameByID(entt::id_type id) {
+		return m_RegisteredComponentsNames[id];
+	}
 
 	
 	static bool IsHandleValid(entt::entity e) {
@@ -180,7 +187,7 @@ protected:
 		}
 
 
-		if (value) {
+		if (!value) {
 			Component* comp = (Component*) & Registry::Get().emplace<T>(e, std::forward<Args>(args)...);
 			comp->SetMaster(e);
 			comp->Init();
@@ -257,7 +264,7 @@ protected:
 		if (resolved) {
 			entt::meta_any owner = resolved.construct(e);
 			
-			returnData = owner.cast<ReturnType*>();
+			returnData = (ReturnType*)owner.data();
 
 			if (returnData == nullptr) {
 				throw std::runtime_error("Couldn't add component of type: " + stringToHash);
@@ -288,6 +295,10 @@ protected:
 		if (HasComponent<T>(e)) {
 			T* comp = GetComponent<T>(e).GetComponentPointer();
 			((Component*)comp)->Destroy();
+
+			
+
+			Registry::Get().storage<T>().erase(e);
 			return true;
 		}
 		return false;
@@ -335,16 +346,16 @@ private:
 		T obj = ObjectPropertyRegister::CreateNew<T>(other.Properties().GetName());
 
 		for (auto [id, storage] : Registry::Get().storage()) {
-			if (id == entt::type_hash<ObjectProperties>().value()) {
+			if (id == entt::type_hash<ObjectProperties>().value() || id == ObjectPropertyRegister::m_RegisteredTagsByType[HelperFunctions::HashClassName<T>()]) {
 				continue;
 			}
 			if (storage.contains(other.ID()) && !storage.contains(obj.ID())) {
-				obj.AddComponentByName(other.GetComponentNameByID(id));
-				obj.CopyComponentByName(other.GetComponentNameByID(id), other);
+				obj.AddComponentByName(GetComponentNameByID(id));
+				obj.CopyComponentByName(GetComponentNameByID(id), other);
 			}
 			else if (storage.contains(obj.ID())) {
 
-				obj.CopyComponentByName(obj.GetComponentNameByID(id), other);
+				obj.CopyComponentByName(GetComponentNameByID(id), other);
 			}
 		}
 
@@ -370,6 +381,8 @@ private:
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_ComponentsToMakeAvailableAtStartByType;
 	inline static std::unordered_map<entt::id_type, std::function<void(entt::entity)>> m_RegisteredObjectTagsStartingFuncs;
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_RegisteredComponentsByType;
+	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTagsByType;
+	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredComponentsNames;
 	
 	
 

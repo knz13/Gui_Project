@@ -80,10 +80,10 @@ void Registry::UpdateState() {
         }
 
         for (auto& object : objectAndAllChildren) {
-            auto it = object.Properties().m_ComponentClassNamesByType.begin();
-            while (it != object.Properties().m_ComponentClassNamesByType.end()) {
-                object.EraseComponentByName(it->second);
-                it = object.Properties().m_ComponentClassNamesByType.begin();
+            auto it = object.Properties().m_ComponentClassNames.begin();
+            while (it != object.Properties().m_ComponentClassNames.end()) {
+                object.EraseComponentByName(*it);
+                it = object.Properties().m_ComponentClassNames.begin();
             }
 
             m_Registry.destroy(object.ID());

@@ -27,17 +27,15 @@ public:
 	void AddChildren(Object e);
 	const std::vector<ObjectHandle>& GetChildren() const;
 
-	const std::unordered_map<entt::id_type, std::string>& GetComponentsWithIDAndName() const;
-
+	const std::vector< std::string>& GetComponentsNames() const;
 
 private:
-	void AddComponent(entt::id_type id, std::string name);
-	void EraseComponent(entt::id_type id);
+	void SetComponentsNames(std::vector<std::string> vec);
 
 	
 
 
-	std::unordered_map<entt::id_type, std::string> m_ComponentClassNamesByType;
+	std::vector<std::string> m_ComponentClassNames;
 
 	entt::id_type m_MasterType;
 	std::vector<ObjectHandle> m_Children;

@@ -13,7 +13,6 @@ private:
 	static inline bool dummyVar = []() {
 		if (HelperFunctions::HashClassName<ComponentName>() != HelperFunctions::HashClassName<ComponentHelpers::Null>()) {
 			ObjectPropertyRegister::RegisterClassAsComponentOfType<ObjectType, ComponentName>();
-			Object::RegisterClassAsComponent<ComponentName>();
 		}
 		return false;
 	}();

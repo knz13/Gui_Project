@@ -18,7 +18,7 @@ void GuiLayer::PropertiesView::Update(Window& win) {
             
             
             if(ImGui::BeginMenu("Add Component")){
-                for(auto& componentName : Object::GetRegisteredComponents()){
+                for(auto& componentName : GameObject::GetRegisteredComponents()){
                     if(!selected.HasComponent(componentName)){
                         if(ImGui::MenuItem(componentName.c_str())){
                             selected.AddComponentByName(componentName);
