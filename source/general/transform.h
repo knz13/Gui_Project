@@ -3,7 +3,7 @@
 
 
 
-class TransformComponent : public EventReceiver,public DeriveFromComponent<TransformComponent,AddOnlyTo<TransformComponent,GameObject>> {
+class TransformComponent : public EventReceiver,public GameComponent<TransformComponent,AddOnlyTo<TransformComponent,GameObject>> {
     KV_CLASS
 public:
     TransformComponent();

@@ -97,10 +97,6 @@ ObjectHandle Registry::FindObjectByName(std::string name) {
     
     
     for(auto [handle,comp] : Registry::Get().storage<ObjectProperties>().each()){
-        if(Object(handle).HasComponent<DisableInPlay>()){
-            continue;
-        }
-
         if(comp.GetName() == name){
             return ObjectHandle(handle);
         }

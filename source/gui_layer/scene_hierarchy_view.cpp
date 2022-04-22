@@ -14,8 +14,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
    
     if(Registry::Get().alive() > 0){
         
-        Registry::Get().each([&](const entt::entity e){
-            Object obj(e);
+        GameObject::ForEach([&](GameObject obj){
             if (obj.HasComponent<InternalUse>()) {
                 return;
             }
@@ -63,7 +62,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
     ImGui::End();
 }
 
-void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
+void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
     
     SceneHierarchyViewComponent& comp = obj.GetComponent<SceneHierarchyViewComponent>();
     bool& openRename = comp.m_IsChoosingName;
@@ -154,7 +153,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
             }
 
             for(auto id : obj.Properties().GetChildren()){
-                SetupObject(id.GetAsObject());
+                SetupObject(id.GetAs<GameObject>());
             }
 
             ImGui::TreePop();

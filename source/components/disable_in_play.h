@@ -2,9 +2,9 @@
 #include "../global.h"
 #include "component.h"
 
-class DisableInPlay : public DeriveFromComponent<DisableInPlay> {
+class DisableInPlay : public GameComponent<DisableInPlay> {
 public:
-    void Init() { Component::HideInEditor(true);};
+    void Init() { this->HideInEditor(true);};
 
 };
 

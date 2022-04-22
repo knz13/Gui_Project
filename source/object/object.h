@@ -1,13 +1,11 @@
-#pragma once
+﻿#pragma once
 #include "registry.h"
 #include "object_properties.h"
 #include "object_property_register.h"
 
 
 
-namespace ComponentHelpers {
-    class Null;
-}
+
 
 class Component;
 class TransformComponent;
@@ -18,38 +16,31 @@ public:
 
 
     template<typename T>
-    bool HasComponent(){
-        if(!this->Valid()){
-            return false;
-        }
-        return Registry::Get().all_of<T>(m_EntityHandle);
-    };
-
+    bool HasComponent() {
+        return ObjectPropertyRegister::HasComponent<T>(m_EntityHandle);
+    }
     bool HasComponent(entt::id_type type) {
         return Properties().m_ComponentClassNamesByType.find(type) != Properties().m_ComponentClassNamesByType.end();
     }
 
     bool HasComponent(std::string type);
 
-    
-
     template<typename T>
-    T& GetComponent(){
-        if(!this->HasComponent<T>()){
-            T& comp = Registry::Get().emplace<T>(m_EntityHandle);
-            comp.SetMaster(m_EntityHandle);
-            comp.Init();
-            
+    T& GetComponent() {
+        NamedComponentHandle<T> handle(nullptr);
+        try {
+            handle = ObjectPropertyRegister::GetComponent<T>(m_EntityHandle);
+        }
+        catch (std::runtime_error& err) {
+            throw err;
+        }
+        if (handle) {
             Properties().AddComponent(entt::type_hash<T>().value(), HelperFunctions::GetClassName<T>());
-
-            return comp;
         }
-        else {
-            return Registry::Get().get<T>(m_EntityHandle);
-        }
-    };
+        return *handle.GetComponentPointer();
+    }
 
-    TransformComponent& Transform();
+
     
 
     bool CopyComponentByName(std::string stringToHash,Object from){
@@ -58,7 +49,7 @@ public:
         if(resolved){
             entt::meta_any component = resolved.construct(*this);
             if(auto func = resolved.func(entt::hashed_string("Copy Component")) ; func){
-                return func.invoke({},from,*this).operator bool();
+                return func.invoke({},from.ID(), this->ID()).operator bool();
             }
             else{
                 return false;
@@ -69,9 +60,7 @@ public:
         }
     };
 
-    Component* AddComponentByName(std::string stringToHash);
-
-    Component* GetComponentByName(std::string stringToHash);
+    
 
     std::string GetComponentNameByID(entt::id_type id);
 
@@ -79,19 +68,17 @@ public:
 
     template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
-        if(!this->HasComponent<T>()){
-            T& comp = Registry::Get().emplace<T>(m_EntityHandle,args...);
-            comp.SetMaster(m_EntityHandle);
-            comp.Init();
-            
-
+        NamedComponentHandle<T> handle(nullptr);
+        try {
+            handle = ObjectPropertyRegister::GetComponent<T, Args...>(m_EntityHandle, std::forward<Args>(args)...);
+        }
+        catch (std::runtime_error& err) {
+            throw err;
+        }
+        if (handle) {
             Properties().AddComponent(entt::type_hash<T>().value(), HelperFunctions::GetClassName<T>());
-
-            return comp;
         }
-        else {
-            return Registry::Get().get<T>(m_EntityHandle);
-        }
+        return *handle.GetComponentPointer();
     }
 
   
@@ -101,19 +88,12 @@ public:
 
     template<typename T>
     void EraseComponent(){
-        if(!this->Valid()){
-            return;
-        }
-        if(this->HasComponent<T>()){
-            
-            T* comp = &GetComponent<T>();
-            comp->Destroy();
-
-            
+        if (ObjectPropertyRegister::EraseComponent<T>(m_EntityHandle)) {
             Properties().EraseComponent(entt::type_hash<T>().value());
-            
+
             Registry::Get().storage<T>().erase(m_EntityHandle);
         }
+        
     };
 
     bool EraseComponentByName(std::string componentName){
@@ -121,7 +101,7 @@ public:
         
         if(resolved){
             if(auto func = resolved.func(entt::hashed_string("Erase Component")) ; func){
-                return func.invoke({},*this).operator bool();
+                return func.invoke({},m_EntityHandle).operator bool();
             }
             else{
                 return false;
@@ -171,18 +151,10 @@ public:
 
     template<typename T>
     static bool CopyComponent(Object from,Object to){
-        if(from.HasComponent<T>() && to.HasComponent<T>()){
-            T& first = from.GetComponent<T>();
-            T& second = to.GetComponent<T>();
-            second = first;
-            return true;
-        }
-        else{
-            return false;
-        }
+        return ObjectPropertyRegister::CopyComponent<T>(from.ID(), to.ID());
     };
 
-    
+    bool HasSameObjectTypeAs(Object other);
     
 
     static const std::vector<std::string>& GetRegisteredComponents();
@@ -221,7 +193,10 @@ private:
     friend class ObjectPropertyStorage;
 
     template<typename,typename...>
-    friend class DeriveFromComponent;
+    friend class GameComponent;
+
+    template<typename,typename>
+    friend class ComponentSpecifier;
 
     friend class Component;
 };

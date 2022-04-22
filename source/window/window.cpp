@@ -218,7 +218,7 @@ const WindowCreationProperties& Window::Properties() const {
 }
 
 
-void Window::SetCamera(Object obj) {
+void Window::SetCamera(GameObject obj) {
     if(obj.HasComponent<Camera>()){
         m_MainCamera = obj.ID();
     }
@@ -238,8 +238,8 @@ void Window::SetViewPort(int x, int y, int width, int height)
 
 
 
-ObjectHandle Window::GetCurrentCamera() {
-    return ObjectHandle(m_MainCamera);
+TemplatedObjectHandle<GameObject> Window::GetCurrentCamera() {
+    return TemplatedObjectHandle<GameObject>(m_MainCamera);
 }
 
 
@@ -264,12 +264,15 @@ void Window::DrawingLoop() {
 
         oldTime = currentTime;
 
-        Registry::Get().each([&](auto entity){
-
-            
-            Object(entity).Properties().CallUpdateFunctions(m_DeltaTime);
-
+        GameObject::ForEach([&](GameObject obj) {
+            for (auto& [id, name] : obj.Properties().GetComponentsWithIDAndName()) {
+                obj.GetComponentByName(name)->Update(m_DeltaTime);
+            }
         });
+            
+           
+
+        
 
         auto view = Registry::Get().view<Camera>();
         for (auto entity : view) {

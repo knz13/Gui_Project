@@ -42,7 +42,7 @@ namespace DrawingModeHelpers {
     }
     
     template<typename T>
-    static std::shared_ptr<DrawingMode<DrawingModeHelpers::Null>> GetSharedPtr(Object obj) {
+    static std::shared_ptr<DrawingMode<DrawingModeHelpers::Null>> GetSharedPtr(GameObject obj) {
         auto deleter = [](DrawingMode<DrawingModeHelpers::Null>* ptr){
             delete ((T*)ptr);
         };
@@ -63,7 +63,7 @@ namespace DrawingModeHelpers {
 
     }
 
-    static std::shared_ptr<DrawingMode<DrawingModeHelpers::Null>> GetSharedPtrFromName(std::string name,Object obj){
+    static std::shared_ptr<DrawingMode<DrawingModeHelpers::Null>> GetSharedPtrFromName(std::string name,GameObject obj){
         auto resolved = entt::resolve(entt::hashed_string(name.c_str()));
 
         if(resolved){
@@ -114,7 +114,7 @@ class DrawingMode {
     KV_DRAWING_MODE
 
 public:
-    DrawingMode(Object obj) : m_Master(obj) {
+    DrawingMode(GameObject obj) : m_Master(obj) {
         m_CreateFunction = [](){
             return GL_TRIANGLES;
         };
@@ -137,7 +137,7 @@ protected:
 
     
 
-    Object m_Master;
+    GameObject m_Master;
     std::function<GLenum()> m_CreateFunction;
 
     std::string GetName() {
@@ -157,7 +157,7 @@ class LinesMode : public DrawingMode<LinesMode> {
     KV_DRAWING_MODE
 public:
 
-    LinesMode(Object obj) : DrawingMode(obj){
+    LinesMode(GameObject obj) : DrawingMode(obj){
         m_CreateFunction = [](){return GL_LINES;};
     }
 
@@ -179,7 +179,7 @@ public:
 
     
 
-    TrianglesMode(Object obj) : DrawingMode(obj){
+    TrianglesMode(GameObject obj) : DrawingMode(obj){
         m_CreateFunction = [](){return GL_TRIANGLES;};
     };
     
@@ -197,7 +197,7 @@ class PointsMode : public DrawingMode<PointsMode> {
 
 public:
 
-    PointsMode(Object obj);
+    PointsMode(GameObject obj);
     ~PointsMode();
 
     

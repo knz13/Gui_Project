@@ -64,11 +64,11 @@ public:
     WindowCreators Create();
     
     
-    ObjectHandle GetCurrentCamera();
+    TemplatedObjectHandle<GameObject> GetCurrentCamera();
     void SetClearColor(Color color);
     
     void DisableCamera();
-    void SetCamera(Object obj);
+    void SetCamera(GameObject obj);
     
     void SetViewPort(int x,int y,int width,int height);
 

@@ -6,7 +6,7 @@ class Window;
 
 namespace GuiLayer {
 
-struct SceneHierarchyViewComponent : public DeriveFromComponent<SceneHierarchyViewComponent,AddOnlyTo<SceneHierarchyViewComponent,GameObject>> {
+struct SceneHierarchyViewComponent : public GameComponent<SceneHierarchyViewComponent,AddOnlyTo<SceneHierarchyViewComponent,GameObject>> {
     
     void Init() { this->HideInEditor(true);};
     void ShowProperties(){};
@@ -24,7 +24,7 @@ public:
     static void Update(Window& win);
 
 private:
-    static void SetupObject(Object obj);
+    static void SetupObject(GameObject obj);
 
     static inline std::map<std::string,std::function<void()>> m_DefaultObjects;
 };

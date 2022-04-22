@@ -23,7 +23,9 @@ bool ObjectHandle::operator==(const ObjectHandle& other)
 }
 
 
-ObjectProperties::ObjectProperties(std::string name, entt::entity e) : m_Name(name),m_Master(e)
+
+
+ObjectProperties::ObjectProperties(std::string name, entt::id_type masterType, entt::entity e) : m_Name(name), m_Master(e),m_MasterType(masterType)
 {
 }
 
@@ -37,12 +39,7 @@ void ObjectProperties::SetName(std::string name)
 	m_Name = name;
 }
 
-void ObjectProperties::CallUpdateFunctions(float deltaTime)
-{
-	for (auto& [id, name] : m_ComponentClassNamesByType) {
-		m_Master.GetAsObject().GetComponentByName(name)->Update(deltaTime);
-	}
-}
+
 
 
 
@@ -53,8 +50,10 @@ ObjectHandle ObjectProperties::GetParent()
 
 void ObjectProperties::SetParent(Object e)
 {
-	this->m_Parent = ObjectHandle(e.ID());
-	e.Properties().AddChildren(m_Master.GetAsObject());
+	if (e.HasSameObjectTypeAs(m_Master.GetAsObject())) {
+		this->m_Parent = ObjectHandle(e.ID());
+		e.Properties().AddChildren(m_Master.GetAsObject());
+	}
 }
 
 void ObjectProperties::ClearParent()
@@ -95,7 +94,7 @@ void ObjectProperties::RemoveChildren(Object e)
 void ObjectProperties::AddChildren(Object e)
 {
 	ObjectHandle handle(e.ID());
-	if (e.Valid() && std::find(m_Children.begin(), m_Children.end(), handle) == m_Children.end()) {
+	if (e.Valid() && std::find(m_Children.begin(), m_Children.end(), handle) == m_Children.end() && e.HasSameObjectTypeAs(m_Master.GetAsObject())) {
 		m_Children.push_back(e.ID());
 	}
 }
@@ -122,13 +121,3 @@ void ObjectProperties::EraseComponent(entt::id_type id )
 	}
 }
 
-void ObjectProperties::ApplyFuncToSelfAndChildren(std::function<void(Object)> func)
-{
-	func(m_Master.GetAsObject());
-		if (m_Children.size() == 0) {
-			return;
-		}
-	for (auto& id : m_Children) {
-		id.GetAsObject().Properties().ApplyFuncToSelfAndChildren(func);
-	}
-}

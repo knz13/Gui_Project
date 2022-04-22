@@ -21,9 +21,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
         }
         if (ImGui::BeginMenu("Create")) {
             if (ImGui::MenuItem("Folder")) {
-                m_CurrentRenamingFileHash = Registry::GenerateRandomNumber();
-                std::filesystem::create_directory(std::to_string(m_CurrentRenamingFileHash));
-                m_CurrentRenamingFileHash = std::hash<std::string>()(std::to_string(m_CurrentRenamingFileHash));
+                
             }
         }
         ImGui::EndPopup();
@@ -33,11 +31,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
         for(auto& file : std::filesystem::directory_iterator(currentPath)){
             ImGui::TableNextColumn();
             if (std::hash<std::string>()(file.path().filename().string().c_str()) != m_CurrentRenamingFileHash) {
-                if (ImGui::Button(file.path().filename().string().c_str(), ImVec2(-FLT_MIN, 0))) {
-                    if (std::filesystem::is_directory(file.path())) {
-                        currentPath = file.path().parent_path().string() + "/" + file.path().filename().string();
-                    }
-                }
+                
             }
         }
         ImGui::EndTable();
@@ -55,3 +49,11 @@ void GuiLayer::ExplorerView::Setup(Window& win)
         std::filesystem::create_directory("Assets");
     }
 }
+
+/*
+if (ImGui::Button(file.path().filename().string().c_str(), ImVec2(-FLT_MIN, 0))) {
+    if (std::filesystem::is_directory(file.path())) {
+        currentPath = file.path().parent_path().string() + "/" + file.path().filename().string();
+    }
+}
+*/

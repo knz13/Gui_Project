@@ -94,7 +94,7 @@ void PointsMode::ShowProperties() {
     ImGui::ColorEdit3(GuiLayer::GetImGuiID(&pointColor).c_str(),&pointColor.Normalized().x,ImGuiColorEditFlags_InputRGB);
 }
 
-PointsMode::PointsMode(Object obj) : DrawingMode(obj) {
+PointsMode::PointsMode(GameObject obj) : DrawingMode(obj) {
     m_CreateFunction = [](){return GL_POINTS;};
 
     id = obj.GetComponent<Mesh>().PreDrawn().Connect([&,obj](Mesh& mesh,Shader&,const glm::mat4& mvp) mutable -> void {

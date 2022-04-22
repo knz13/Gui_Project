@@ -5,6 +5,7 @@
 
 
 void Camera::SetLookAt(float x, float y, float z) {
+    
     glm::mat4 lookat = glm::lookAt(GetMasterObject().GetAsObject().GetComponent<TransformComponent>().GetPosition(),glm::vec3(x,y,z),glm::vec3(0,1,0));
     glm::mat4 modelMat = glm::inverse(lookat);
     modelMat[3] = glm::vec4(0,0,0,1);
@@ -84,7 +85,7 @@ glm::mat4 Camera::GetView() const{
 }
 
 void Camera::ShowProperties() {
-    static std::string fovRand = ("##" + std::to_string(Registry::GenerateRandomNumber()));
+    
     //bool isCurrent;
 
     /*

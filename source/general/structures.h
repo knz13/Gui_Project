@@ -22,7 +22,7 @@
 #include "../vendor/assimp/include/assimp/cimport.h"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "../components/derive_from_component.h"
+#include "object/game_object.h"
 #include "gui_layer/gui_useful_implementations.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
@@ -185,11 +185,6 @@ struct WindowCreationProperties {
     uint32_t windowFlags = WindowFlag::None;
     int openGLVersionMajor = 4;
     int openGLVersionMinor = 0;
-};
-
-struct RandomDummyComponent : public DeriveFromComponent<RandomDummyComponent> {
-    void Update(float) {};
-    void ShowProperties() {};
 };
 
 struct EventReceiver;

@@ -3,11 +3,11 @@
 #include "../general/structures.h"
 
 
-
-
+template<typename=ComponentHelpers::Null,typename...>
+class GameComponent;
 class TransformComponent;
-class GameObject : public TaggedObject<GameObject> {
-	KV_CLASS
+
+class GameObject : public TaggedObject<GameObject,GameComponent<>> {
 public:
 	GameObject(entt::entity e);
 
@@ -38,4 +38,54 @@ private:
 	bool m_HighlightState = false;
 
 	friend class GameObject;
+};
+
+template<typename Component, typename... Behaviors>
+class GameComponent : public ComponentSpecifier<Component, GameObject>, public Behaviors... {
+public:
+    bool IsEnabled() {
+        return GetActiveState();
+    }
+    bool IsVisibleInEditor() {
+        return !m_ShouldHideInEditor;
+    }
+    bool IsRemovable() {
+        return m_IsRemovable;
+    }
+    bool CanBeDisabled() {
+        return m_CanBeDisabled;
+    }
+
+    virtual void ShowProperties() {};
+    virtual void Update(float deltaTime) {};
+
+protected:
+
+   
+
+    void HideInEditor(bool state) {
+        m_ShouldHideInEditor = state;
+    }
+    void SetActiveState(bool state) {
+        m_BaseComponentActiveState = state;
+    }
+
+    void MakeRemovable(bool state) {
+        m_IsRemovable = state;
+    }
+
+    void MakeAlwaysEnabled(bool state) {
+        m_CanBeDisabled = !state;
+    }
+
+    bool GetActiveState() {
+        return m_BaseComponentActiveState;
+    }
+
+private:
+    bool m_BaseComponentActiveState = true;
+    bool m_ShouldHideInEditor = false;
+    bool m_CanBeDisabled = true;
+    bool m_IsRemovable = true;
+
 };

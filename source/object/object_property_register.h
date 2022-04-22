@@ -3,9 +3,36 @@
 #include <iostream>
 #include <unordered_map>
 #include <concepts>
+#include "../components/component.h"
 #include "registry.h"
 #include "../general/helpers.h"
 #include "../../vendor/entt/single_include/entt/entt.hpp"
+
+
+template<typename T>
+struct NamedComponentHandle {
+public:
+
+	NamedComponentHandle(T* comp)
+	{
+		m_Component = comp;
+	};
+
+	
+	T* GetComponentPointer() {
+		return m_Component;
+	}
+
+	operator bool() {
+		return m_Component != nullptr;
+	};
+
+private:
+	T* m_Component = nullptr;
+
+
+};
+
 
 class Object;
 class ObjectPropertyRegister {
@@ -74,7 +101,7 @@ public:
 		entt::entity firstObject = entt::null;
 		entt::entity lastObject = entt::null;
 
-		other.Properties().ApplyFuncToSelfAndChildren([&](T current) {
+		other.ApplyFuncToSelfAndChildren([&](T current) {
 			T newOne = DuplicateObject<T>(current);
 			if (firstObject == entt::null) {
 				firstObject = newOne.ID();
@@ -106,15 +133,203 @@ public:
 			name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
 		}
 
-		Registry::Get().emplace<ObjectProperties>(ent, name, ent);
+		Registry::Get().emplace<ObjectProperties>(ent, name,HelperFunctions::HashClassName<T>(), ent);
 
 		ObjectPropertyRegister::InitializeObject<T>(ent);
 
 		return T(ent);
 	}
 
+	template<typename ComponentType,typename Component>
+	static void RegisterClassAsComponentOfType() {
+		m_RegisteredComponentsByType[HelperFunctions::HashClassName<ComponentType>()].push_back(HelperFunctions::GetClassName<Component>());
+		RegisterClassAsComponent<Component>();
+	};
+
+protected:
+
+	
+	static bool IsHandleValid(entt::entity e) {
+		if (Registry::Get().valid(e)) {
+			return true;
+		}
+		throw std::runtime_error("Using Invalid entity!");
+		
+	}
+
+	template<typename T>
+	static bool HasComponent(entt::entity e) {
+		try {
+			IsHandleValid(e);
+		}
+		catch (std::runtime_error& err) {
+			throw err;
+		}
+		
+		return Registry::Get().all_of<T>(e);
+	};
+
+	template<typename T,typename... Args>
+	static bool AddComponent(entt::entity e,Args&&... args) {
+		bool value = false;
+		try {
+			value = HasComponent<T>(e);
+		}
+		catch (std::runtime_error& err) {
+			throw err;
+		}
+
+
+		if (value) {
+			Component* comp = (Component*) & Registry::Get().emplace<T>(e, std::forward<Args>(args)...);
+			comp->SetMaster(e);
+			comp->Init();
+
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	template<typename T>
+	static NamedComponentHandle<T> GetComponent(entt::entity e) {
+		bool couldAdd = false;
+
+		try {
+			AddComponent<T>(e);
+		}
+		catch (std::runtime_error& err) {
+			throw err;
+		}
+
+		if (couldAdd) {
+			return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+		}
+		else {
+			if (HasComponent<T>(e)) {
+				return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+			}
+			else {
+				
+				return NamedComponentHandle<T>(nullptr);
+			}
+		}
+	};
+	
+	template<typename T,typename... Args>
+	static NamedComponentHandle<T> GetComponentWithArgs(entt::entity e,Args&&... args) {
+		bool couldAdd = false;
+
+		try {
+			AddComponent<T,Args...>(e,std::forward<Args>(args)...);
+		}
+		catch (std::runtime_error& err) {
+			throw err;
+		}
+
+		if (couldAdd) {
+			return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+		}
+		else {
+			if (HasComponent<T>(e)) {
+				return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+			}
+			else {
+				
+				return NamedComponentHandle<T>(nullptr);
+			}
+		}
+	};
+
+	
+
+	
+
+	template<typename ReturnType>
+	static ReturnType* AddComponentByName(entt::entity e,std::string stringToHash) {
+		if (!Registry::Get().valid(e)) {
+			return nullptr;
+		}
+
+		auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
+		ReturnType* returnData = nullptr;
+		if (resolved) {
+			entt::meta_any owner = resolved.construct(e);
+			
+			returnData = owner.cast<ReturnType*>();
+
+			if (returnData == nullptr) {
+				throw std::runtime_error("Couldn't add component of type: " + stringToHash);
+			}
+
+		}
+		return returnData;
+		
+	};
+
+	template<typename ReturnType>
+	static ReturnType* GetComponentByName(entt::entity e,std::string name) {
+		ReturnType* comp = nullptr;
+		
+		try {
+			comp = AddComponentByName<ReturnType>(e, name);
+		}
+		catch (std::runtime_error& err) {
+			throw err;
+		}
+
+		return comp;
+	};
+
+	template<typename T>
+	static bool EraseComponent(entt::entity e) {
+		
+		if (HasComponent<T>(e)) {
+			T* comp = GetComponent<T>(e).GetComponentPointer();
+			((Component*)comp)->Destroy();
+			return true;
+		}
+		return false;
+	}
+
+	template<typename T>
+	static bool CopyComponent(entt::entity first,entt::entity second) {
+		if (HasComponent<T>(first) && HasComponent<T>(second)) {
+			T& firstComp = *GetComponent<T>(first).GetComponentPointer();
+			T& secondComp = *GetComponent<T>(second).GetComponentPointer();
+			secondComp = firstComp;
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+
+	template<typename,typename>
+	friend class TaggedObject;
+	friend class Object;
 
 private:
+
+	template<typename T>
+	static T& CreateComponent(entt::entity e) {
+		NamedComponentHandle<T> handle = GetComponent<T>(e);
+		return *handle.GetComponentPointer();
+	};
+
+	template<typename T>
+	static entt::id_type RegisterClassAsComponent() {
+		entt::id_type hash = HelperFunctions::HashClassName<T>();
+		entt::meta<T>().type(hash).template ctor<&CreateComponent<T>,entt::as_ref_t>();
+		entt::meta<T>().type(hash).template func<&CopyComponent<T>>(entt::hashed_string("Copy Component"));
+		entt::meta<T>().type(hash).template func<&EraseComponent<T>>(entt::hashed_string("Erase Component"));
+		entt::meta<T>().type(hash).template func<&HasComponent<T>>(entt::hashed_string("Has Component"));
+		entt::meta<T>().type(hash).template func<&HelperFunctions::GetClassDisplayName<T>>(entt::hashed_string("Get Display Name"));
+		return hash;
+	}
+
 	template<typename T>
 	static T DuplicateObject(T other) {
 		T obj = ObjectPropertyRegister::CreateNew<T>(other.Properties().GetName());
@@ -154,6 +369,7 @@ private:
 	inline static std::unordered_map < entt::id_type, std::function<void(entt::entity)>> m_PropertyStorageContainer;
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_ComponentsToMakeAvailableAtStartByType;
 	inline static std::unordered_map<entt::id_type, std::function<void(entt::entity)>> m_RegisteredObjectTagsStartingFuncs;
+	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_RegisteredComponentsByType;
 	
 	
 

@@ -37,7 +37,7 @@ namespace MeshAttribute {
     };
 };
 
-class Mesh : public EventReceiver,public DeriveFromComponent<Mesh>{
+class Mesh : public EventReceiver,public GameComponent<Mesh>{
     KV_CLASS
 public:
     Mesh();
