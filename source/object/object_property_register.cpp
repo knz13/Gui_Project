@@ -1,6 +1,22 @@
 #include "object_property_register.h"
 #include "../kv.h"
 
+
+Object ObjectPropertyRegister::CreateObjectFromType(std::string type, std::string objectName)
+{
+	auto resolved = entt::resolve(entt::hashed_string(type.c_str()));
+
+	if (resolved) {
+		if (auto func = resolved.func(entt::hashed_string("Create")); func) {
+			auto result = func.invoke({}, objectName);
+			return Object(*((entt::entity*)result.data()));
+		}
+		throw std::runtime_error("Couldn't identify create function for object, make sure it is derived from TaggedObject");
+	}
+	throw std::runtime_error("Couldn't identify object type specified, check for spelling errors...");
+	
+}
+
 std::vector<std::string> ObjectPropertyRegister::GetObjectComponents(entt::entity e)
 {
 	std::vector<std::string> vec;

@@ -9,7 +9,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
     
     
-
+   
 
    
     if(Registry::Get().alive() > 0){

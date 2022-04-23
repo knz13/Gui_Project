@@ -59,11 +59,15 @@ public:
 	static void RegisterClassAsObjectTag() {
 		entt::id_type hash = HelperFunctions::HashClassName<Attached>();
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag,Attached>>(entt::hashed_string("ForEach"));
+		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
 		};
 		m_RegisteredTagsByType[hash] = entt::type_hash<Tag>().value();
+		
 	}
+
+	static Object CreateObjectFromType(std::string type,std::string objectName);
 
 	template<typename T>
 	static void InitializeObject(entt::entity ent) {
@@ -323,6 +327,13 @@ protected:
 	friend class Object;
 
 private:
+
+	template<typename T>
+	static entt::entity CreateObjectAndReturnHandle(std::string name) {
+		T obj = CreateNew<T>(name);
+
+		return obj.ID();
+	};
 
 	template<typename T>
 	static T& CreateComponent(entt::entity e) {

@@ -84,7 +84,7 @@ void GameObject::ShowProperties()
             bool selected;
             
             GuiLayer::SetupStaticTreeNodeStyle([&]() {
-                selected = ImGui::TreeNodeEx((Registry::GetComponentDisplayName(name)).c_str(), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth );
+                selected = ImGui::TreeNodeEx((Registry::GetComponentDisplayName(name)).c_str(), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
             });
             
                 
@@ -96,9 +96,9 @@ void GameObject::ShowProperties()
 
 
                 if (comp->CanBeDisabled()) {
-                    //ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 10, ImGui::GetCursorPos().y - 2));
-                    //ImGui::Checkbox("##", );
-                    //ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 10, ImGui::GetCursorPos().y + 2));
+                    ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 10, ImGui::GetCursorPos().y - 2));
+                    ImGui::CheckboxEx("##", &comp->m_BaseComponentActiveState);
+                    ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x - 10, ImGui::GetCursorPos().y + 2));
                 }
                 ImGui::SameLine();
 

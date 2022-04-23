@@ -38,10 +38,10 @@ public:
     void SetRenderTarget(std::shared_ptr<Framebuffer> framebuffer);
     void SetViewport(float x,float y,float width,float height);
 
-    void Update(float deltaTime);
-    void ShowProperties();
 
 private:
+    void Update(float deltaTime) override;
+    void ShowProperties() override;
     void Init() override;
     void Destroy() override;
 

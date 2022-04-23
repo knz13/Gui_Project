@@ -21,7 +21,7 @@ int main(){
 
     GuiLayer::AddUi(win);
     
-
+    Object obj = ObjectPropertyRegister::CreateObjectFromType("GameObject", "Hey!");
     
 
 

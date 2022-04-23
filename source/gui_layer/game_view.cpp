@@ -305,7 +305,7 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
-        Object clickedObject(m_IsObjectSelected.objectID);
+        GameObject clickedObject(m_IsObjectSelected.objectID);
         glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection();
         glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
         TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();

@@ -25,6 +25,8 @@ namespace ImGui {
     void DragTextFloat(std::string text,float* val,float speed = 1,float min=0,float max=0);
 
     void Drag3AxisFloat(std::string text,float* values,float speed = 1,float min=0,float max = 0);
+
+    bool CheckboxEx(const char* label, bool* v);
 }
 
 

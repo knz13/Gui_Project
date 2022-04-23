@@ -31,6 +31,10 @@ namespace GuiLayer {
         static inline std::unordered_map<std::string, ImGuiID> m_RegisteredIDs;
     };
 
+    struct BaseSettings {
+        static inline float FontScale = 1.0f;
+    };
+
     struct BaseColors {
         static inline Color StaticWidgetBg = Color(60,60,60);
         static inline Color StaticWidgetActiveBg = Color(60,60,60);

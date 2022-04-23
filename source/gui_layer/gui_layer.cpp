@@ -40,8 +40,19 @@ void GuiLayer::AddUi(Window& win) {
     GuiLayer::ExplorerView::Setup(win);
     GuiLayer::SceneHierarchyView::SetupDefaultObjects();
 
+    
+
     win.Events().PostDrawingLoopEvent().Connect([&](Window& win){
         
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
+            if (ImGui::IsKeyPressed(ImGuiKey_Equal)) {
+                BaseSettings::FontScale += 0.1;
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_Minus)) {
+                BaseSettings::FontScale -= 0.1;
+            }
+        }
+
         ImGui::PopStyleColor(2);
 
         ImGuiIO& io = ImGui::GetIO();
@@ -55,9 +66,10 @@ void GuiLayer::AddUi(Window& win) {
         }
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        
 
     });
-
+    
     
     
 
@@ -156,6 +168,8 @@ void GuiLayer::SetupWindowStyle(std::string name,std::function<void(ImGuiWindowF
 
     ImGui::SetNextWindowDockID(WindowIDs::GetID(name),ImGuiCond_Once);
     beginCommand(flags);
+
+    ImGui::SetWindowFontScale(BaseSettings::FontScale);
     ImGui::PopStyleColor(8);
     ImGui::PopStyleVar(2);
 }

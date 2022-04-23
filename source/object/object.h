@@ -9,6 +9,8 @@
 
 class Component;
 class TransformComponent;
+
+
 class Object {
 public:
     Object(entt::entity ent);
@@ -17,6 +19,7 @@ public:
 
     template<typename T>
     bool HasComponent() {
+
         return ObjectPropertyRegister::HasComponent<T>(m_EntityHandle);
     }
 

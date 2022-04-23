@@ -52,7 +52,7 @@ void TransformComponent::InstantScaleChange(float x, float y, float z) {
 }
 void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
     
-    Object current = GetMasterObject().GetAsObject();
+    GameObject current = GetMasterObject().GetAsObject();
     
     std::vector<glm::mat4> vec;
     GetCumulativeMatrix(&vec);

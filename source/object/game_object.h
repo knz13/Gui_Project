@@ -88,4 +88,6 @@ private:
     bool m_CanBeDisabled = true;
     bool m_IsRemovable = true;
 
+
+    friend class GameObject;
 };
