@@ -2,7 +2,7 @@
 #include "registry.h"
 #include "object_properties.h"
 #include "object_property_register.h"
-
+#include "object_base.h"
 
 
 
@@ -11,7 +11,7 @@ class Component;
 class TransformComponent;
 
 
-class Object {
+class Object : public ObjectBase {
 public:
     Object(entt::entity ent);
     ~Object();
@@ -160,11 +160,13 @@ public:
 
     bool HasSameObjectTypeAs(Object other);
     
-
+    void ShowObjectProperties();
 
 protected:
     virtual void Init() {};
     virtual void Destroy() {};
+
+
 
     template<typename T>
     T& GetPropertyStorage() {
@@ -172,6 +174,8 @@ protected:
     }
     
 private:
+
+    
 
     entt::entity m_EntityHandle;
     
@@ -182,8 +186,7 @@ private:
     template<typename,typename>
     friend class ObjectPropertyStorage;
 
-    template<typename,typename...>
-    friend class GameComponent;
+    
 
     template<typename,typename>
     friend class ComponentSpecifier;

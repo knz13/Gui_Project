@@ -8,6 +8,7 @@
 
 
 class Component {
+
 public:
     bool Valid() {
         return Registry::Get().valid(m_MasterHandle);
@@ -28,6 +29,8 @@ protected:
      * Use instead of destructor.
      */
     virtual void Destroy() {};
+
+    virtual void Update(float delta) {};
 
     
 
@@ -53,7 +56,7 @@ private:
     
     
     
-    
+    friend class Window;
     
     template<typename,typename>
     friend class ComponentSpecifier;

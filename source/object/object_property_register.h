@@ -8,6 +8,8 @@
 #include "../general/helpers.h"
 #include "../../vendor/entt/single_include/entt/entt.hpp"
 #include "object_properties.h"
+#include "object_base.h"
+
 
 template<typename T>
 struct NamedComponentHandle {
@@ -60,10 +62,12 @@ public:
 		entt::id_type hash = HelperFunctions::HashClassName<Attached>();
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag,Attached>>(entt::hashed_string("ForEach"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
+		entt::meta<Attached>().type(hash).template func<&ObjectBase::CallShowPropertiesForObject<Attached>>(entt::hashed_string("Show Properties"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
 		};
 		m_RegisteredTagsByType[hash] = entt::type_hash<Tag>().value();
+		m_RegisteredObjectNames[hash] = HelperFunctions::GetClassName<Attached>();
 		
 	}
 
@@ -153,6 +157,9 @@ public:
 	};
 	
 	static std::vector<std::string> GetObjectComponents(entt::entity e);
+
+	static std::string GetClassNameByID(entt::id_type id);
+	
 
 protected:
 	static std::string GetComponentNameByID(entt::id_type id) {
@@ -328,6 +335,8 @@ protected:
 
 private:
 
+	
+
 	template<typename T>
 	static entt::entity CreateObjectAndReturnHandle(std::string name) {
 		T obj = CreateNew<T>(name);
@@ -394,6 +403,7 @@ private:
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_RegisteredComponentsByType;
 	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTagsByType;
 	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredComponentsNames;
+	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredObjectNames;
 	
 	
 

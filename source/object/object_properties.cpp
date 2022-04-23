@@ -17,6 +17,18 @@ Object ObjectHandle::GetAsObject()
 	return Object(m_Handle);
 }
 
+
+
+entt::entity ObjectHandle::ID()
+{
+	return m_Handle;
+}
+
+bool ObjectHandle::IsType(entt::id_type type)
+{
+	return type == GetAsObject().GetTypeOfObject();
+}
+
 bool ObjectHandle::operator==(const ObjectHandle& other)
 {
 	return this->m_Handle == other.m_Handle;

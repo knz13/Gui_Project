@@ -89,7 +89,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
         if (GameView::AnyObjectSelected()) {
-            if (GameView::AnyObjectSelected().objectID == obj.ID()) {
+            if (GameView::AnyObjectSelected().ID() == obj.ID()) {
                 flags |= ImGuiTreeNodeFlags_Selected;
             }
         }
@@ -153,10 +153,12 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
                 if(GameView::AnyObjectSelected()){
-                    GameObject(GameView::AnyObjectSelected().objectID).SetHighlightState(false);
+                    if (GameView::AnyObjectSelected().IsType(HelperFunctions::HashClassName<GameObject>())) {
+                        GameView::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
+                    }
                 }
-                GameView::AnyObjectSelected() = ClickedObjectProperties(obj.ID());
-                GameObject(GameView::AnyObjectSelected().objectID).SetHighlightState(true);
+                GameView::AnyObjectSelected() = ObjectHandle(obj.ID());
+                GameView::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(true);
             }
 
             for(auto id : obj.Properties().GetChildren()){
@@ -246,4 +248,9 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
     };
 
 
+}
+
+void GuiLayer::SceneHierarchyViewComponent::Init()
+{
+    this->HideInEditor(true);
 }

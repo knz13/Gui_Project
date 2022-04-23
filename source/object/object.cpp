@@ -42,3 +42,16 @@ bool Object::HasSameObjectTypeAs(Object other)
     return Properties().m_MasterType == other.Properties().m_MasterType;
 }
 
+void Object::ShowObjectProperties()
+{
+    auto resolved = entt::resolve(entt::hashed_string(ObjectPropertyRegister::GetClassNameByID(this->GetTypeOfObject()).c_str()));
+
+    if (resolved) {
+        if (auto func = resolved.func(entt::hashed_string("Show Properties")); func) {
+            func.invoke({},m_EntityHandle);
+        }
+    }
+}
+
+
+

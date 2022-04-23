@@ -72,6 +72,10 @@ public:
         return Registry::Get().valid(m_Handle);
     };
 
+    entt::entity ID();
+
+    bool IsType(entt::id_type type);
+
     bool operator==(const ObjectHandle& other);
 
 

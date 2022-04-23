@@ -30,8 +30,8 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(),6,ImGuiTableFlags_NoKeepColumnsVisible)){
         for(auto& file : std::filesystem::directory_iterator(currentPath)){
             ImGui::TableNextColumn();
-            if (std::hash<std::string>()(file.path().filename().string().c_str()) != m_CurrentRenamingFileHash) {
-                
+            if (file.is_directory()) {
+
             }
         }
         ImGui::EndTable();

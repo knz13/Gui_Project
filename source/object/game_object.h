@@ -3,7 +3,7 @@
 #include "../general/structures.h"
 
 
-template<typename=ComponentHelpers::Null,typename...>
+template<typename=ComponentHelpers::Null>
 class GameComponent;
 class TransformComponent;
 
@@ -21,10 +21,10 @@ public:
 	void SetActiveState(bool state);
 	
 
-	void ShowProperties();
 	
 	
 protected:
+	void ShowProperties() override;
 
 
 };
@@ -40,8 +40,8 @@ private:
 	friend class GameObject;
 };
 
-template<typename Component, typename... Behaviors>
-class GameComponent : public ComponentSpecifier<Component, GameObject>, public Behaviors... {
+template<typename Component>
+class GameComponent : public ComponentSpecifier<Component, GameObject> {
 public:
     bool IsEnabled() {
         return GetActiveState();
@@ -57,7 +57,6 @@ public:
     }
 
     virtual void ShowProperties() {};
-    virtual void Update(float deltaTime) {};
 
 protected:
 

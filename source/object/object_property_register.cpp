@@ -34,3 +34,11 @@ std::vector<std::string> ObjectPropertyRegister::GetObjectComponents(entt::entit
 	return vec;
 
 }
+
+std::string ObjectPropertyRegister::GetClassNameByID(entt::id_type id)
+{
+	if (m_RegisteredObjectNames.find(id) != m_RegisteredObjectNames.end()) {
+		return m_RegisteredObjectNames[id];
+	}
+	return "";
+}

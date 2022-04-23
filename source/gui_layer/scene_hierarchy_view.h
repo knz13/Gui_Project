@@ -6,11 +6,10 @@ class Window;
 
 namespace GuiLayer {
 
-struct SceneHierarchyViewComponent : public GameComponent<SceneHierarchyViewComponent,AddOnlyTo<SceneHierarchyViewComponent,GameObject>> {
+struct SceneHierarchyViewComponent : public GameComponent<SceneHierarchyViewComponent>, public AddOnlyTo<SceneHierarchyViewComponent,GameObject> {
+    void Init() override;
     
-    void Init() { this->HideInEditor(true);};
-    void ShowProperties(){};
-    void Update(float time){};
+    
 
     bool m_IsChoosingName = false;
 

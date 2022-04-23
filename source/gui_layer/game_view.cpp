@@ -127,8 +127,8 @@ void GuiLayer::GameView::Setup(Window& win) {
     });
 }
 
-ClickedObjectProperties& GuiLayer::GameView::AnyObjectSelected() {
-    return m_IsObjectSelected;
+ObjectHandle& GuiLayer::GameView::AnyObjectSelected() {
+    return m_SelectedObject;
 }
 
 void GuiLayer::GameView::SetupEditorCameraDrawing()
@@ -300,41 +300,41 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
 {
     static bool first = true;
     static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
-    if (m_IsObjectSelected && m_EditorCamera) {
+    if (m_SelectedObject && m_EditorCamera) {
+        if (m_SelectedObject.GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
-        ImGuizmo::SetDrawlist();
-        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+            GameObject clickedObject = m_SelectedObject.GetAs<GameObject>();
+            glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection();
+            glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
+            TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
 
-        GameObject clickedObject(m_IsObjectSelected.objectID);
-        glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection();
-        glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
-        TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
+            if (objectTransform.GetScale().x == 0) {
+                objectTransform.SetScale(0.1, 0, 0);
+            }
+            if (objectTransform.GetScale().y == 0) {
+                objectTransform.SetScale(0, 0.1, 0);
+            }
+            if (objectTransform.GetScale().z == 0) {
+                objectTransform.SetScale(0, 0, 0.1);
+            }
 
-        if (objectTransform.GetScale().x == 0) {
-            objectTransform.SetScale(0.1, 0, 0);
+            glm::mat4 model = objectTransform.GetModelMatrix();
+
+            float snap[5] = { 0,0,0,0,0.1 };
+            ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), (ImGuizmo::OPERATION)imguizmoMode, ImGuizmo::MODE::LOCAL, glm::value_ptr(model), 0, snap);
+
+
+
+
+            if (ImGuizmo::IsUsing()) {
+                m_CanSelect = false;
+                objectTransform.SetFromModelMatrix(model);
+
+            }
+
         }
-        if (objectTransform.GetScale().y == 0) {
-            objectTransform.SetScale(0, 0.1, 0);
-        }
-        if (objectTransform.GetScale().z == 0) {
-            objectTransform.SetScale(0, 0, 0.1);
-        }
-
-        glm::mat4 model = objectTransform.GetModelMatrix();
-
-        float snap[5] = { 0,0,0,0,0.1 };
-        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), (ImGuizmo::OPERATION)imguizmoMode, ImGuizmo::MODE::LOCAL, glm::value_ptr(model), 0, snap);
-
-
-
-
-        if (ImGuizmo::IsUsing()) {
-            m_CanSelect = false;
-            objectTransform.SetFromModelMatrix(model);
-
-        }
-
-
 
     }
     ImVec2 gameSize = ImGui::GetWindowSize();
@@ -378,19 +378,19 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
         
         RayCastHit hit = RayCast(pos);
         if (hit) {
-            if (m_IsObjectSelected) {
-                GameObject(m_IsObjectSelected.objectID).SetHighlightState(false);
+            if (m_SelectedObject && m_SelectedObject.GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+                m_SelectedObject.GetAs<GameObject>().SetHighlightState(false);
             }
-            m_IsObjectSelected = ClickedObjectProperties(hit.hitObjectID);
-            GameObject(m_IsObjectSelected.objectID).SetHighlightState(true);
+            m_SelectedObject = ObjectHandle(hit.hitObjectID);
+            m_SelectedObject.GetAs<GameObject>().SetHighlightState(true);
         }
 
     }
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()) {
-        if (m_IsObjectSelected) {
-            GameObject(m_IsObjectSelected.objectID).SetHighlightState(false);
+        if (m_SelectedObject && m_SelectedObject.GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+            m_SelectedObject.GetAs<GameObject>().SetHighlightState(false);
         }
-        m_IsObjectSelected = ClickedObjectProperties();
+        m_SelectedObject = ObjectHandle();
     }
 
     m_CanSelect = true;

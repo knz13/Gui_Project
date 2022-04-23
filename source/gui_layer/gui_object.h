@@ -4,8 +4,8 @@
 
 class GuiObject;
 
-template<typename ComponentType = ComponentHelpers::Null, typename... Behaviors>
-class GuiComponent : public ComponentSpecifier<ComponentType, GuiObject>, public Behaviors... {
+template<typename ComponentType = ComponentHelpers::Null>
+class GuiComponent : public ComponentSpecifier<ComponentType, GuiObject> {
 
 
 
@@ -13,7 +13,8 @@ class GuiComponent : public ComponentSpecifier<ComponentType, GuiObject>, public
 };
 
 class GuiObject : public TaggedObject<GuiObject,GuiComponent<>> {
-
+public:
+	GuiObject(entt::entity e);
 
 };
 
