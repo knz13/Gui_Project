@@ -11,6 +11,9 @@ protected:
 	virtual void ShowProperties() {};
 
 private:
+
+	
+
 	template<typename ObjectType>
 	static void CallShowPropertiesForObject(entt::entity e) {
 		auto obj = ObjectType(e);

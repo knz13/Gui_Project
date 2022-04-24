@@ -53,5 +53,23 @@ void Object::ShowObjectProperties()
     }
 }
 
+std::string Object::GetTypeDisplayName()
+{
+    auto resolved = entt::resolve(entt::hashed_string(ObjectPropertyRegister::GetClassNameByID(GetTypeOfObject()).c_str()));
+
+    if(resolved){
+        if (auto func = resolved.func(entt::hashed_string("Get Display Name")); func) {
+            return *((std::string*)func.invoke({}).data());
+        }
+        return "";
+    }
+    return "";
+}
+
+std::string Object::GetName()
+{
+    return Properties().m_Name;
+}
+
 
 

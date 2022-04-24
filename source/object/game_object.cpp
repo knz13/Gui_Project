@@ -13,35 +13,35 @@ TransformComponent& GameObject::Transform()
 
 void GameObject::SetHighlightState(bool state)
 {
-    GetPropertyStorage<GameObjectProperties>().m_HighlightState = state;
+    Storage().m_HighlightState = state;
 }
 
 void GameObject::SetHighlightColor(Color color)
 {
-    GetPropertyStorage<GameObjectProperties>().m_HighlightColor = color;
+    Storage().m_HighlightColor = color;
 }
 
 Color GameObject::GetHighlightColor()
 {
-    return GetPropertyStorage<GameObjectProperties>().m_HighlightColor;
+    return Storage().m_HighlightColor;
 }
 
 
 
 bool GameObject::IsActive()
 {
-	return GetPropertyStorage<GameObjectProperties>().m_Active;
+	return Storage().m_Active;
 }
 
 bool GameObject::GetHighlightState()
 {
-	return GetPropertyStorage<GameObjectProperties>().m_HighlightState;
+	return Storage().m_HighlightState;
 }
 
 
 void GameObject::SetActiveState(bool state)
 {
-    GetPropertyStorage<GameObjectProperties>().m_Active = state;
+    Storage().m_Active = state;
 }
 
 
@@ -51,7 +51,7 @@ void GameObject::ShowProperties()
     static ImVec2 tableSize = ImVec2(0, 0);
 
     ImGui::SetCursorPosX(0);
-    if (ImGui::BeginTable(GuiLayer::GetImGuiID(&GetPropertyStorage<GameObjectProperties>()).c_str(),1,ImGuiTableFlags_Borders | ImGuiTableFlags_ContextMenuInBody,ImVec2(ImGui::GetWindowSize().x,0),10)) {
+    if (ImGui::BeginTable(GuiLayer::GetImGuiID(&Storage()).c_str(),1,ImGuiTableFlags_Borders | ImGuiTableFlags_ContextMenuInBody,ImVec2(ImGui::GetWindowSize().x,0),10)) {
         //ImGui::Text(("Handle = " + std::to_string((size_t)m_MasterHandle)).c_str());
 
         

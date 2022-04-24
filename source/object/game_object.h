@@ -3,11 +3,22 @@
 #include "../general/structures.h"
 
 
+class GameObjectProperties {
+private:
+
+	bool m_Active = true;
+	Color m_HighlightColor = Color::Red;
+	bool m_HighlightState = false;
+
+	friend class GameObject;
+};
+
+
 template<typename=ComponentHelpers::Null>
 class GameComponent;
 class TransformComponent;
 
-class GameObject : public TaggedObject<GameObject,GameComponent<>> {
+class GameObject : public TaggedObject<GameObject,GameComponent<>,GameObjectProperties> {
 public:
 	GameObject(entt::entity e);
 
@@ -30,15 +41,6 @@ protected:
 };
 
 
-class GameObjectProperties : public ObjectPropertyStorage<GameObjectProperties,GameObject> {
-private:
-
-	bool m_Active = true;
-	Color m_HighlightColor = Color::Red;
-	bool m_HighlightState = false;
-
-	friend class GameObject;
-};
 
 template<typename Component>
 class GameComponent : public ComponentSpecifier<Component, GameObject> {

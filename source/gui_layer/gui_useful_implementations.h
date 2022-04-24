@@ -18,6 +18,10 @@ namespace ImGui {
 
     void AlignNextRight();
 
+    void TextCenterAligned(std::string text);
+
+    bool TextEditCenterAligned(std::string* textPtr);
+
     void AlignedText(std::string text);
 
     void AlignNextCheckboxRight();

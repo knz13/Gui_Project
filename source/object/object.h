@@ -162,16 +162,17 @@ public:
     
     void ShowObjectProperties();
 
+    std::string GetTypeDisplayName();
+
+    std::string GetName();
+
 protected:
     virtual void Init() {};
     virtual void Destroy() {};
 
 
 
-    template<typename T>
-    T& GetPropertyStorage() {
-        return Registry::Get().get_or_emplace<T>(m_EntityHandle);
-    }
+    
     
 private:
 

@@ -148,6 +148,18 @@ void ImGui::AlignNextRight() {
     ImGui::SetNextItemWidth(ImGui::GetWindowSize().x -ImGui::GetCursorPosX() - 8);
 }
 
+void ImGui::TextCenterAligned(std::string text)
+{
+    ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(text.c_str()).x / 2);
+
+    ImGui::Text(text.c_str());
+}
+
+bool ImGui::TextEditCenterAligned(std::string* textPtr)
+{
+    ImGui::InputText(GuiLayer::GetImGuiID(textPtr).c_str(), textPtr);
+}
+
 void ImGui::AlignedText(std::string text) {
     ImGui::SetCursorPosX(2);
     ImGui::BulletText(text.c_str());

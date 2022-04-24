@@ -57,11 +57,18 @@ public:
 		};
 	};
 
+	template<typename AssetClass>
+	static void RegisterObjectAsAsset() {
+		entt::id_type hash = HelperFunctions::HashClassName<AssetClass>();
+
+	};
+
 	template<typename Tag,typename Attached>
 	static void RegisterClassAsObjectTag() {
 		entt::id_type hash = HelperFunctions::HashClassName<Attached>();
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag,Attached>>(entt::hashed_string("ForEach"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
+		entt::meta<Attached>().type(hash).template func<&HelperFunctions::GetClassDisplayName<Attached>>(entt::hashed_string("Get Display Name"));
 		entt::meta<Attached>().type(hash).template func<&ObjectBase::CallShowPropertiesForObject<Attached>>(entt::hashed_string("Show Properties"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
@@ -73,8 +80,8 @@ public:
 
 	static Object CreateObjectFromType(std::string type,std::string objectName);
 
-	template<typename T>
-	static void InitializeObject(entt::entity ent) {
+	template<typename T,typename... Args>
+	static void InitializeObject(entt::entity ent,Args&&... args) {
 
 		entt::id_type hash = HelperFunctions::HashClassName<T>();
 		
@@ -88,7 +95,7 @@ public:
 			m_PropertyStorageContainer[hash](ent);
 		}
 
-		T obj(ent);
+		T obj(ent,args...);
 
 		obj.Init();
 
@@ -124,8 +131,8 @@ public:
 	};
 
 
-	template<typename T>
-	static T CreateNew(std::string name) {
+	template<typename T,typename... Args>
+	static T CreateNew(std::string name,Args&&... args) {
 		static_assert(std::is_base_of<Object, T>::value);
 
 		entt::entity ent = Registry::Get().create();
@@ -142,12 +149,15 @@ public:
 			name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
 		}
 
-		Registry::Get().emplace<ObjectProperties>(ent, name,HelperFunctions::HashClassName<T>(), ent);
+		Registry::Get().emplace<ObjectProperties>(ent, name, HelperFunctions::HashClassName<T>(), ent);
 
-		ObjectPropertyRegister::InitializeObject<T>(ent);
+		ObjectPropertyRegister::InitializeObject<T,Args...>(ent,args...);
 
 		return T(ent);
 	}
+
+
+	
 
 	template<typename ComponentType,typename Component>
 	static void RegisterClassAsComponentOfType() {
@@ -329,12 +339,11 @@ protected:
 	}
 
 
-	template<typename,typename>
+	template<typename,typename,typename>
 	friend class TaggedObject;
 	friend class Object;
 
 private:
-
 	
 
 	template<typename T>

@@ -23,7 +23,6 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "object/game_object.h"
-#include "gui_layer/gui_object.h"
 #include "gui_layer/gui_useful_implementations.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include "object.h"
-#include "object_property_storage.h"
 #include "../components/component_specifier.h"
+#include <filesystem>
 
 template<typename DerivedObjectClass>
 class ObjectTag {
@@ -12,7 +12,7 @@ private:
 };
 
 
-template<typename Derived,typename DerivedComponent>
+template<typename Derived,typename DerivedComponent,typename DerivedStorage>
 class TaggedObject : public Object {
 public:
 	TaggedObject(entt::entity e) : Object(e) {
@@ -53,13 +53,19 @@ public:
 		return ObjectPropertyRegister::GetComponentByName<DerivedComponent>(this->ID(), stringToHash);
 	};
 	
-
+protected:
+	
+	DerivedStorage& Storage() {
+		return Registry::Get().get_or_emplace<DerivedStorage>(ID());
+	}
 
 private:
 	
 	
 	static inline int dummyVariable = []() {
 		ObjectPropertyRegister::RegisterClassAsObjectTag<ObjectTag<Derived>, Derived>();
+		ObjectPropertyRegister::RegisterClassAsPropertyStorage<DerivedStorage, Derived>();
+		
 		return 0;
 	}();
 
