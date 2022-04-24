@@ -11,7 +11,7 @@ void AssetRegister::CreateObjectsForFolder(std::string folderPath)
 	}
 	for (auto file : std::filesystem::directory_iterator(folderPath)) {
 		if (!IsRegistered(file.path().string())) {
-
+			ObjectPropertyRegister::CreateObjectFromType("TextAsset",file.path().filename().string());
 		}
 	}
 

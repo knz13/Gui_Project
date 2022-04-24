@@ -7,8 +7,7 @@ namespace GuiLayer {
 	class ExplorerView;
 }
 
-template<typename>
-class AssetObjectSpecifier;
+
 
 class AssetRegister {
 
@@ -21,17 +20,27 @@ private:
 	static void UnregisterPath(entt::entity e);
 	static void UnregisterPath(std::string path);
 
+	template<typename T>
+	static void RegisterClassAsAsset() {
+		entt::id_type hash = HelperFunctions::HashClassName<T>();
+		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<T>>(entt::hashed_string("Create"));
+		m_RegisteredClassesByExtension[T::GetAssetExtension()] = HelperFunctions::GetClassName<T>();
+	};
+
+
 	static inline std::unordered_map<std::string, entt::entity> m_RegisteredAssetsByPath;
 	static inline std::unordered_map<entt::entity,std::string> m_RegistererdPathsByAsset;
+	static inline std::unordered_map<std::string, std::string> m_RegisteredClassesByExtension;
 
-	template<typename>
+
+	template<typename ,typename>
 	friend class AssetObjectSpecifier;
 
 };
 
 //Do Not Use!
-template<typename Storage,typename ComponentName = ComponentHelpers::Null>
-class AssetComponent : public ComponentSpecifier<ComponentName, AssetObjectSpecifier<Storage>> {
+template<typename Derived,typename Storage,typename ComponentName = ComponentHelpers::Null>
+class AssetComponent : public ComponentSpecifier<ComponentName, AssetObjectSpecifier<Derived,Storage>> {
 
 };
 
@@ -50,11 +59,11 @@ private:
 	
 };
 
-template<typename Storage>
-class AssetObjectSpecifier : public TaggedObject<AssetObjectSpecifier<Storage>, AssetComponent<Storage>,Storage> ,public AssetObject {
+template<typename Derived,typename Storage>
+class AssetObjectSpecifier : public TaggedObject<AssetObjectSpecifier<Derived,Storage>, AssetComponent<Derived,Storage>,Storage> ,public AssetObject {
 public:
-	AssetObjectSpecifier(entt::entity e,std::string path) : TaggedObject<AssetObjectSpecifier<Storage>, AssetComponent<Storage>, Storage>(e) {
-		AssetRegister::RegisterPath(e,path);
+	AssetObjectSpecifier(entt::entity e) : TaggedObject<AssetObjectSpecifier<Derived,Storage>, AssetComponent<Derived,Storage>, Storage>(e),AssetObject(e) {
+		(void)dummy;
 	}
 
 
@@ -62,7 +71,15 @@ public:
 		AssetRegister::UnregisterPath(this->ID());
 	}
 
+	void SetPath(std::string path) {
+		AssetRegister::RegisterPath(this->ID(), path);
+	}
 
+private:
+	static inline bool dummy = []() {
+		AssetRegister::RegisterClassAsAsset<Derived>();
+		return false;
+	}();
 
 
 };

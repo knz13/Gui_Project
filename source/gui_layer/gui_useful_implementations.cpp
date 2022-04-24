@@ -155,7 +155,7 @@ void ImGui::TextCenterAligned(std::string text)
     ImGui::Text(text.c_str());
 }
 
-bool ImGui::TextEditCenterAligned(std::string* textPtr)
+void ImGui::TextEditCenterAligned(std::string* textPtr)
 {
     ImGui::InputText(GuiLayer::GetImGuiID(textPtr).c_str(), textPtr);
 }

@@ -20,7 +20,7 @@ namespace ImGui {
 
     void TextCenterAligned(std::string text);
 
-    bool TextEditCenterAligned(std::string* textPtr);
+    void TextEditCenterAligned(std::string* textPtr);
 
     void AlignedText(std::string text);
 

@@ -170,6 +170,12 @@ public:
 
 	static std::string GetClassNameByID(entt::id_type id);
 	
+	template<typename T>
+	static entt::entity CreateObjectAndReturnHandle(std::string name) {
+		T obj = CreateNew<T>(name);
+
+		return obj.ID();
+	};
 
 protected:
 	static std::string GetComponentNameByID(entt::id_type id) {
@@ -346,12 +352,7 @@ protected:
 private:
 	
 
-	template<typename T>
-	static entt::entity CreateObjectAndReturnHandle(std::string name) {
-		T obj = CreateNew<T>(name);
-
-		return obj.ID();
-	};
+	
 
 	template<typename T>
 	static T& CreateComponent(entt::entity e) {
