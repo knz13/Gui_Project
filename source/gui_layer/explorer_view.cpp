@@ -1,5 +1,6 @@
 #include "explorer_view.h"
 #include "../kv.h"
+#include "../assets/asset_object.h"
 
 void GuiLayer::ExplorerView::Update(Window& win) {
     static const std::string InitialPath = std::filesystem::current_path().string() + "/Assets";
@@ -19,19 +20,31 @@ void GuiLayer::ExplorerView::Update(Window& win) {
         if(ImGui::MenuItem("Return to Assets")){
             currentPath = InitialPath;
         }
+        /*
         if (ImGui::BeginMenu("Create")) {
             if (ImGui::MenuItem("Folder")) {
                 
             }
+            ImGui::EndMenu();
         }
+        */
         ImGui::EndPopup();
     }
 
     if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(),6,ImGuiTableFlags_NoKeepColumnsVisible)){
         for(auto& file : std::filesystem::directory_iterator(currentPath)){
             ImGui::TableNextColumn();
-            if (file.is_directory()) {
-
+            if (!AssetRegister::GetObjectForPath(file.path().string())) {
+                AssetObject asset = AssetRegister::CreateObjectForPath(file.path().string()).GetAs<AssetObject>();
+                asset.InitializeFile();
+            }
+            AssetObject asset = AssetRegister::GetObjectForPath(file.path().string()).GetAs<AssetObject>();
+            if (ImGui::BeginTable(("TableFor" + GuiLayer::GetImGuiID(&win)).c_str(), 1)) {
+                ImGui::TableNextColumn();
+                asset.OnExplorerIcon();
+                ImGui::TableNextColumn();
+                asset.OnExplorerName();
+                ImGui::EndTable();
             }
         }
         ImGui::EndTable();

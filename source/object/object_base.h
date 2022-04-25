@@ -9,6 +9,8 @@ class ObjectBase {
 
 protected:
 	virtual void ShowProperties() {};
+	virtual void Init() {};
+	virtual void Destroy() {};
 
 private:
 

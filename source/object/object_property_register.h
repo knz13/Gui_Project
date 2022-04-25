@@ -97,7 +97,7 @@ public:
 
 		T obj(ent,args...);
 
-		obj.Init();
+		((ObjectBase*)(&obj))->Init();
 
 		if (m_ComponentsToMakeAvailableAtStartByType.find(hash) != m_ComponentsToMakeAvailableAtStartByType.end()) {
 			for (auto& componentName : m_ComponentsToMakeAvailableAtStartByType[hash]) {
@@ -129,6 +129,8 @@ public:
 			});
 		return T(firstObject);
 	};
+
+	
 
 
 	template<typename T,typename... Args>

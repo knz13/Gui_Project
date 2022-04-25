@@ -12,6 +12,7 @@ public:
     
 private:
     static inline size_t m_CurrentRenamingFileHash = 0;
+    static inline ObjectHandle m_RenamingObject;
 
 };
 };

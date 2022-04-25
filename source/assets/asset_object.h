@@ -10,9 +10,13 @@ namespace GuiLayer {
 
 
 class AssetRegister {
+public:
 
 	static void CreateObjectsForFolder(std::string folderPath);
-
+	static std::string GetRegisteredClassForExtension(std::string extension);
+	static ObjectHandle CreateObjectForPath(std::string path);
+	static ObjectHandle GetObjectForPath(std::string path);
+	static std::string GetPathFromObject(ObjectHandle handle);
 private:
 
 	static bool IsRegistered(std::string path);
@@ -24,7 +28,10 @@ private:
 	static void RegisterClassAsAsset() {
 		entt::id_type hash = HelperFunctions::HashClassName<T>();
 		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<T>>(entt::hashed_string("Create"));
-		m_RegisteredClassesByExtension[T::GetAssetExtension()] = HelperFunctions::GetClassName<T>();
+		auto vec = T::GetAssetExtensions();
+		for (auto& extension : vec) {
+			m_RegisteredClassesByExtension[extension] = HelperFunctions::GetClassName<T>();
+		}
 	};
 
 
@@ -35,6 +42,8 @@ private:
 
 	template<typename ,typename>
 	friend class AssetObjectSpecifier;
+
+	friend class AssetObject;
 
 };
 
@@ -47,15 +56,21 @@ class AssetComponent : public ComponentSpecifier<ComponentName, AssetObjectSpeci
 class AssetObject {
 public:
 	AssetObject(entt::entity e);
+	~AssetObject();
 
+	void InitializeFile();
 protected:
-	virtual void OnExplorerIconUI() {};
+	virtual void OnExplorerIconUI();
 private:
+	virtual void ReadFile();
+	void SetPath(std::string path);
+	void OnExplorerIcon();
 	void OnExplorerName();
 	void OnExplorerRename();
 	entt::entity m_Handle;
 
 	friend class GuiLayer::ExplorerView;
+	friend class AssetRegister;
 	
 };
 
@@ -66,16 +81,24 @@ public:
 		(void)dummy;
 	}
 
+	//virtual void Serialize(ryml::NodeRef mainNode) = 0;
+	//virtual void Deserialize(ryml::NodeRef mainNode) = 0;
 
-	~AssetObjectSpecifier() {
+	
+
+	std::string GetPath() {
+		return AssetRegister::GetPathFromObject(ObjectHandle(this->ID()));
+	}
+	 
+private:
+	
+	void Init() final {
+		
+	}
+	void Destroy() final {
 		AssetRegister::UnregisterPath(this->ID());
 	}
 
-	void SetPath(std::string path) {
-		AssetRegister::RegisterPath(this->ID(), path);
-	}
-
-private:
 	static inline bool dummy = []() {
 		AssetRegister::RegisterClassAsAsset<Derived>();
 		return false;

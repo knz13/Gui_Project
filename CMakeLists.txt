@@ -483,6 +483,9 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/assets/ass
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/assets/text_asset.cpp)
 
 
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${PROJECT_SOURCE_DIR}/source/assets/folder_asset.cpp)
+
+
 #creating executable
 add_executable(${PROJECT_NAME}
 

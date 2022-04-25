@@ -167,8 +167,7 @@ public:
     std::string GetName();
 
 protected:
-    virtual void Init() {};
-    virtual void Destroy() {};
+   
 
 
 
