@@ -10,8 +10,8 @@ void GuiLayer::PropertiesView::Update(Window& win) {
 
     
 
-    if (GameView::AnyObjectSelected()) {
-        Object selected = GameView::AnyObjectSelected().GetAsObject();
+    if (GuiLayer::AnyObjectSelected()) {
+        Object selected = GuiLayer::AnyObjectSelected().GetAsObject();
         selected.ShowObjectProperties();
 
         if (selected.GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {

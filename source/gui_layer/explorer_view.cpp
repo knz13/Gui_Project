@@ -30,22 +30,34 @@ void GuiLayer::ExplorerView::Update(Window& win) {
         */
         ImGui::EndPopup();
     }
+    int index = 0;
+    
+    int columns = ImGui::GetWindowSize().x / m_WidgetWidth;
+    if (columns == 0) {
+        columns = 1;
+    }
 
-    if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(),6,ImGuiTableFlags_NoKeepColumnsVisible)){
+
+    if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, ImGuiTableFlags_NoHostExtendX)) {
+        int fileCount = 0;
+        for (auto& file : std::filesystem::directory_iterator(currentPath)) {
+            fileCount++;
+        }
+        if (fileCount < columns) {
+            ImGui::TableSetupColumn("##", ImGuiTableColumnFlags_WidthFixed);
+        }
         for(auto& file : std::filesystem::directory_iterator(currentPath)){
             ImGui::TableNextColumn();
             if (!AssetRegister::GetObjectForPath(file.path().string())) {
                 AssetObject asset = AssetRegister::CreateObjectForPath(file.path().string()).GetAs<AssetObject>();
                 asset.InitializeFile();
             }
+
             AssetObject asset = AssetRegister::GetObjectForPath(file.path().string()).GetAs<AssetObject>();
-            if (ImGui::BeginTable(("TableFor" + GuiLayer::GetImGuiID(&win)).c_str(), 1)) {
-                ImGui::TableNextColumn();
-                asset.OnExplorerIcon();
-                ImGui::TableNextColumn();
-                asset.OnExplorerName();
-                ImGui::EndTable();
-            }
+            
+            asset.ShowOnExplorer(ImVec2(m_WidgetWidth-5,50));
+            
+            index++;
         }
         ImGui::EndTable();
     }
@@ -54,6 +66,8 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     ImGui::EndChild();
 
     ImGui::End();
+
+    ImGui::ShowDemoWindow();
 }
 
 void GuiLayer::ExplorerView::Setup(Window& win)

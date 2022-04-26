@@ -11,4 +11,6 @@ std::vector<std::string> FolderAsset::GetAssetExtensions()
 
 void FolderAsset::ReadFile()
 {
+	std::string data = "Nano";
+	data += "a";
 }

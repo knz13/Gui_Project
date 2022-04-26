@@ -126,13 +126,26 @@ AssetObject::~AssetObject()
 
 void AssetObject::InitializeFile()
 {
-	this->ReadFile();
+	HelperFunctions::CallMetaFunction(ObjectPropertyRegister::GetClassNameByID(Object(m_Handle).GetTypeOfObject()), "Call Read File",m_Handle);
+	
 }
 
-void AssetObject::OnExplorerIconUI()
+void AssetObject::ShowOnExplorer(ImVec2 size)
 {
-	ImGui::Button(GuiLayer::GetImGuiID(&m_Handle).c_str(),ImVec2(30,30));
+	HelperFunctions::CallMetaFunction(ObjectPropertyRegister::GetClassNameByID(Object(m_Handle).GetTypeOfObject()), "Call Explorer UI",m_Handle,size);
+
 }
+
+void AssetObject::Rename()
+{
+	HelperFunctions::CallMetaFunction(ObjectPropertyRegister::GetClassNameByID(Object(m_Handle).GetTypeOfObject()), "Call Rename",m_Handle);
+
+}
+
+
+
+
+
 
 void AssetObject::ReadFile()
 {
@@ -143,28 +156,4 @@ void AssetObject::SetPath(std::string path)
 	AssetRegister::RegisterPath(m_Handle, path);
 }
 
-void AssetObject::OnExplorerIcon()
-{
-	this->OnExplorerIconUI();
-}
 
-void AssetObject::OnExplorerName()
-{
-	if (!ObjectHandle(m_Handle)) {
-		return;
-	}
-	ImGui::Text(Object(m_Handle).GetName().c_str());
-}
-
-void AssetObject::OnExplorerRename()
-{
-	if (!ObjectHandle(m_Handle)) {
-		return;
-	}
-	std::string name = Object(m_Handle).GetName();
-
-	ImGui::InputText(GuiLayer::GetImGuiID(&m_Handle).c_str(),&name);
-
-	Object(m_Handle).Properties().SetName(name);
-
-}

@@ -63,6 +63,18 @@ namespace HelperFunctions {
         return entt::hashed_string(GetClassName<T>().c_str());
     }
 
+    template<typename... Args>
+    static entt::meta_any CallMetaFunction(std::string handle, std::string funcName,Args&&... args) {
+        auto resolved = entt::resolve(entt::hashed_string(handle.c_str()));
+
+        if (resolved) {
+            if (auto func = resolved.func(entt::hashed_string(funcName.c_str())); func) {
+                return func.invoke({}, args...);
+            }
+            return {};
+        }
+        return {};
+    }
 
 
 
@@ -75,5 +87,13 @@ namespace HelperFunctions {
 
 
 
+
+}
+
+namespace HelperClass {
+    class Null {
+    private:
+        int dummy = 0;
+    };
 
 }

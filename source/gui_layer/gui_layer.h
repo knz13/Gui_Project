@@ -17,11 +17,15 @@ namespace GuiLayer {
     
 
     std::string GetImGuiID(void* ptr);
+    
+    ObjectHandle& AnyObjectSelected();
 
     void SetupWidgetStyle(std::function<void()> beginCommand);
     void SetupStaticTreeNodeStyle(std::function<void()> beginCommand);
     void SetupStaticButtonStyle(std::function<void()> beginCommand);
     void SetupWindowStyle(std::string windowName,std::function<void(ImGuiWindowFlags)> beginCommand);
+
+    
 
     struct WindowIDs {
         

@@ -106,7 +106,7 @@ void GuiLayer::AddUi(Window& win) {
             
             
             ImGui::DockBuilderRemoveNode(id);            
-            ImGui::DockBuilderAddNode(id,ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_PassthruCentralNode);
+            ImGui::DockBuilderAddNode(id,ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_PassthruCentralNode );
 
             ImGui::DockBuilderSetNodeSize(id, ImGui::GetWindowViewport()->WorkSize);
             ImGui::DockBuilderSetNodePos(id, ImGui::GetWindowViewport()->WorkPos);
@@ -157,8 +157,9 @@ void GuiLayer::SetupWindowStyle(std::string name,std::function<void(ImGuiWindowF
     ImGui::PushStyleColor(ImGuiCol_ChildBg,BaseColors::WindowBg.AsImVec4());
     ImGui::PushStyleColor(ImGuiCol_FrameBg,BaseColors::WindowBg.AsImVec4());
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,10);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,0);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
     ImGui::PushStyleColor(ImGuiCol_Tab, BaseColors::WindowBg.AsImVec4());
     ImGui::PushStyleColor(ImGuiCol_TabActive, BaseColors::WindowBg.AsImVec4());
     ImGui::PushStyleColor(ImGuiCol_TabHovered, BaseColors::WindowBg.AsImVec4());
@@ -171,11 +172,13 @@ void GuiLayer::SetupWindowStyle(std::string name,std::function<void(ImGuiWindowF
 
     ImGui::SetWindowFontScale(BaseSettings::FontScale);
     ImGui::PopStyleColor(8);
-    ImGui::PopStyleVar(2);
+    ImGui::PopStyleVar(3);
 }
 std::string GuiLayer::GetImGuiID(void* ptr) {
     return ("##" + std::to_string(std::hash<void*>()(ptr)));
 }
+
+
 
 void GuiLayer::SetupWidgetStyle(std::function<void()> beginCommand) {
     ImGui::PushStyleColor(ImGuiCol_FrameBg,ImVec4(60,60,60,1));
@@ -212,4 +215,10 @@ void GuiLayer::WindowIDs::CreateDock(std::string name, ImGuiID id)
 {
     ImGui::DockBuilderDockWindow(name.c_str(),id);
     m_RegisteredIDs[name] = id;
+}
+
+ObjectHandle& GuiLayer::AnyObjectSelected() {
+    static ObjectHandle m_Selected;
+
+    return m_Selected;
 }

@@ -66,6 +66,8 @@ std::string Object::GetTypeDisplayName()
     return "";
 }
 
+
+
 std::string Object::GetName()
 {
     return Properties().m_Name;
