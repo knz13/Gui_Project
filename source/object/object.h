@@ -162,6 +162,8 @@ public:
     
     void ShowObjectProperties();
 
+    std::string GetType();
+
     std::string GetTypeDisplayName();
 
    

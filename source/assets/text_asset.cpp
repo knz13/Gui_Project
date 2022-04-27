@@ -35,7 +35,13 @@ void TextAsset::ShowProperties()
 
 	if (ImGui::BeginTable(GuiLayer::GetImGuiID(&Storage()).c_str(), 1, ImGuiTableFlags_Borders)) {
 		ImGui::TableNextColumn();
-		ImGui::TextWrapped(Storage().m_TextContents.c_str());
+		ImGui::Text("Contents:");
+		GuiLayer::SetupChildStyle([&]() {
+			
+			ImGui::BeginChild(("ChildWindowForTextAsset" + GuiLayer::GetImGuiID(&Storage())).c_str(),ImVec2(ImGui::GetContentRegionAvail().x,400));
+			ImGui::TextWrapped(Storage().m_TextContents.c_str());
+			ImGui::EndChild();
+			});
 		ImGui::EndTable();
 	}
 }

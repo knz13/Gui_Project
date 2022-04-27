@@ -35,6 +35,8 @@ void FolderAsset::ReadFile()
 
 void FolderAsset::SetupExplorerIcon(ImVec2 size)
 {
+
+
 	if (Storage().m_IconTexture) {
 		ImGui::Image((void*)Storage().m_IconTexture.GetID(), ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1));
 

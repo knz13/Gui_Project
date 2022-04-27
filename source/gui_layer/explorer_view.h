@@ -16,6 +16,7 @@ private:
     static void OnUpdatePathOrReload();
     static void ShowAllSubFolders(std::string current);
     static bool FolderHasFoldersInside(std::string folderPath);
+    static void SetupFolderExplorerAboveFileExplorer();
 
     static inline size_t m_CurrentRenamingFileHash = 0;
     static inline ObjectHandle m_RenamingObject;

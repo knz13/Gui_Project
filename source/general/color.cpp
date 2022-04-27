@@ -46,3 +46,29 @@ Color::Color(unsigned char r,unsigned char g,unsigned char b) {
 Color::Color() {
     m_ColorValue = glm::vec3(0,0,0);
 }
+
+Color& Color::operator+= (const Color& other) {
+    this->m_ColorValue += other.m_ColorValue;
+    return *this;
+}
+
+Color& Color::operator -= (const Color& other) {
+    this->m_ColorValue -= other.m_ColorValue;
+    return *this;
+}
+
+Color Color::operator+ (const Color& other) {
+
+    Color newColor;
+    newColor.m_ColorValue = other.m_ColorValue + this->m_ColorValue;
+
+    return newColor;
+}
+
+Color Color::operator- (const Color& other) {
+
+    Color newColor;
+    newColor.m_ColorValue = this->m_ColorValue - other.m_ColorValue;
+
+    return newColor;
+}

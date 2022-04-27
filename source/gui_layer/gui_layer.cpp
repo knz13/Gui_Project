@@ -174,6 +174,17 @@ void GuiLayer::SetupWindowStyle(std::string name,std::function<void(ImGuiWindowF
     ImGui::PopStyleColor(8);
     ImGui::PopStyleVar(3);
 }
+void GuiLayer::SetupChildStyle(std::function<void()> command)
+{
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, (BaseColors::WindowBg - Color(10,10,10)).AsImVec4());
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, (BaseColors::WindowBg - Color(10,10,10)).AsImVec4());
+    //ImGui::PushStyleColor(ImGuiCol_, (BaseColors::WindowBg - Color(20, 20, 20)).AsImVec4());
+    
+
+    command();
+    ImGui::PopStyleColor(2);
+}
+
 std::string GuiLayer::GetImGuiID(void* ptr) {
     return ("##" + std::to_string(std::hash<void*>()(ptr)));
 }

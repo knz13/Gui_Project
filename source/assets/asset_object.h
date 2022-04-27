@@ -157,11 +157,17 @@ private:
 		const bool isSelected = GuiLayer::AnyObjectSelected() == this->ID();
 
 		ImVec2 pos = ImGui::GetCursorPos();
-		if (ImGui::Selectable(("##SelectableData" + to_string((uint32_t)this->ID())).c_str(), isSelected, 0, size)) {
+		if (ImGui::Selectable(("##SelectableData" + to_string((uint32_t)this->ID())).c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick, size)) {
+			
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && this->GetType() == "FolderAsset") {
+				GuiLayer::ExplorerView::SetCurrentPath(GetPath());
+			}
+
 			GuiLayer::AnyObjectSelected() = ObjectHandle(this->ID());
 		}
 
-		ImGui::SetCursorPos(pos);
+		ImGui::SetCursorPos(ImVec2(pos.x,pos.y + 4));
+
 
 		size = ImVec2(size.x, size.y - ImGui::CalcTextSize("A").y - 10);
 

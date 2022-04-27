@@ -53,6 +53,11 @@ void Object::ShowObjectProperties()
     }
 }
 
+std::string Object::GetType()
+{
+    return ObjectPropertyRegister::GetClassNameByID(Properties().m_MasterType);
+}
+
 std::string Object::GetTypeDisplayName()
 {
     auto resolved = entt::resolve(entt::hashed_string(ObjectPropertyRegister::GetClassNameByID(GetTypeOfObject()).c_str()));
