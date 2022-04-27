@@ -29,7 +29,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
         columns = 1;
     }
     
-    ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX;
+    ImGuiTableFlags tableFlags =  ImGuiTableFlags_NoHostExtendX;
 
     int fileCount = 0;
     for (auto& file : std::filesystem::directory_iterator(currentPath)) {
@@ -38,7 +38,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     if (fileCount <= columns) {
         tableFlags |= ImGuiTableFlags_SizingFixedFit;
     }
-
+    ImGui::SetCursorPosX(10);
     if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, tableFlags)) {
         
         for(auto& file : std::filesystem::directory_iterator(currentPath)){

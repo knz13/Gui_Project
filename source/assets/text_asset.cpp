@@ -17,15 +17,30 @@ void TextAsset::ReadFile()
 	std::fstream stream(path);
 
 	std::string temp;
-	while (!stream.good()) {
+	while (stream.good()) {
 		stream >> temp;
 		Storage().m_TextContents += temp;
 	}
+
+	Storage().m_Texture = HelperFunctions::LoadTextureFromFile<Type2D>("defaults/images/textFile.png");
 
 	
 }
 
 void TextAsset::ShowProperties()
 {
+	ImGui::Image((void*)Storage().m_Texture.GetID(), ImVec2(40,40), ImVec2(0, 0), ImVec2(1, 1));
+	ImGui::SameLine();
+	ImGui::Text((std::filesystem::path(GetPath()).stem().string() + " (Text Asset)").c_str());
 
+	if (ImGui::BeginTable(GuiLayer::GetImGuiID(&Storage()).c_str(), 1, ImGuiTableFlags_Borders)) {
+		ImGui::TableNextColumn();
+		ImGui::TextWrapped(Storage().m_TextContents.c_str());
+		ImGui::EndTable();
+	}
+}
+
+void TextAsset::SetupExplorerIcon(ImVec2 size)
+{
+	ImGui::Image((void*)Storage().m_Texture.GetID(), ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1));
 }

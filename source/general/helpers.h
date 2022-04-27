@@ -89,20 +89,22 @@ public:
 
 
         unsigned char* data = ReadTextureFile(path,&width,&height,&nrChannels);
-
+        
         GLenum format = nrChannels == 3 ? GL_RGB : GL_RGBA;
-
+        
         Texture<TextureType> tex([=](Texture<TextureType>& texture){
             
             texture.Bind();
             GL_CALL(glTexParameteri(texture.GetType(), GL_TEXTURE_WRAP_S, GL_REPEAT));
             GL_CALL(glTexParameteri(texture.GetType(), GL_TEXTURE_WRAP_T, GL_REPEAT));
-            GL_CALL(glTexParameteri(texture.GetType(), GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+            GL_CALL(glTexParameteri(texture.GetType(), GL_TEXTURE_MIN_FILTER, GL_LINEAR));
             GL_CALL(glTexParameteri(texture.GetType(), GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
+            GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
             if (HashClassName<TextureType>() == HashClassName<Type2D>()) {
                 GL_CALL(glTexImage2D(texture.GetType(), 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data));
             }
+            GL_CALL(glGenerateMipmap(texture.GetType()));
 
             texture.Unbind();
         });

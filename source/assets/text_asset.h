@@ -5,6 +5,7 @@
 class TextAssetStorage {
 private:
 	std::string m_TextContents = "";
+	Texture<Type2D> m_Texture;
 
 	friend class TextAsset;
 };
@@ -19,7 +20,7 @@ public:
 	void ReadFile() override;
 private:
 	void ShowProperties() override;
-
+	void SetupExplorerIcon(ImVec2 size) override;
 
 
 };

@@ -14,3 +14,6 @@
 #include "gui_layer/gui_layer.h"
 #include "components/disable_in_play.h"
 #include "components/internal_use.h"
+#include "assets/folder_asset.h"
+#include "assets/text_asset.h"
+

@@ -3,6 +3,8 @@
 #include "../opengl_wrappers/texture.h"
 
 class FolderAssetProperties {
+public:
+	FolderAssetProperties();
 private:
 	Texture<Type2D> m_IconTexture;
 
@@ -17,6 +19,7 @@ public:
 
 
 private:
+	void ShowProperties() override;
 	void ReadFile() override;
 	void SetupExplorerIcon(ImVec2 size) override;
 

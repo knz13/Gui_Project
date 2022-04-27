@@ -86,7 +86,7 @@ void GuiLayer::GameView::Update(Window& win) {
         
     //m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget()
     ImGui::Image((ImTextureID)m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget().GetAttachedTexture().GetID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
-        
+    
 
     HandleSelectionGuizmo(win);
         

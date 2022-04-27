@@ -13,7 +13,7 @@ public:
 private:
     static inline size_t m_CurrentRenamingFileHash = 0;
     static inline ObjectHandle m_RenamingObject;
-    static inline ImVec2 m_WidgetSize = ImVec2(225,225);
+    static inline ImVec2 m_WidgetSize = ImVec2(100,100);
 
 };
 };

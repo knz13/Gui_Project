@@ -29,6 +29,7 @@
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/ryml/include/ryml.hpp"
 #include "../vendor/ryml/include/ryml_std.hpp"
+#include "../vendor/markdown/imgui_markdown.h"
 
 using namespace std;
 

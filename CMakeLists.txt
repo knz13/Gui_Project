@@ -370,6 +370,30 @@ set(${PROJECT_NAME}_LIBRARIES )
 
 
 
+# repository download and settings for markdown...
+
+    dir_exists(markdown_exists ${PROJECT_SOURCE_DIR}/vendor/markdown)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/markdown)
+
+
+    if(NOT ${markdown_exists})
+        FetchContent_Declare(MARKDOWN
+        GIT_REPOSITORY https://github.com/juliettef/imgui_markdown
+        GIT_TAG origin/main
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/markdown
+        )
+
+        FetchContent_MakeAvailable(MARKDOWN)
+
+    endif()
+                    
+
+
 # finding package and adding settings for alias OpenGL...
 
 

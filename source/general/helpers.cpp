@@ -24,6 +24,7 @@ void HelperFunctions::FreeImageData(unsigned char* data)
 
 unsigned char* HelperFunctions::ReadTextureFile(std::string path, int* width, int* height, int* channels)
 {   
+    
     unsigned char* data = stbi_load(path.c_str(), width, height, channels, 0);
     if (!data) {
         throw std::runtime_error("err");

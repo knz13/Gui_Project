@@ -84,6 +84,8 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     GL_CALL(glEnable(GL_STENCIL_TEST));
     GL_CALL(glEnable(GL_DEPTH_TEST));
     GL_CALL(glEnable(GL_CULL_FACE));
+    GL_CALL(glEnable(GL_BLEND));
+    GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     glfwSetKeyCallback(this->GetContextPointer(),[](GLFWwindow* ptr,int key, int scancode, int action, int mods){
         Window& win = *Window::GetWindow(ptr);
