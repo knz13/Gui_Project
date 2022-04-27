@@ -130,6 +130,8 @@ public:
 
 protected:
 	virtual void SetupExplorerIcon(ImVec2 size) {};
+	virtual void OnDestroy() {};
+	virtual void OnCreate() {};
 	 
 private:
 	std::string GetMaxWord(std::string word,int widthMax) {
@@ -174,9 +176,11 @@ private:
 
 	void Init() final {
 		Registry::Get().emplace<AssetObjectSpecifierStorage>(this->ID());
+		OnCreate();
 	}
 	void Destroy() final {
 		AssetRegister::UnregisterPath(this->ID());
+		OnDestroy();
 
 	}
 

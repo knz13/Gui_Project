@@ -151,6 +151,15 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
         
     });
 
+    glfwSetWindowFocusCallback(this->GetContextPointer(), [](GLFWwindow* window, int focused) {
+        bool hasFocus = focused == GLFW_TRUE ? true : false;
+
+        Window& win = *Window::GetWindow(window);
+        win.m_FocusEventFuncs.EmitEvent(win,hasFocus);
+
+        
+    });
+
     this->Events().ResizedEvent().Connect([](Window& win,WindowResizedEventProperties prop){
         win.m_Properties.width = prop.width;
         win.m_Properties.height = prop.height;
@@ -392,6 +401,11 @@ FunctionSink<void(Window&,MouseEventProperties)> WindowEvents::MouseEnteredWindo
 
 FunctionSink<void(Window&,MouseButtonEventProperties)> WindowEvents::MouseButtonEvent() {
     return FunctionSink<void(Window&,MouseButtonEventProperties)>(m_Master.m_MouseButtonFuncs);
+}
+
+FunctionSink<void(Window&, bool)> WindowEvents::FocusEvent()
+{
+    return FunctionSink<void(Window&, bool)>(m_Master.m_FocusEventFuncs);
 }
 
 FunctionSink<void(Window&,MouseScrollEventProperties)> WindowEvents::MouseScrollEvent() {

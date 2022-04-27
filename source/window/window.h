@@ -12,7 +12,7 @@ struct WindowEvents {
 
     WindowEvents(Window& win) : m_Master(win) {};
 
-
+    FunctionSink<void(Window&, bool)> FocusEvent();
     FunctionSink<void(Window&,MouseScrollEventProperties)> MouseScrollEvent();
     FunctionSink<void(Window&,MouseButtonEventProperties)> MouseButtonEvent();
     FunctionSink<void(Window&,MouseEventProperties)> MouseEnteredWindowEvent();
@@ -112,7 +112,7 @@ private:
     std::vector<std::unique_ptr<VertexArray>> m_CreatedVertexArrays;
     std::map<std::string,std::unique_ptr<Shader>> m_CreatedShaders;
 
-    
+    EventLauncher<void(Window&, bool)> m_FocusEventFuncs;
     EventLauncher<void(Window&,WindowResizedEventProperties)> m_WindowResizedEventFuncs;
     EventLauncher<void(Window&,MouseEventProperties)> m_MouseMovedFuncs;
     EventLauncher<void(Window&,MouseEventProperties)> m_MouseEnteredWindowFuncs;
