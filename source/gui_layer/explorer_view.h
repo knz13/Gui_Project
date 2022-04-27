@@ -14,12 +14,14 @@ public:
     
 private:
     static void OnUpdatePathOrReload();
+    static void ShowAllSubFolders(std::string current);
+    static bool FolderHasFoldersInside(std::string folderPath);
 
     static inline size_t m_CurrentRenamingFileHash = 0;
     static inline ObjectHandle m_RenamingObject;
-    static inline ImVec2 m_WidgetSize = ImVec2(100,100);
+    static inline ImVec2 m_WidgetSize = ImVec2(80,80);
     static inline const std::string m_InitialPath = std::filesystem::current_path().string() + "/Assets";
-    static inline std::string m_CurrentPath = std::filesystem::current_path().string() + "/Assets";
+    static inline std::string m_CurrentPath = "";
     static inline std::unordered_map<std::string,std::vector<std::string>> m_CurrentFilesByFolder;
 };
 };

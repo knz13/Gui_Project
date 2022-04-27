@@ -6,6 +6,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     
     std::replace(m_CurrentPath.begin(),m_CurrentPath.end(),'\\','/');
 
+    
     GuiLayer::SetupWindowStyle("Explorer",[&](ImGuiWindowFlags flags){
         ImGui::Begin("Explorer",0,flags );
     });
@@ -14,7 +15,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     
 
 
-    ImGui::BeginChild("fileExplorer",ImVec2(0,0),true);
+    ImGui::BeginChild("fileExplorer",ImVec2(0,-1),true,ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse);
     if(ImGui::BeginPopupContextWindow(("ResetPathMenu" + GuiLayer::GetImGuiID(&win)).c_str())){
         if(ImGui::MenuItem("Return to Assets")){
             m_CurrentPath = m_InitialPath;
@@ -23,34 +24,53 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     }
     int index = 0;
     
-    int columns = ImGui::GetWindowSize().x / m_WidgetSize.x;
-    if (columns == 0) {
-        columns = 1;
-    }
     
-    ImGuiTableFlags tableFlags =  ImGuiTableFlags_NoHostExtendX;
-
-    int fileCount = 0;
-    for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
-        fileCount++;
-    }
-    if (fileCount <= columns) {
-        tableFlags |= ImGuiTableFlags_SizingFixedFit;
-    }
     ImGui::SetCursorPosX(10);
-    if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, tableFlags)) {
+
+    if (ImGui::BeginTable(("ExplorerMain" + GuiLayer::GetImGuiID(&win)).c_str(), 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable)) {
         
-        for(auto& file : std::filesystem::directory_iterator(m_CurrentPath)){
-            if (!AssetRegister::GetAssetForPath(file.path().string())) {
-                continue;
-            }
-            ImGui::TableNextColumn();
-            AssetObject asset = AssetRegister::GetAssetForPath(file.path().string()).GetAs<AssetObject>();
-            
-            asset.ShowOnExplorer(ImVec2(m_WidgetSize.x-10,m_WidgetSize.y));
-            
-            index++;
+        
+        
+        ImGui::TableNextColumn();
+
+        ShowAllSubFolders(m_InitialPath);
+
+
+        
+        ImGui::TableNextColumn();
+        
+        int columns = ImGui::GetContentRegionAvail().x / m_WidgetSize.x;
+        if (columns == 0) {
+            columns = 1;
         }
+
+        ImGuiTableFlags tableFlags = ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollY;
+
+        int fileCount = 0;
+        for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
+            fileCount++;
+        }
+        if (fileCount <= columns) {
+            tableFlags |= ImGuiTableFlags_SizingFixedFit;
+        }
+
+        if (ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, tableFlags)) {
+
+            for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
+                if (!AssetRegister::GetAssetForPath(file.path().string())) {
+                    continue;
+                }
+                ImGui::TableNextColumn();
+                    AssetObject asset = AssetRegister::GetAssetForPath(file.path().string()).GetAs<AssetObject>();
+
+                    asset.ShowOnExplorer(ImVec2(m_WidgetSize.x - 10, m_WidgetSize.y));
+
+                index++;
+            }
+            ImGui::EndTable();
+        }
+            
+        
         ImGui::EndTable();
     }
 
@@ -59,7 +79,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
 
     ImGui::End();
 
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 }
 
 void GuiLayer::ExplorerView::Setup(Window& win)
@@ -69,13 +89,7 @@ void GuiLayer::ExplorerView::Setup(Window& win)
         std::filesystem::create_directory("Assets");
     }
 
-    for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
-        if (!AssetRegister::GetAssetForPath(file.path().string())) {
-            AssetObject asset = AssetRegister::LoadAssetForPath(file.path().string()).GetAs<AssetObject>();
-            asset.InitializeFile();
-            m_CurrentFilesByFolder[m_CurrentPath].push_back(file.path().string());
-        }
-    }
+    SetCurrentPath(m_InitialPath);
 
     
     win.Events().FocusEvent().Connect([](Window& window, bool focused) {
@@ -88,6 +102,7 @@ void GuiLayer::ExplorerView::Setup(Window& win)
 
 void GuiLayer::ExplorerView::SetCurrentPath(std::string path)
 {
+    std::replace(path.begin(), path.end(), '\\', '/');
     if (path != m_CurrentPath) {
         m_CurrentPath = path;
         OnUpdatePathOrReload();
@@ -113,6 +128,60 @@ void GuiLayer::ExplorerView::OnUpdatePathOrReload()
         }
     }
     m_CurrentFilesByFolder[m_CurrentPath] = vec;
+}
+
+void GuiLayer::ExplorerView::ShowAllSubFolders(std::string current)
+{
+    if (!std::filesystem::is_directory(current)) {
+        return;
+    }
+    
+    if (!FolderHasFoldersInside(current)) {
+        bool open = ImGui::TreeNodeEx((std::filesystem::path(current).stem().string() + GuiLayer::GetImGuiID(&m_CurrentFilesByFolder)).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanFullWidth);
+        if (open) {
+            ImGui::TreePop();
+        }
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+            SetCurrentPath(current);
+        }
+        return;
+    }
+    else {
+        
+        if (ImGui::TreeNodeEx((std::filesystem::path(current).stem().string() + GuiLayer::GetImGuiID(&m_CurrentFilesByFolder)).c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow)) {
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen()) {
+                SetCurrentPath(current);
+            }
+            for (auto& file : std::filesystem::directory_iterator(current)) {
+                
+                if (std::filesystem::path(current) == std::filesystem::current_path() && file.path().stem().string() != "Assets") {
+                    continue;
+                }
+                ShowAllSubFolders(file.path().string());
+            }
+            ImGui::TreePop();
+        }
+        
+    }
+
+
+
+}
+
+bool GuiLayer::ExplorerView::FolderHasFoldersInside(std::string folderPath)
+{
+    if (!std::filesystem::exists(folderPath)) {
+        return false;
+    }
+    if (!std::filesystem::is_directory(folderPath)) {
+        return false;
+    }
+    for (auto& file : std::filesystem::directory_iterator(folderPath)) {
+        if (file.is_directory()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /*
