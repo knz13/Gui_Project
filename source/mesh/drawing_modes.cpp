@@ -98,7 +98,7 @@ PointsMode::PointsMode(GameObject obj) : DrawingMode(obj) {
     m_CreateFunction = [](){return GL_POINTS;};
 
     id = obj.GetComponent<Mesh>().PreDrawn().Connect([&,obj](Mesh& mesh,Shader&,const glm::mat4& mvp) mutable -> void {
-        Shader& shader = Window::GetCurrentWindow().Create().CachedShader("default_shaders/points_shader",nullptr);
+        Shader& shader = Window::GetCurrentWindow().Create().CachedShader("defaults/default_shaders/points_shader",nullptr);
     
         shader.Bind();
         shader.SetUniformMat4f("MVP",mvp);

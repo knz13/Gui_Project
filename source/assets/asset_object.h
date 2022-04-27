@@ -127,6 +127,9 @@ public:
 	std::string GetPath() {
 		return AssetRegister::GetPathFromObject(ObjectHandle(this->ID()));
 	}
+
+protected:
+	virtual void SetupExplorerIcon(ImVec2 size) {};
 	 
 private:
 	std::string GetMaxWord(std::string word,int widthMax) {
@@ -156,6 +159,10 @@ private:
 		}
 
 		ImGui::SetCursorPos(pos);
+
+		size = ImVec2(size.x, size.y - ImGui::CalcTextSize("A").y - 10);
+
+		SetupExplorerIcon(size);
 
 		if (!GetPrivateStorage().m_IsRenaming) {
 			ImGui::Text(GetMaxWord(this->Properties().GetName(), size.x).c_str());

@@ -532,7 +532,7 @@ endforeach()
                 
     add_custom_command(TARGET ${PROJECT_NAME}
                        POST_BUILD
-                       COMMAND cmake -E copy_directory  ${PROJECT_SOURCE_DIR}/default_shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/default_shaders
+                       COMMAND cmake -E copy_directory  ${PROJECT_SOURCE_DIR}/defaults $<TARGET_FILE_DIR:${PROJECT_NAME}>/defaults
                        )
     
 

@@ -20,32 +20,27 @@ void GuiLayer::ExplorerView::Update(Window& win) {
         if(ImGui::MenuItem("Return to Assets")){
             currentPath = InitialPath;
         }
-        /*
-        if (ImGui::BeginMenu("Create")) {
-            if (ImGui::MenuItem("Folder")) {
-                
-            }
-            ImGui::EndMenu();
-        }
-        */
         ImGui::EndPopup();
     }
     int index = 0;
     
-    int columns = ImGui::GetWindowSize().x / m_WidgetWidth;
+    int columns = ImGui::GetWindowSize().x / m_WidgetSize.x;
     if (columns == 0) {
         columns = 1;
     }
+    
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX;
 
+    int fileCount = 0;
+    for (auto& file : std::filesystem::directory_iterator(currentPath)) {
+        fileCount++;
+    }
+    if (fileCount <= columns) {
+        tableFlags |= ImGuiTableFlags_SizingFixedFit;
+    }
 
-    if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, ImGuiTableFlags_NoHostExtendX)) {
-        int fileCount = 0;
-        for (auto& file : std::filesystem::directory_iterator(currentPath)) {
-            fileCount++;
-        }
-        if (fileCount < columns) {
-            ImGui::TableSetupColumn("##", ImGuiTableColumnFlags_WidthFixed);
-        }
+    if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, tableFlags)) {
+        
         for(auto& file : std::filesystem::directory_iterator(currentPath)){
             ImGui::TableNextColumn();
             if (!AssetRegister::GetObjectForPath(file.path().string())) {
@@ -55,7 +50,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
 
             AssetObject asset = AssetRegister::GetObjectForPath(file.path().string()).GetAs<AssetObject>();
             
-            asset.ShowOnExplorer(ImVec2(m_WidgetWidth-5,50));
+            asset.ShowOnExplorer(ImVec2(m_WidgetSize.x-10,m_WidgetSize.y));
             
             index++;
         }
@@ -67,7 +62,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
 
     ImGui::End();
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 }
 
 void GuiLayer::ExplorerView::Setup(Window& win)

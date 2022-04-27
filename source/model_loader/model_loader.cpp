@@ -16,7 +16,7 @@ vector<ModelLoader::Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, 
 		mat->GetTexture(type, i, &str);
 		
 		
-		Texture texture;
+		ModelLoader::Texture texture;
 		if(!TextureLoader::LoadFromFile(string(str.C_Str()),"Resources/Models/",texture.id)){
 			continue;
 		}

@@ -58,7 +58,7 @@ private:
 
 
 	static LoadedModelResult CopyModelFromCache(std::string cacheName,Mesh& dr,LoadingModelProperties prop);
-	static vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
+	static vector<ModelLoader::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
 	static LoadedModelResult ProcessData(Mesh& model,const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop);
 	static LoadedModelResult AssimpGetMeshData(const aiMesh* mesh,Mesh& model,LoadingModelProperties prop);
 

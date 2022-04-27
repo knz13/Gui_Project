@@ -5,7 +5,6 @@
 class Camera;
 class Framebuffer;
 class Mesh;
-class Texture;
 class Window;
 class VertexArray;
 class Shader;

@@ -132,12 +132,12 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::End();
 
        
+        GuiLayer::GameView::Update(win);
         
         GuiLayer::ExplorerView::Update(win);
         
         GuiLayer::SceneHierarchyView::Update(win);
 
-        GuiLayer::GameView::Update(win);
 
         GuiLayer::PropertiesView::Update(win);
         

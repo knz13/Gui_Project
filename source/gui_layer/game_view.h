@@ -5,6 +5,7 @@
 class Window;
 class Object;
 class Framebuffer;
+class FolderAsset;
 
 namespace GuiLayer {
 class GameView : public GuiView {
@@ -25,5 +26,9 @@ private:
     
     static inline ImVec2 m_ContentRectMin;
     static inline ImVec2 m_ContentRectMax;
+
+    
+    
+    
 };
 };

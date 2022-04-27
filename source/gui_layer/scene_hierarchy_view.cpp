@@ -216,7 +216,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
-        mesh.SetShader("default_shaders/base_shader");
+        mesh.SetShader("defaults/default_shaders/base_shader");
         
     };
 
@@ -239,7 +239,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
-        mesh.SetShader("default_shaders/base_shader");
+        mesh.SetShader("defaults/default_shaders/base_shader");
     };
 
     m_DefaultObjects["Camera"] = [](){
