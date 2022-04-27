@@ -41,11 +41,11 @@ void GuiLayer::ExplorerView::Update(Window& win) {
     if(ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, tableFlags)) {
         
         for(auto& file : std::filesystem::directory_iterator(m_CurrentPath)){
-            if (!AssetRegister::GetObjectForPath(file.path().string())) {
+            if (!AssetRegister::GetAssetForPath(file.path().string())) {
                 continue;
             }
             ImGui::TableNextColumn();
-            AssetObject asset = AssetRegister::GetObjectForPath(file.path().string()).GetAs<AssetObject>();
+            AssetObject asset = AssetRegister::GetAssetForPath(file.path().string()).GetAs<AssetObject>();
             
             asset.ShowOnExplorer(ImVec2(m_WidgetSize.x-10,m_WidgetSize.y));
             
@@ -70,24 +70,49 @@ void GuiLayer::ExplorerView::Setup(Window& win)
     }
 
     for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
-        if (!AssetRegister::GetObjectForPath(file.path().string())) {
-            AssetObject asset = AssetRegister::CreateObjectForPath(file.path().string()).GetAs<AssetObject>();
+        if (!AssetRegister::GetAssetForPath(file.path().string())) {
+            AssetObject asset = AssetRegister::LoadAssetForPath(file.path().string()).GetAs<AssetObject>();
             asset.InitializeFile();
+            m_CurrentFilesByFolder[m_CurrentPath].push_back(file.path().string());
         }
     }
 
     
-    win.Events().FocusEvent().Connect([](Window& windown, bool focused) {
+    win.Events().FocusEvent().Connect([](Window& window, bool focused) {
         if (focused) {
-            for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
-                if (!AssetRegister::GetObjectForPath(file.path().string())) {
-                    AssetObject asset = AssetRegister::CreateObjectForPath(file.path().string()).GetAs<AssetObject>();
-                    asset.InitializeFile();
-                }
-            }
+            OnUpdatePathOrReload();
         }
     });
     
+}
+
+void GuiLayer::ExplorerView::SetCurrentPath(std::string path)
+{
+    if (path != m_CurrentPath) {
+        m_CurrentPath = path;
+        OnUpdatePathOrReload();
+    }
+}
+
+void GuiLayer::ExplorerView::OnUpdatePathOrReload()
+{
+    std::vector<std::string> vec;
+    for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
+        if (!AssetRegister::GetAssetForPath(file.path().string())) {
+            AssetObject asset = AssetRegister::LoadAssetForPath(file.path().string()).GetAs<AssetObject>();
+            asset.InitializeFile();
+            
+            continue;
+        }
+        vec.push_back(file.path().string());
+    }
+    for (auto& path : m_CurrentFilesByFolder[m_CurrentPath]) {
+        if (auto it = std::find(vec.begin(), vec.end(), path); it == vec.end()) {
+            DEBUG_LOG("Unloading Asset " + *it + " because it was not found in current directory!");
+            AssetRegister::UnloadAsset(*it);
+        }
+    }
+    m_CurrentFilesByFolder[m_CurrentPath] = vec;
 }
 
 /*

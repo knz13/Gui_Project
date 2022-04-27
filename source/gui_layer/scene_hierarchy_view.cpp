@@ -135,7 +135,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
                 }
 
                 if(ImGui::MenuItem("Delete")){
-                    Registry::DeleteObject(obj);
+                    ObjectPropertyRegister::DeleteObject(obj);
                 }
 
                 if(obj.Properties().GetParent()){

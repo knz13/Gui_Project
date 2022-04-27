@@ -4,7 +4,7 @@
 #include "../kv.h"
 #include <ctime>
 
-std::vector<Object> Registry::m_ObjectsToDelete;
+
 reactphysics3d::PhysicsCommon Registry::m_PhysicsManager;
 entt::registry Registry::m_Registry;
 std::mt19937 Registry::m_RandomGenerator(time(nullptr));
@@ -37,9 +37,7 @@ std::string Registry::GetComponentDisplayName(std::string componentClassName)
     }
 }
 
-void Registry::DeleteObject(Object obj) {
-    m_ObjectsToDelete.push_back(obj);
-}
+
 
 reactphysics3d::PhysicsCommon& Registry::GetPhysicsCommon() {
     return m_PhysicsManager; 
@@ -57,41 +55,11 @@ size_t Registry::GenerateRandomNumber() {
 
 
 
-void Registry::GetAllChildren(Object current, std::vector<Object>& objects)
-{
-    current.Properties().ClearParent();
-
-    objects.push_back(current);
-
-    for (auto handle : current.Properties().GetChildren()) {
-        if (handle.GetAsObject().Valid()) {
-            GetAllChildren(handle.GetAsObject(), objects);
-        }
-    }
-}
 
 
 
-void Registry::UpdateState() {
-    for (auto& obj : m_ObjectsToDelete) {
-        std::vector<Object> objectAndAllChildren;
-        if(obj.Valid()){
-            GetAllChildren(obj, objectAndAllChildren);
-        }
 
-        for (auto& object : objectAndAllChildren) {
-            auto it = object.Properties().m_ComponentClassNames.begin();
-            while (it != object.Properties().m_ComponentClassNames.end()) {
-                object.EraseComponentByName(*it);
-                it = object.Properties().m_ComponentClassNames.begin();
-            }
 
-            m_Registry.destroy(object.ID());
-        }
-
-    }
-    m_ObjectsToDelete.clear();
-}
 
 ObjectHandle Registry::FindObjectByName(std::string name) {
     
@@ -103,3 +71,5 @@ ObjectHandle Registry::FindObjectByName(std::string name) {
     }
     return ObjectHandle();
 }
+
+

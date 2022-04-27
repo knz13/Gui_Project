@@ -13,11 +13,12 @@ namespace GuiLayer {
 class AssetRegister {
 public:
 
-	static void CreateObjectsForFolder(std::string folderPath);
-	static std::string GetRegisteredClassForExtension(std::string extension);
-	static ObjectHandle CreateObjectForPath(std::string path);
-	static ObjectHandle GetObjectForPath(std::string path);
-	static std::string GetPathFromObject(ObjectHandle handle);
+	static void LoadAssetsForFolder(std::string folderPath);
+	static std::string GetRegisteredAssetForExtension(std::string extension);
+	static ObjectHandle LoadAssetForPath(std::string path);
+	static ObjectHandle GetAssetForPath(std::string path);
+	static std::string GetPathFromAsset(ObjectHandle handle);
+	static bool UnloadAsset(std::string path);
 private:
 
 	static bool IsRegistered(std::string path);
@@ -125,7 +126,7 @@ public:
 	
 
 	std::string GetPath() {
-		return AssetRegister::GetPathFromObject(ObjectHandle(this->ID()));
+		return AssetRegister::GetPathFromAsset(ObjectHandle(this->ID()));
 	}
 
 protected:

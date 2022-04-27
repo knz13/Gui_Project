@@ -42,3 +42,66 @@ std::string ObjectPropertyRegister::GetClassNameByID(entt::id_type id)
 	}
 	return "";
 }
+
+void ObjectPropertyRegister::Each(std::function<void(Object)> func)
+{
+	Registry::Get().each([&](entt::entity e) {
+		if (ObjectHandle(e)) {
+			func(Object(e));
+		}
+	});
+}
+
+bool ObjectPropertyRegister::DeleteObject(ObjectHandle obj)
+{
+	if (obj) {
+		m_ObjectsToDelete.push_back(obj);
+		return true;
+	}
+	DEBUG_LOG("Could not delete object with id " + obj.ToString() + " because it was not valid!");
+	return false;
+}
+
+void ObjectPropertyRegister::ClearDeletingQueue()
+{
+	for (auto& objHandle : m_ObjectsToDelete) {
+		if (!objHandle) {
+
+			continue;
+		}
+		std::vector<ObjectHandle> objectAndAllChildren;
+		
+		GetAllChildren(objHandle, objectAndAllChildren);
+		
+
+		for (auto& objectHandle : objectAndAllChildren) {
+			if (!objectHandle) {
+				DEBUG_LOG("Could not delete object with id " + objectHandle.ToString() + " because it was not valid! During ObjectPropertyRegister::ClearDeletingQueue()");
+				continue;
+			}
+			Object object(objectHandle.ID());
+			auto it = object.Properties().m_ComponentClassNames.begin();
+			while (it != object.Properties().m_ComponentClassNames.end()) {
+				object.EraseComponentByName(*it);
+				it = object.Properties().m_ComponentClassNames.begin();
+			}
+
+			Registry::Get().destroy(object.ID());
+		}
+
+	}
+	m_ObjectsToDelete.clear();
+}
+
+void ObjectPropertyRegister::GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec)
+{
+	current.GetAsObject().Properties().ClearParent();
+
+	vec.push_back(current);
+
+	for (auto handle : current.GetAsObject().Properties().GetChildren()) {
+		if (handle) {
+			GetAllChildren(handle, vec);
+		}
+	}
+}

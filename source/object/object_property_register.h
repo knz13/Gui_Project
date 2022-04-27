@@ -179,6 +179,12 @@ public:
 		return obj.ID();
 	};
 
+	static void Each(std::function<void(Object)> func);
+
+	static bool DeleteObject(ObjectHandle obj);
+
+	static void ClearDeletingQueue();
+
 protected:
 	static std::string GetComponentNameByID(entt::id_type id) {
 		return m_RegisteredComponentsNames[id];
@@ -353,7 +359,7 @@ protected:
 
 private:
 	
-
+	static void GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec);
 	
 
 	template<typename T>
@@ -408,6 +414,7 @@ private:
 
 	};
 
+	inline static std::vector<ObjectHandle> m_ObjectsToDelete;
 	inline static std::vector <std::string> m_ComponentsToMakeOmnipresent;
 	inline static std::unordered_map < entt::id_type, std::function<void(entt::entity)>> m_PropertyStorageContainer;
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_ComponentsToMakeAvailableAtStartByType;

@@ -307,10 +307,13 @@ void Window::DrawingLoop() {
         
     }
 
-    Registry::Get().each([](entt::entity e){
-        Registry::DeleteObject(Object(e));
+    
+
+
+    ObjectPropertyRegister::Each([](Object object){
+        ObjectPropertyRegister::DeleteObject(object);
     });
-    Registry::UpdateState();
+    ObjectPropertyRegister::ClearDeletingQueue();
 }
 
 
@@ -465,5 +468,5 @@ void Window::PostDrawOperations() {
         m_ClosingCallbackFuncs.EmitEvent(*this);
     }
 
-    Registry::UpdateState();
+    ObjectPropertyRegister::ClearDeletingQueue();
 }

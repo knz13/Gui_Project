@@ -30,6 +30,7 @@
 #include "../vendor/ryml/include/ryml.hpp"
 #include "../vendor/ryml/include/ryml_std.hpp"
 #include "../vendor/markdown/imgui_markdown.h"
+#include <source_location>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ using namespace std;
 #define KV_CLASS private: \
                     friend class Registry; friend class Window; friend class Object; friend class Camera;
 #define KV_DRAWING_MODE private: friend class Mesh;
-#define KV_REGISTER_CLASS_AS_COMPONENT(className) void* __UNUSEDVARIABLE##className = [](){ Object::RegisterClassAsComponent<className>();return nullptr;}()
+
 
 static unsigned int TestSize(unsigned int dataType) {
     switch (dataType) {
@@ -66,7 +67,7 @@ static unsigned int TestSize(unsigned int dataType) {
 #define DEBUG_WARN(x)
 #define DEBUG_ERROR(x)
 #else
-#define DEBUG_LOG(x) cout << "LOG: " << x << endl <<  "At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl
+#define DEBUG_LOG(x) cout << "LOG: " << x << endl << " In Function " << std::source_location::current().function_name() << endl <<   " At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl
 #define DEBUG_WARN(x) cout << "WARNING: " << x << endl <<  "At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl
 #define DEBUG_ERROR(x) cout << "ERROR! -> " << x  << endl <<  "At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl; __debugbreak()
 #endif

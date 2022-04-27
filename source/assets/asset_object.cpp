@@ -4,14 +4,14 @@
 #include "folder_asset.h"
 
 
-void AssetRegister::CreateObjectsForFolder(std::string folderPath)
+void AssetRegister::LoadAssetsForFolder(std::string folderPath)
 {
 	if (!std::filesystem::exists(folderPath)) {
 		return;
 	}
 	for (auto file : std::filesystem::directory_iterator(folderPath)) {
 		if (!IsRegistered(file.path().string())) {
-			CreateObjectForPath(file.path().string());
+			LoadAssetForPath(file.path().string());
 		}
 	}
 
@@ -27,7 +27,7 @@ bool AssetRegister::IsRegistered(std::string path)
 	return false;
 }
 
-std::string AssetRegister::GetRegisteredClassForExtension(std::string extension)
+std::string AssetRegister::GetRegisteredAssetForExtension(std::string extension)
 {
 	if (m_RegisteredClassesByExtension.find(extension) != m_RegisteredClassesByExtension.end()) {
 		return m_RegisteredClassesByExtension[extension];
@@ -35,16 +35,16 @@ std::string AssetRegister::GetRegisteredClassForExtension(std::string extension)
 	return "";
 }
 
-ObjectHandle AssetRegister::CreateObjectForPath(std::string path)
+ObjectHandle AssetRegister::LoadAssetForPath(std::string path)
 {
-	if (!GetObjectForPath(path)) {
+	if (!GetAssetForPath(path)) {
 		if (std::filesystem::is_directory(path)) {
 			Object obj = ObjectPropertyRegister::CreateObjectFromType("FolderAsset", std::filesystem::path(path).stem().string());
 			FolderAsset asset(obj.ID());
 			asset.SetPath(path);
 			return ObjectHandle(asset.ID());
 		}
-		if (std::string extClass = AssetRegister::GetRegisteredClassForExtension(std::filesystem::path(path).extension().string()); extClass != "") {
+		if (std::string extClass = AssetRegister::GetRegisteredAssetForExtension(std::filesystem::path(path).extension().string()); extClass != "") {
 			Object obj = ObjectPropertyRegister::CreateObjectFromType(extClass, std::filesystem::path(path).stem().string());
 			AssetObject asset(obj.ID());
 			asset.SetPath(path);
@@ -56,10 +56,10 @@ ObjectHandle AssetRegister::CreateObjectForPath(std::string path)
 		return ObjectHandle(obj.ID());
 		
 	}
-	return GetObjectForPath(path);
+	return GetAssetForPath(path);
 }
 
-ObjectHandle AssetRegister::GetObjectForPath(std::string path)
+ObjectHandle AssetRegister::GetAssetForPath(std::string path)
 {
 	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
 		return ObjectHandle(m_RegisteredAssetsByPath[path]);
@@ -67,13 +67,25 @@ ObjectHandle AssetRegister::GetObjectForPath(std::string path)
 	else return {};
 }
 
-std::string AssetRegister::GetPathFromObject(ObjectHandle handle)
+std::string AssetRegister::GetPathFromAsset(ObjectHandle handle)
 {
 	if (handle) {
 		return m_RegistererdPathsByAsset[handle.ID()];
 	}
 	return "";
 }
+
+bool AssetRegister::UnloadAsset(std::string path)
+{
+	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
+		ObjectPropertyRegister::DeleteObject(m_RegisteredAssetsByPath[path]);
+		return true;
+	}
+	DEBUG_LOG("Could not unload asset at path " + path + " because the asset could not be found!");
+	return false;
+}
+
+
 
 void AssetRegister::RegisterPath(entt::entity e, std::string path)
 {
@@ -94,7 +106,7 @@ void AssetRegister::UnregisterPath(entt::entity e)
 		m_RegistererdPathsByAsset.erase(e);
 
 		if (ObjectHandle(e)) {
-			Registry::DeleteObject(Object(e));
+			ObjectPropertyRegister::DeleteObject(Object(e));
 		}
 
 	}
@@ -108,7 +120,7 @@ void AssetRegister::UnregisterPath(std::string path)
 		m_RegistererdPathsByAsset.erase(id);
 
 		if (ObjectHandle(id)) {
-			Registry::DeleteObject(Object(id));
+			ObjectPropertyRegister::DeleteObject(Object(id));
 		}
 
 	}

@@ -7,6 +7,10 @@ ObjectHandle::ObjectHandle(entt::entity ent)
 	m_Handle = ent;
 }
 
+ObjectHandle::ObjectHandle(Object obj) : m_Handle(obj.ID())
+{
+}
+
 ObjectHandle::ObjectHandle()
 {
 	isNull = true;
@@ -22,6 +26,11 @@ Object ObjectHandle::GetAsObject()
 entt::entity ObjectHandle::ID()
 {
 	return m_Handle;
+}
+
+std::string ObjectHandle::ToString()
+{
+	return std::to_string((uint32_t)m_Handle);
 }
 
 bool ObjectHandle::IsType(entt::id_type type)
