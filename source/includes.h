@@ -27,8 +27,7 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
-#include "../vendor/ryml/include/ryml.hpp"
-#include "../vendor/ryml/include/ryml_std.hpp"
+#include "../vendor/yaml/include/yaml-cpp/yaml.h"
 #include "../vendor/markdown/imgui_markdown.h"
 #include <source_location>
 

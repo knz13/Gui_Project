@@ -8,7 +8,13 @@ void GuiLayer::PropertiesView::Update(Window& win) {
     });
     
 
-    
+    if (ImGui::Button("Serialize")) {
+        if (!std::filesystem::exists("Scenes")) {
+            std::filesystem::create_directories("Scenes");
+            
+        }
+        ObjectPropertyRegister::SerializeScene("Scenes/hello.yml");
+    }
 
     if (GuiLayer::AnyObjectSelected()) {
         Object selected = GuiLayer::AnyObjectSelected().GetAsObject();

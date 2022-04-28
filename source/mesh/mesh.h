@@ -69,6 +69,7 @@ public:
     void Draw(const glm::mat4& mvp);
 
 private:
+    bool Serialize(YAML::Node& node) override;
     VertexArray& GetVertexArray();
     void Init() override;
     void Destroy() override;

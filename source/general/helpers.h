@@ -134,3 +134,79 @@ namespace HelperClass {
     };
 
 }
+
+namespace YAML {
+    template<>
+    struct convert<glm::vec3> {
+        static Node encode(const glm::vec3& vec) {
+            Node node;
+            node["x"] = vec.x;
+            node["y"] = vec.y;
+            node["z"] = vec.z;
+            return node;
+        };
+
+        static bool decode(const Node& node, glm::vec3& vec) {
+            if (!node.IsMap()) {
+                return false;
+            }
+
+            vec.x = node["x"].as<float>();
+            vec.y = node["y"].as<float>();
+            vec.z = node["z"].as<float>();
+            return true;
+
+        };
+
+    };
+    
+    template<>
+    struct convert<glm::vec4> {
+        static Node encode(const glm::vec4& vec) {
+            Node node;
+            node["x"] = vec.x;
+            node["y"] = vec.y;
+            node["z"] = vec.z;
+            node["w"] = vec.w;
+            return node;
+        };
+
+        static bool decode(const Node& node, glm::vec4& vec) {
+            if (!node.IsMap()) {
+                return false;
+            }
+
+            vec.x = node["x"].as<float>();
+            vec.y = node["y"].as<float>();
+            vec.z = node["z"].as<float>();
+            vec.w = node["w"].as<float>();
+            return true;
+
+        };
+
+    };
+
+    template<>
+    struct convert<Color> {
+        static Node encode(const Color& color) {
+            Node node;
+            node["r"] = color.AsIntegers().x;
+            node["g"] = color.AsIntegers().y;
+            node["b"] = color.AsIntegers().z;
+            return node;
+        };
+
+        static bool decode(const Node& node, Color& color) {
+            if (!node.IsMap()) {
+                return false;
+            }
+
+            color = Color(node["r"].as<int>(),node["g"].as<int>(),node["b"].as<int>());
+            return true;
+
+        };
+
+    };
+
+
+};

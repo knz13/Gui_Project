@@ -49,6 +49,11 @@ void Mesh::TrySetMesh(std::string path)
 
 
 
+bool Mesh::Serialize(YAML::Node& node)
+{
+    return false;
+}
+
 VertexArray& Mesh::GetVertexArray() {
     return *m_VAO;
 }

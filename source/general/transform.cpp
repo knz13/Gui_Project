@@ -182,6 +182,16 @@ const glm::vec3& TransformComponent::GetRotationRadians() {
     return m_Rotation;
 }
 
+
+
+bool TransformComponent::Serialize(YAML::Node& node)
+{
+    node["position"] = m_Position;
+    node["rotation"] = m_Rotation;
+    node["scale"] = m_Scale;
+
+}
+
 void TransformComponent::Init() {
     MakeAlwaysEnabled(true);
     MakeRemovable(false);

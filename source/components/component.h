@@ -32,9 +32,22 @@ protected:
 
     virtual void Update(float delta) {};
 
-    
+    /**
+     * Serializer function.
+     * Called before Destroy().
+     * *WARNING* -> node is already inside of component
+     */
+    virtual bool Serialize(YAML::Node& node) { return true; };
+
+    /**
+     * Deserializer function.
+     * Called after Init()
+     * *WARNING* -> node is already inside of component
+     */
+    virtual bool Deserialize(YAML::Node& node) { return true; };
 
     
+
 
     
 

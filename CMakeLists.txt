@@ -335,41 +335,6 @@ set(${PROJECT_NAME}_LIBRARIES )
                     
 
 
-# repository download and settings for ryml...
-
-    dir_exists(ryml_exists ${PROJECT_SOURCE_DIR}/vendor/ryml)
-
-
-    # adding includes:
-
-
-        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/ryml/include)
-
-
-    # adding libraries
-
-
-        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}c4core${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ryml${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-
-    if(NOT ${ryml_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
-        ExternalProject_Add(RYML
-        GIT_REPOSITORY https://github.com/biojppm/rapidyaml
-        GIT_TAG v0.4.1
-        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/ryml
-                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}c4core${CMAKE_STATIC_LIBRARY_SUFFIX} ${PROJECT_SOURCE_DIR}/vendor/ryml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ryml${CMAKE_STATIC_LIBRARY_SUFFIX}
-        )
-
-        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD RYML)
-
-    endif()
-
-
-
-
 # repository download and settings for markdown...
 
     dir_exists(markdown_exists ${PROJECT_SOURCE_DIR}/vendor/markdown)
@@ -392,6 +357,41 @@ set(${PROJECT_NAME}_LIBRARIES )
 
     endif()
                     
+
+
+# repository download and settings for yaml...
+
+    dir_exists(yaml_exists ${PROJECT_SOURCE_DIR}/vendor/yaml)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/yaml/include/)
+
+
+    # adding libraries
+
+
+        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/yaml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}yaml-cpp$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+
+    if(NOT ${yaml_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
+        ExternalProject_Add(YAML
+        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+        GIT_TAG yaml-cpp-0.7.0
+        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/yaml
+                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                    -DYAML_CPP_BUILD_TESTS=OFF
+                        
+        BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/yaml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}yaml-cpp$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+
+        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD YAML)
+
+    endif()
+
+
 
 
 # finding package and adding settings for alias OpenGL...

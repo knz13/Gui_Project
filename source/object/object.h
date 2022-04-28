@@ -178,6 +178,8 @@ protected:
     
 private:
 
+    bool SerializeBaseObject(YAML::Node& node);
+    bool DeserializeBaseObject(YAML::Node& node);
     
 
     entt::entity m_EntityHandle;

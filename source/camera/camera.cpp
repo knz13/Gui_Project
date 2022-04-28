@@ -24,6 +24,17 @@ glm::vec4 Camera::GetViewPort() const {
     return m_ViewPort;
 }
 
+bool Camera::Serialize(YAML::Node& node)
+{
+
+    node["fov"] = m_Fov;
+    node["draw distance"] = m_DrawDistance;
+    node["draw near"] = m_DrawNear;
+    node["viewport"] = m_ViewPort;
+
+    return true;
+}
+
 void Camera::Update(float deltaTime) {
     
 }

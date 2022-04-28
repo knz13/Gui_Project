@@ -9,7 +9,7 @@ Color Color::Red = Color(255,0,0);
 Color Color::Green = Color(0,255,0);
 Color Color::Blue = Color(0,0,255);
 
-glm::ivec3 Color::AsIntegers() {
+glm::ivec3 Color::AsIntegers() const{
     return glm::ivec3(m_ColorValue*255.0f);
 }
 

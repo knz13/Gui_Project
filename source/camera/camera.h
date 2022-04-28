@@ -40,6 +40,7 @@ public:
 
 
 private:
+    bool Serialize(YAML::Node& node) override;
     void Update(float deltaTime) override;
     void ShowProperties() override;
     void Init() override;

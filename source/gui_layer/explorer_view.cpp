@@ -167,6 +167,7 @@ void GuiLayer::ExplorerView::ShowAllSubFolders(std::string current)
     }
     
     if (!FolderHasFoldersInside(current)) {
+        
         bool open = ImGui::TreeNodeEx((std::filesystem::path(current).stem().string() + GuiLayer::GetImGuiID(&m_CurrentFilesByFolder)).c_str(), flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanFullWidth);
         if (open) {
             ImGui::TreePop();

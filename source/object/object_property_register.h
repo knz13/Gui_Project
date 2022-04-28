@@ -70,15 +70,18 @@ public:
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
 		entt::meta<Attached>().type(hash).template func<&HelperFunctions::GetClassDisplayName<Attached>>(entt::hashed_string("Get Display Name"));
 		entt::meta<Attached>().type(hash).template func<&ObjectBase::CallShowPropertiesForObject<Attached>>(entt::hashed_string("Show Properties"));
+		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallSerializeForClass<Attached>>(entt::hashed_string("Serialize"));
+		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDeserializeForClass<Attached>>(entt::hashed_string("Deserialize"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
 		};
 		m_RegisteredTagsByType[hash] = entt::type_hash<Tag>().value();
 		m_RegisteredObjectNames[hash] = HelperFunctions::GetClassName<Attached>();
 		
+		
 	}
 
-	static Object CreateObjectFromType(std::string type,std::string objectName);
+	static ObjectHandle CreateObjectFromType(std::string type,std::string objectName);
 
 	template<typename T,typename... Args>
 	static void InitializeObject(entt::entity ent,Args&&... args) {
@@ -185,6 +188,13 @@ public:
 
 	static void ClearDeletingQueue();
 
+	static bool IsClassRegistered(std::string className);
+
+	static bool SerializeScene(std::string savePath);
+
+	static bool DeserializeScene(std::string path);
+
+	
 protected:
 	static std::string GetComponentNameByID(entt::id_type id) {
 		return m_RegisteredComponentsNames[id];
@@ -358,6 +368,61 @@ protected:
 	friend class Object;
 
 private:
+
+	static ObjectHandle DeserializeObject(std::string objectType,YAML::Node& node);
+	static bool SerializeObject(ObjectHandle obj, YAML::Node& node);
+
+	template<typename T>
+	static bool CallDeserializeForComponent(entt::entity e, YAML::Node node) {
+		if (!ObjectHandle(e)) {
+			return false;
+		}
+
+		T* comp = ObjectPropertyRegister::GetComponentByName<T>(e, HelperFunctions::GetClassName<T>());
+
+		if (!comp) {
+			return false;
+		}
+
+		return ((Component*)(comp))->Deserialize(node);
+
+	};
+
+	template<typename T>
+	static bool CallSerializeForComponent(entt::entity e, YAML::Node node) {
+		if (!ObjectHandle(e)) {
+			return false;
+		}
+		
+		T* comp = ObjectPropertyRegister::GetComponentByName<T>(e, HelperFunctions::GetClassName<T>());
+
+		if (!comp) {
+			return false;
+		}
+
+		return ((Component*)(comp))->Serialize(node);
+
+
+		
+
+	};
+
+
+	template<typename T>
+	static bool CallDeserializeForClass(entt::entity e, YAML::Node node) {
+		T obj(e);
+
+		return ((ObjectBase*)(&obj))->Deserialize(node);
+	}
+
+	template<typename T>
+	static bool CallSerializeForClass(entt::entity e,YAML::Node node) {
+		T obj(e);
+
+		return ((ObjectBase*)(&obj))->Serialize(node);
+		
+
+	}
 	
 	static void GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec);
 	
@@ -376,6 +441,10 @@ private:
 		entt::meta<T>().type(hash).template func<&EraseComponent<T>>(entt::hashed_string("Erase Component"));
 		entt::meta<T>().type(hash).template func<&HasComponent<T>>(entt::hashed_string("Has Component"));
 		entt::meta<T>().type(hash).template func<&HelperFunctions::GetClassDisplayName<T>>(entt::hashed_string("Get Display Name"));
+		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CallSerializeForComponent<T>>(entt::hashed_string("Serialize"));
+		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CallDeserializeForComponent<T>>(entt::hashed_string("Deserialize"));
+		
+
 		return hash;
 	}
 
@@ -421,6 +490,7 @@ private:
 	inline static std::unordered_map<entt::id_type, std::function<void(entt::entity)>> m_RegisteredObjectTagsStartingFuncs;
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_RegisteredComponentsByType;
 	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTagsByType;
+	inline static std::unordered_map<std::string, entt::id_type> m_RegisteredTagsByName;
 	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredComponentsNames;
 	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredObjectNames;
 	

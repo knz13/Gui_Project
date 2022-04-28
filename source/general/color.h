@@ -19,7 +19,7 @@ public:
      * 
      * @return the color as integers from 0 to 255
      */
-    glm::ivec3 AsIntegers();
+    glm::ivec3 AsIntegers() const;
 
     ImVec4 AsImVec4();
     

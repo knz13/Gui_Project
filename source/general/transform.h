@@ -47,6 +47,7 @@ public:
 
 
 private:
+    bool Serialize(YAML::Node& node) override;
     void Init() override;
     
     glm::mat4 GetCumulativeMatrix(std::vector<glm::mat4>* outVec=nullptr);

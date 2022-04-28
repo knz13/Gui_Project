@@ -78,5 +78,36 @@ std::string Object::GetName()
     return Properties().m_Name;
 }
 
+bool Object::SerializeBaseObject(YAML::Node& node)
+{
+    
+    node["name"] = Properties().m_Name;
+    if (Properties().m_Parent) {
+        node["parent"] = Properties().m_Parent.ToString();
+    }
+    else {
+        node["parent"] = -1;
+    }
+
+
+    if (Properties().GetChildren().size() > 0) {
+
+        
+        for (auto children : Properties().GetChildren()) {
+            node["children"].push_back(children.ToString());
+        }
+    }
+    else {
+        node["children"] = -1;
+    }
+
+    return true;
+}
+
+bool Object::DeserializeBaseObject(YAML::Node& node)
+{
+    return true;
+}
+
 
 

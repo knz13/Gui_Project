@@ -39,18 +39,18 @@ ObjectHandle AssetRegister::LoadAssetForPath(std::string path)
 {
 	if (!GetAssetForPath(path)) {
 		if (std::filesystem::is_directory(path)) {
-			Object obj = ObjectPropertyRegister::CreateObjectFromType("FolderAsset", std::filesystem::path(path).stem().string());
+			ObjectHandle obj = ObjectPropertyRegister::CreateObjectFromType("FolderAsset", std::filesystem::path(path).stem().string());
 			FolderAsset asset(obj.ID());
 			asset.SetPath(path);
 			return ObjectHandle(asset.ID());
 		}
 		if (std::string extClass = AssetRegister::GetRegisteredAssetForExtension(std::filesystem::path(path).extension().string()); extClass != "") {
-			Object obj = ObjectPropertyRegister::CreateObjectFromType(extClass, std::filesystem::path(path).stem().string());
+			ObjectHandle obj = ObjectPropertyRegister::CreateObjectFromType(extClass, std::filesystem::path(path).stem().string());
 			AssetObject asset(obj.ID());
 			asset.SetPath(path);
 			return ObjectHandle(obj.ID());
 		}
-		Object obj = ObjectPropertyRegister::CreateObjectFromType("TextAsset", std::filesystem::path(path).stem().string());
+		ObjectHandle obj = ObjectPropertyRegister::CreateObjectFromType("TextAsset", std::filesystem::path(path).stem().string());
 		AssetObject asset(obj.ID());
 		asset.SetPath(path);
 		return ObjectHandle(obj.ID());
