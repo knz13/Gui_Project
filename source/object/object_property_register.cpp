@@ -23,6 +23,22 @@ ObjectHandle ObjectPropertyRegister::CreateObjectFromType(std::string type, std:
 	
 }
 
+void ObjectPropertyRegister::ClearEntities()
+{
+	Registry::Get().each([](entt::entity e) {
+		Object obj(e);
+
+		std::string name = obj.GetName();
+
+		if (!obj.HasComponent<InternalUse>() && obj.IsOfType<GameObject>()) {
+			Registry::Get().destroy (obj.ID());
+		}
+
+		});
+
+	ValidateAllGameObjects();
+}
+
 std::vector<std::string> ObjectPropertyRegister::GetObjectComponents(entt::entity e)
 {
 	std::vector<std::string> vec;
@@ -96,6 +112,9 @@ void ObjectPropertyRegister::ClearDeletingQueue()
 		}
 
 	}
+	if (m_ObjectsToDelete.size() > 0) {
+		ValidateAllGameObjects();
+	}
 	m_ObjectsToDelete.clear();
 }
 
@@ -117,13 +136,28 @@ bool ObjectPropertyRegister::SerializeScene(std::string savePath)
 
 	
 
-	GameObject::ForEach([&](GameObject obj){
+	GameObject::ForEach([&](GameObject obj) {
 
+		if (!obj.HasComponent<InternalUse>()) {
+			YAML::Node node;
+			
+			HelperFunctions::SerializeVariable("id",obj.ID(),node);
+			SerializeObject(ObjectHandle(obj.ID()), node);
+			
+
+			if (obj.Properties().m_Parent) {
+				node["parent"] = obj.Properties().m_Parent.ID();
+			}
+			else {
+				node["parent"] = -1;
+			}
+
+
+			mainRoot.push_back(node);
 		
-		YAML::Node node;
-		SerializeObject(ObjectHandle(obj.ID()),node);
-		mainRoot.push_back(node);
-
+		
+		}
+		
 	});
 
 
@@ -151,12 +185,97 @@ bool ObjectPropertyRegister::SerializeScene(std::string savePath)
 
 bool ObjectPropertyRegister::DeserializeScene(std::string path)
 {
-	return false;
+	if (!std::filesystem::exists(path)) {
+		return false;
+	}
+	
+	if (!(std::filesystem::path(path).extension().string() == ".scene")) {
+		return false;
+	}
+
+	
+
+	YAML::Node root = YAML::LoadFile(path);
+
+	if (!root.IsDefined()) {
+		return false;
+	}
+
+	static std::unordered_map<entt::entity, entt::entity> oldNewCorrelationalMap;
+
+	oldNewCorrelationalMap.clear();
+
+	for (auto object : root) {
+		
+		ObjectHandle handle = DeserializeObject("GameObject", object);
+
+		if (!handle) {
+			continue;
+		}
+
+		entt::entity oldValue;
+
+		HelperFunctions::DeserializeVariable("id", oldValue, object);
+
+		
+
+		oldNewCorrelationalMap[oldValue] = handle.ID();
+
+	}
+
+	for (auto object : root) {
+
+		if (!object["parent"]) {
+			continue;
+		}
+		if (object["parent"].as<int>() == -1) {
+			continue;
+		}
+
+		entt::entity oldValue;
+
+		HelperFunctions::DeserializeVariable("id", oldValue, object);
+
+		if (!ObjectHandle(oldNewCorrelationalMap[oldValue])) {
+			continue;
+		}
+
+		entt::entity oldParent;
+
+		HelperFunctions::DeserializeVariable("parent", oldParent, object);
+
+		if (!ObjectHandle(oldNewCorrelationalMap[oldParent])) {
+			continue;
+		}
+
+		Object(oldNewCorrelationalMap[oldValue]).Properties().SetParent(Object(oldNewCorrelationalMap[oldParent]));
+
+
+	}
+
+	return true;
+
+
+}
+
+void ObjectPropertyRegister::ValidateAllGameObjects()
+{
+	Registry::Get().each([](entt::entity e) {
+		Object obj(e);
+
+		for (auto& compName : ObjectPropertyRegister::GetObjectComponents(e)) {
+			Component* comp = ObjectPropertyRegister::GetComponentByName<Component>(e,compName);
+			comp->SetMaster(e);
+
+		}
+
+
+		});
 }
 
 ObjectHandle ObjectPropertyRegister::DeserializeObject(std::string objectType,YAML::Node& node)
 {
-	if(node.IsDefined()){
+	if(!node.IsDefined()){
 		return {};
 	}
 	if (!IsClassRegistered(objectType)) {
@@ -177,37 +296,47 @@ ObjectHandle ObjectPropertyRegister::DeserializeObject(std::string objectType,YA
 	}
 
 	if (!obj.GetAsObject().DeserializeBaseObject(node)) {
+		DEBUG_LOG("Could not deserialize base object with name " + name +  "!");
+		return obj;
+	}
+
+	auto deserializationResult = HelperFunctions::CallMetaFunction(objectType,"Deserialize",obj.ID(),&node);
+
+	if (!deserializationResult) {
 		DEBUG_LOG("Could not deserialize object with name " + name + " and type " + objectType + "!");
 		return obj;
 	}
 
-	if (!node["Components"]) {
+	if (!(node["Components"])) {
 		DEBUG_LOG("Could not add components to object with name" + name + " and type " + objectType + "!" + "\nBecause components was not found in the YAML::Node!");
 		return obj;
 	}
 	
 
 	for (auto children : node["Components"]) {
+		
 		if (!children.IsDefined()) {
 			continue;
 		}
 
-		if (!children["type"] || !children["name"]) {
+		if (!children["type"]) {
 			continue;
 		}
 
-		std::string type, componentName;
-		componentName = children["name"].as<std::string>();
+		std::string type;
+		
 		type = children["type"].as<std::string>();
 
-		Component* comp = ObjectPropertyRegister::GetComponentByName<Component>(obj.ID(), componentName);
+		Component* comp = ObjectPropertyRegister::GetComponentByName<Component>(obj.ID(), type);
 
 		if (!comp) {
 			DEBUG_LOG("Could not create component with type " + type + "!");
 			continue;
 		}
-
-		if (!comp->Deserialize(node)) {
+		YAML::Node& componentNode = children;
+		auto result = HelperFunctions::CallMetaFunction(type,"Deserialize",obj.ID(),&componentNode);
+		
+		if (!result || !(*((bool*)result.data()))) {
 			DEBUG_LOG("Could not deserialize component of type " + type + "!");
 		};
 
@@ -236,12 +365,15 @@ bool ObjectPropertyRegister::SerializeObject(ObjectHandle obj, YAML::Node& node)
 		return false;
 	}
 
-	auto serializeResult = HelperFunctions::CallMetaFunction(obj.GetAsObject().GetType(), "Serialize", obj.ID(),outerRef);
+	auto serializeResult = HelperFunctions::CallMetaFunction(obj.GetAsObject().GetType(), "Serialize", obj.ID());
 
 	if (!serializeResult) {
 		DEBUG_LOG("Meta function for object " + obj.GetAsObject().GetName() + " of type " + obj.GetAsObject().GetType() + " did not succeed!");
 		outerRef.reset();
 		return false;
+	}
+	else{
+		outerRef["type"][obj.GetAsObject().GetType()] = (*((YAML::Node*)serializeResult.data()));
 	}
 
 
@@ -249,24 +381,23 @@ bool ObjectPropertyRegister::SerializeObject(ObjectHandle obj, YAML::Node& node)
 
 	for (auto& componentName : ObjectPropertyRegister::GetObjectComponents(obj.ID())) {
 		
-		if (IsClassRegistered(componentName)) {
+		if (IsClassRegistered(componentName)) {	
 			
-			YAML::Node ref;
-			
-			
-			auto result = HelperFunctions::CallMetaFunction(componentName, "Serialize", obj.ID(), ref);
+			auto result = HelperFunctions::CallMetaFunction(componentName, "Serialize", obj.ID());
 			if (result) {
 				if (!* ((bool*)result.data())) {
 					DEBUG_LOG("Could not serialize component " + componentName + " for object " + obj.GetAsObject().GetName());
-					ref.reset();
+					
 				}
 				else {
-					outerRef["Components"][componentName] = ref;
+					YAML::Node& componentNode = *((YAML::Node*)result.data());
+					componentNode["type"] = componentName;
+					outerRef["Components"].push_back(componentNode);
 				}
 			}
 			else {
 				DEBUG_LOG("Could not serialize component " + componentName + " for object " + obj.GetAsObject().GetName() + " because Serialize meta function was not successful!");
-				ref.reset();
+				
 			}
 			
 			

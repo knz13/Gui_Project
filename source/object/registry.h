@@ -86,30 +86,3 @@ private:
     bool isNull = false;
 
 };
-
-template<typename T>
-class TemplatedObjectHandle {
-public:
-    TemplatedObjectHandle(entt::entity ent) {
-        m_Handle = ent;
-        isNull = false;
-    }
-    TemplatedObjectHandle() {
-        isNull = true;
-    }
-
-    T GetAsObject() {
-        return T(m_Handle);
-    }
-
-    operator bool() {
-        if (isNull) {
-            return false;
-        }
-        return Registry::Get().valid(m_Handle);
-    };
-
-private:
-    entt::entity m_Handle = entt::null;
-    bool isNull = false;
-};

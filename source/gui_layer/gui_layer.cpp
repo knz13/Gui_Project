@@ -29,11 +29,19 @@ void GuiLayer::Init() {
         ImGui_ImplGlfw_InitForOpenGL(win.GetContextPointer(), true);
         ImGui_ImplOpenGL3_Init("#version 430 core");
     });
+
+    
 }
 
 void GuiLayer::AddUi(Window& win) {
     
+    
 
+    if (NFD_Init() == NFD_OKAY) {
+        win.Events().ClosingEvent().Connect([](Window& win) {
+            NFD_Quit();
+            });
+    }
     ImGui::ClearIniSettings();
     
     GuiLayer::GameView::Setup(win);
@@ -91,7 +99,82 @@ void GuiLayer::AddUi(Window& win) {
         
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->WorkPos);
-        ImGui::Begin("BackWindow",0,ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
+        ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+        ImGui::Begin("BackWindow",0,ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking);
+        ImGui::PopStyleVar(2);
+        
+        if (ImGui::BeginMainMenuBar()) {
+
+            if (ImGui::BeginMenu("File")) {
+                std::string currPath = std::filesystem::current_path().string() + "/Assets/Scenes";
+                if (ImGui::MenuItem("New Scene")) {
+
+                }
+
+                if (ImGui::MenuItem("Open Scene")) {
+                    NFD::UniquePath path;
+
+                    nfdfilteritem_t filterItem[1] = { {"Scene Files","scene"}};
+
+                    auto result = NFD::OpenDialog(path,filterItem,1,currPath.c_str());
+
+                    if (result == NFD_OKAY) {
+
+                        if (BaseSettings::LoadedScenePath != "") {
+                            //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                        }
+                        ObjectPropertyRegister::ClearEntities();
+
+                        BaseSettings::LoadedScenePath = path.get();
+
+                        ObjectPropertyRegister::DeserializeScene(BaseSettings::LoadedScenePath);
+                    }
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Save")) {
+                    if (BaseSettings::LoadedScenePath == "") {
+                        nfdfilteritem_t filterItem[1] = { {"Scene Files","scene"} };
+
+                        NFD::UniquePath path;
+                        auto result = NFD::SaveDialog(path,filterItem,1,currPath.c_str(), "NewScene");
+
+                        if (result == NFD_OKAY) {
+                            BaseSettings::LoadedScenePath = path.get();
+                            
+
+                            ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                        }
+                    }
+                    else {
+                        
+                        ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                    }
+                }
+
+                if (ImGui::MenuItem("Save As")) {
+                    NFD::UniquePath path;
+                    nfdfilteritem_t filterItem[1] = { {"Scene Files","scene"} };
+
+                    auto result = NFD::SaveDialog(path, filterItem, 1, currPath.c_str(), "NewScene");
+
+                    if (result == NFD_OKAY) {
+                        BaseSettings::LoadedScenePath = path.get();
+                        
+
+                        ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
+        }
+
         
 
 
@@ -106,10 +189,10 @@ void GuiLayer::AddUi(Window& win) {
             
             
             ImGui::DockBuilderRemoveNode(id);            
-            ImGui::DockBuilderAddNode(id,ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_PassthruCentralNode );
+            ImGui::DockBuilderAddNode(id,ImGuiDockNodeFlags_AutoHideTabBar);
 
-            ImGui::DockBuilderSetNodeSize(id, ImGui::GetWindowViewport()->WorkSize);
-            ImGui::DockBuilderSetNodePos(id, ImGui::GetWindowViewport()->WorkPos);
+            ImGui::DockBuilderSetNodeSize(id, ImGui::GetMainViewport()->WorkSize);
+            ImGui::DockBuilderSetNodePos(id, ImGui::GetMainViewport()->WorkPos);
 
             ImGuiID dock1 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Left, 0.2f, nullptr, &id);
             ImGuiID dock2 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Right, 0.2f, nullptr, &id);
@@ -129,7 +212,6 @@ void GuiLayer::AddUi(Window& win) {
             
         }
         
-        ImGui::End();
 
        
         GuiLayer::GameView::Update(win);
@@ -142,6 +224,7 @@ void GuiLayer::AddUi(Window& win) {
         GuiLayer::PropertiesView::Update(win);
         
        
+        ImGui::End();
 
     
     });

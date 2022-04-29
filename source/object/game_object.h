@@ -35,6 +35,8 @@ public:
 	
 	
 protected:
+    YAML::Node Serialize() override;
+    bool Deserialize(YAML::Node& node) override;
 	void ShowProperties() override;
 
 

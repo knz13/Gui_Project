@@ -49,9 +49,42 @@ void Mesh::TrySetMesh(std::string path)
 
 
 
-bool Mesh::Serialize(YAML::Node& node)
+YAML::Node Mesh::Serialize()
 {
-    return false;
+    YAML::Node node;
+
+    HelperFunctions::SerializeVariable("shader name", m_ShaderName, node);
+    HelperFunctions::SerializeVariable("drawing mode", m_CurrentDrawingMode, node);
+
+    YAML::Node vertices = node["vertices"];
+
+    HelperFunctions::SerializeVariable("positions", m_Vertices.positions, node);
+    HelperFunctions::SerializeVariable("normals", m_Vertices.normals, node);
+    HelperFunctions::SerializeVariable("tex coords", m_Vertices.texCoords, node);
+    HelperFunctions::SerializeVariable("tangents", m_Vertices.tangents, node);
+    HelperFunctions::SerializeVariable("indices", m_Vertices.indices, node);
+
+    
+
+    return node;
+}
+
+bool Mesh::Deserialize(YAML::Node& node)
+{
+    HelperFunctions::DeserializeVariable("shader name", m_ShaderName, node);
+    HelperFunctions::DeserializeVariable("drawing mode", m_CurrentDrawingMode, node);
+
+    YAML::Node vertices = node["vertices"];
+
+    HelperFunctions::DeserializeVariable("positions", m_Vertices.positions, node);
+    HelperFunctions::DeserializeVariable("normals", m_Vertices.normals, node);
+    HelperFunctions::DeserializeVariable("tex coords", m_Vertices.texCoords, node);
+    HelperFunctions::DeserializeVariable("tangents", m_Vertices.tangents, node);
+    HelperFunctions::DeserializeVariable("indices", m_Vertices.indices, node);
+
+    SetVertices(m_Vertices);
+
+    return true;
 }
 
 VertexArray& Mesh::GetVertexArray() {
@@ -77,6 +110,9 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
     vertexAttribute.SetEqualSize();
     if(!vertexAttribute.CheckValid()){
         return false;
+    }
+    if (!m_VAO) {
+        m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
     }
     
     m_Vertices = vertexAttribute;

@@ -24,14 +24,25 @@ glm::vec4 Camera::GetViewPort() const {
     return m_ViewPort;
 }
 
-bool Camera::Serialize(YAML::Node& node)
+YAML::Node Camera::Serialize()
 {
+    YAML::Node node;
+    HelperFunctions::SerializeVariable("fov", m_Fov, node);
+    HelperFunctions::SerializeVariable("draw distance", m_DrawDistance, node);
+    HelperFunctions::SerializeVariable("draw near", m_DrawNear, node);
+    HelperFunctions::SerializeVariable("viewport", m_ViewPort, node);
+    
 
-    node["fov"] = m_Fov;
-    node["draw distance"] = m_DrawDistance;
-    node["draw near"] = m_DrawNear;
-    node["viewport"] = m_ViewPort;
+    return node;
+}
 
+bool Camera::Deserialize(YAML::Node& node)
+{
+    HelperFunctions::DeserializeVariable("fov", m_Fov, node);
+    HelperFunctions::DeserializeVariable("draw distance", m_DrawDistance, node);
+    HelperFunctions::DeserializeVariable("draw near", m_DrawNear, node);
+    HelperFunctions::DeserializeVariable("viewport", m_ViewPort, node);
+    
     return true;
 }
 
@@ -207,13 +218,14 @@ bool Camera::HasRenderTarget()
 
 void Camera::Render()
 {
-    if (HasRenderTarget()) {
+    if (HasRenderTarget() && GetMasterObject().operator bool()) {
         m_RenderTarget.get()->Clear();
         m_RenderTarget.get()->Bind();
         GL_CALL(glViewport(m_ViewPort.x,m_ViewPort.y,m_ViewPort.z,m_ViewPort.w));
         m_DrawingFunc(*this);
         m_RenderTarget.get()->Unbind();
     }
+    
 }
 
 void Camera::SetDrawingFunction(std::function<void(Camera&)> drawingFunc)

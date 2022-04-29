@@ -45,6 +45,28 @@ void GameObject::SetActiveState(bool state)
 }
 
 
+YAML::Node GameObject::Serialize()
+{
+    YAML::Node node;
+
+    node["active"] = Storage().m_Active;
+    node["highlight color"] = Storage().m_HighlightColor;
+
+    return node;
+}
+
+bool GameObject::Deserialize(YAML::Node& node)
+{
+    if (node["active"]) {
+        Storage().m_Active = node["active"].as<bool>();
+    }
+    if (node["hightlight color"]) {
+        Storage().m_HighlightColor = node["highlight color"].as<Color>();
+    }
+    return true;
+    
+}
+
 void GameObject::ShowProperties()
 {
     static std::vector<std::string> idsToErase;

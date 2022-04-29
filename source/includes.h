@@ -29,6 +29,7 @@
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/yaml/include/yaml-cpp/yaml.h"
 #include "../vendor/markdown/imgui_markdown.h"
+#include "../vendor/dialog/include/nfd.hpp"
 #include <source_location>
 
 using namespace std;

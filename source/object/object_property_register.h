@@ -11,6 +11,8 @@
 #include "object_base.h"
 
 
+
+
 template<typename T>
 struct NamedComponentHandle {
 public:
@@ -34,6 +36,10 @@ private:
 
 
 };
+
+
+
+
 
 
 class Object;
@@ -134,7 +140,7 @@ public:
 	};
 
 	
-
+	static void ClearEntities();
 
 	template<typename T,typename... Args>
 	static T CreateNew(std::string name,Args&&... args) {
@@ -189,6 +195,11 @@ public:
 	static void ClearDeletingQueue();
 
 	static bool IsClassRegistered(std::string className);
+
+	template<typename T>
+	static bool IsTypeOfObject() {
+		return m_RegisteredTagsByType.find(HelperFunctions::HashClassName<T>()) != m_RegisteredTagsByType.end();
+	}
 
 	static bool SerializeScene(std::string savePath);
 
@@ -369,12 +380,20 @@ protected:
 
 private:
 
+
+	
+	static void ValidateAllGameObjects();
+	
+
 	static ObjectHandle DeserializeObject(std::string objectType,YAML::Node& node);
 	static bool SerializeObject(ObjectHandle obj, YAML::Node& node);
 
 	template<typename T>
-	static bool CallDeserializeForComponent(entt::entity e, YAML::Node node) {
+	static bool CallDeserializeForComponent(entt::entity e,YAML::Node* node) {
 		if (!ObjectHandle(e)) {
+			return false;
+		}
+		if (!node) {
 			return false;
 		}
 
@@ -384,23 +403,23 @@ private:
 			return false;
 		}
 
-		return ((Component*)(comp))->Deserialize(node);
+		return ((Component*)(comp))->Deserialize(*node);
 
 	};
 
 	template<typename T>
-	static bool CallSerializeForComponent(entt::entity e, YAML::Node node) {
+	static YAML::Node CallSerializeForComponent(entt::entity e) {
 		if (!ObjectHandle(e)) {
-			return false;
+			return {};
 		}
 		
 		T* comp = ObjectPropertyRegister::GetComponentByName<T>(e, HelperFunctions::GetClassName<T>());
 
 		if (!comp) {
-			return false;
+			return {};
 		}
 
-		return ((Component*)(comp))->Serialize(node);
+		return ((Component*)(comp))->Serialize();
 
 
 		
@@ -409,17 +428,21 @@ private:
 
 
 	template<typename T>
-	static bool CallDeserializeForClass(entt::entity e, YAML::Node node) {
+	static bool CallDeserializeForClass(entt::entity e,YAML::Node* node) {
 		T obj(e);
 
-		return ((ObjectBase*)(&obj))->Deserialize(node);
+		if (!node) {
+			return false;
+		}
+
+		return ((ObjectBase*)(&obj))->Deserialize(*node);
 	}
 
 	template<typename T>
-	static bool CallSerializeForClass(entt::entity e,YAML::Node node) {
+	static YAML::Node CallSerializeForClass(entt::entity e) {
 		T obj(e);
 
-		return ((ObjectBase*)(&obj))->Serialize(node);
+		return ((ObjectBase*)(&obj))->Serialize();
 		
 
 	}
@@ -496,4 +519,32 @@ private:
 	
 	
 
+};
+
+
+template<typename T>
+class TemplatedObjectHandle {
+public:
+	TemplatedObjectHandle(entt::entity ent) {
+		m_Handle = ent;
+		isNull = false;
+	}
+	TemplatedObjectHandle() {
+		isNull = true;
+	}
+
+	T GetAsObject() {
+		return T(m_Handle);
+	}
+
+	operator bool() {
+		if (isNull) {
+			return false;
+		}
+		return Registry::Get().valid(m_Handle) && ObjectPropertyRegister::IsTypeOfObject<T>();
+	};
+
+private:
+	entt::entity m_Handle = entt::null;
+	bool isNull = false;
 };

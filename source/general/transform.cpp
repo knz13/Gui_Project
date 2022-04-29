@@ -184,11 +184,23 @@ const glm::vec3& TransformComponent::GetRotationRadians() {
 
 
 
-bool TransformComponent::Serialize(YAML::Node& node)
+YAML::Node TransformComponent::Serialize()
 {
-    node["position"] = m_Position;
-    node["rotation"] = m_Rotation;
-    node["scale"] = m_Scale;
+    YAML::Node node;
+    HelperFunctions::SerializeVariable("position", m_Position, node);
+    HelperFunctions::SerializeVariable("rotation", m_Rotation, node);
+    HelperFunctions::SerializeVariable("scale", m_Scale, node);
+
+    return node;
+}
+
+bool TransformComponent::Deserialize(YAML::Node& node)
+{
+    HelperFunctions::DeserializeVariable("position", m_Position, node);
+    HelperFunctions::DeserializeVariable("rotation", m_Rotation, node);
+    HelperFunctions::DeserializeVariable("scale", m_Scale, node);
+
+    return true;
 
 }
 

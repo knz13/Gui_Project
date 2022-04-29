@@ -37,7 +37,7 @@ protected:
      * Called before Destroy().
      * *WARNING* -> node is already inside of component
      */
-    virtual bool Serialize(YAML::Node& node) { return true; };
+    virtual YAML::Node Serialize() { return {}; };
 
     /**
      * Deserializer function.

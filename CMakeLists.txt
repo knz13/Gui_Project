@@ -394,6 +394,39 @@ set(${PROJECT_NAME}_LIBRARIES )
 
 
 
+# repository download and settings for dialog...
+
+    dir_exists(dialog_exists ${PROJECT_SOURCE_DIR}/vendor/dialog)
+
+
+    # adding includes:
+
+
+        list(APPEND ${PROJECT_NAME}_INCLUDES ${PROJECT_SOURCE_DIR}/vendor/dialog/include)
+
+
+    # adding libraries
+
+
+        list(APPEND ${PROJECT_NAME}_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/dialog/lib/${CMAKE_STATIC_LIBRARY_PREFIX}nfd${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+
+    if(NOT ${dialog_exists} OR NOT ${${PROJECT_NAME}_BUILD_TYPE} STREQUAL ${CMAKE_BUILD_TYPE})
+        ExternalProject_Add(DIALOG
+        GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
+        GIT_TAG origin/master
+        CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/dialog
+                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/dialog/lib/${CMAKE_STATIC_LIBRARY_PREFIX}nfd${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+
+        list(APPEND ${PROJECT_NAME}_DEPS_TO_BUILD DIALOG)
+
+    endif()
+
+
+
+
 # finding package and adding settings for alias OpenGL...
 
 

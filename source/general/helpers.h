@@ -70,7 +70,7 @@ public:
 
         if (resolved) {
             if (auto func = resolved.func(entt::hashed_string(funcName.c_str())); func) {
-                return func.invoke({}, args...);
+                return func.invoke({}, std::forward<Args>(args)...);
             }
             return {};
         }
@@ -114,6 +114,19 @@ public:
         return std::move(tex);
         
     };
+
+    template<typename T>
+    static void SerializeVariable(std::string name,T& var, YAML::Node& node) {
+        node[name] = var;
+    }
+
+    template<typename T>
+    static void DeserializeVariable(std::string name, T& var, YAML::Node& node) {
+        if (node[name]) {
+            var = node[name].as<T>();
+        }
+
+    }
 
 
 
@@ -205,6 +218,27 @@ namespace YAML {
             return true;
 
         };
+
+    };
+
+
+    template<>
+    struct convert<entt::entity> {
+        static Node encode(const entt::entity& e) {
+            Node node;
+            node = (uint32_t)e;
+            
+            return node;
+        };
+
+        static bool decode(const Node& node, entt::entity& e) {
+            if (node) {
+                e = (entt::entity)node.as<uint32_t>();
+                return true;
+            }
+            return false;
+        }
+
 
     };
 

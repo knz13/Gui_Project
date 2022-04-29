@@ -37,6 +37,7 @@ namespace GuiLayer {
 
     struct BaseSettings {
         static inline float FontScale = 1.0f;
+        static inline std::string LoadedScenePath = "";
     };
 
     struct BaseColors {
@@ -45,6 +46,8 @@ namespace GuiLayer {
         static inline Color StaticWidgetHoveredBg = Color(80, 80, 80);
         static inline Color WindowBg = Color(40,40,40);
     };
+
+    
 
 
 };

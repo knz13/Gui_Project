@@ -159,6 +159,11 @@ public:
     };
 
     bool HasSameObjectTypeAs(Object other);
+
+    template<typename T>
+    bool IsOfType() {
+        return HelperFunctions::GetClassName<T>() == GetType();
+    };
     
     void ShowObjectProperties();
 
