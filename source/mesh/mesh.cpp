@@ -54,7 +54,7 @@ YAML::Node Mesh::Serialize()
     YAML::Node node;
 
     HelperFunctions::SerializeVariable("shader name", m_ShaderName, node);
-    HelperFunctions::SerializeVariable("drawing mode", m_CurrentDrawingMode, node);
+    
 
     YAML::Node vertices = node["vertices"];
 
@@ -72,7 +72,7 @@ YAML::Node Mesh::Serialize()
 bool Mesh::Deserialize(YAML::Node& node)
 {
     HelperFunctions::DeserializeVariable("shader name", m_ShaderName, node);
-    HelperFunctions::DeserializeVariable("drawing mode", m_CurrentDrawingMode, node);
+    
 
     YAML::Node vertices = node["vertices"];
 
@@ -141,10 +141,10 @@ void Mesh::Draw(const glm::mat4& mvp) {
 
     m_VAO->Bind();
     if(m_VAO->HasIndexBuffer()){
-        GL_CALL(glDrawElements(m_DrawingMode.get()->GetDrawingType(),m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
+        GL_CALL(glDrawElements(GL_TRIANGLES,m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
     }
     else {
-        GL_CALL(glDrawArrays(m_DrawingMode.get()->GetDrawingType(),0,m_VAO->GetDrawCount()));
+        GL_CALL(glDrawArrays(GL_TRIANGLES,0,m_VAO->GetDrawCount()));
     }
 
     m_PostDrawFuncs.EmitEvent(*this);
@@ -152,15 +152,7 @@ void Mesh::Draw(const glm::mat4& mvp) {
 
 
 
-void Mesh::SetDrawingMode(std::string mode) {
-    if(GetMasterObject()){
-        if(auto ptr = DrawingModeHelpers::GetSharedPtrFromName(mode,this->GetMasterObject().GetAsObject()); ptr){
-            m_DrawingMode = ptr;
-            m_DrawingModeComboItem = DrawingModeStorage::GetTypeIndex(mode);
-            m_CurrentDrawingMode = mode;
-        }
-    }
-}
+
 
 FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> Mesh::PreDrawn() {
     return FunctionSink<void(Mesh&,Shader&,const glm::mat4&)>(m_PreDrawFuncs);
@@ -175,32 +167,7 @@ void Mesh::Update(float deltaTime) {
 }
 
 void Mesh::ShowProperties() {
-    ImGui::AlignedText("Mode:");
-    ImGui::SameLine();
-
-    const std::vector<std::string>& items = DrawingModeStorage::GetRegisteredTypes();
-    const char* currentItem = items[m_DrawingModeComboItem].c_str();
-
-    
-    ImGui::PushItemWidth(120);
-    if(ImGui::BeginCombo((GuiLayer::GetImGuiID(this) + "Combo").c_str(),currentItem)){
-        int index = 0;
-        for(auto& item : items){
-            const bool isSelected = (m_DrawingModeComboItem == index);
-            if(ImGui::Selectable(item.c_str(),isSelected)){
-                SetDrawingMode(item);
-            }
-
-            if(isSelected){
-                ImGui::SetItemDefaultFocus();
-            }
-            index++;
-        }
-        ImGui::EndCombo();
-    }
-    ImGui::PopItemWidth();
-
-    m_DrawingMode.get()->ShowProperties();
+   
     
 }
 
@@ -231,23 +198,7 @@ void MeshAttribute::Vertex::SetEqualSize() {
 
 }
 
-Mesh& Mesh::operator=(const Mesh& other) {
-    
-    Component::operator=(other);
-    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
 
-    if(other.m_Vertices.CheckValid()){
-        m_Vertices = other.m_Vertices;
-        this->SetVertices(m_Vertices);
-    }
-    if (other.m_CurrentDrawingMode != "" && other.m_DrawingMode.operator bool() && other.GetMasterObject()) {
-        this->SetDrawingMode(other.m_CurrentDrawingMode);
-        DrawingModeHelpers::CopyStats(m_CurrentDrawingMode, m_DrawingMode.get(), other.m_DrawingMode.get());
-    }
-    m_DrawingModeComboItem = other.m_DrawingModeComboItem;
-    m_ShaderName = other.m_ShaderName;
-    return *this;
-}
 
 
 
@@ -263,14 +214,12 @@ Shader& Mesh::GetShader() {
 }
 
 void Mesh::Init() {
-    SetDrawingMode("Triangles");
+    
     m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
     
     
 }
 
 void Mesh::Destroy() { 
-    m_DrawingMode.reset();
-    m_CurrentDrawingMode = "";
     m_DeletedFuncs.EmitEvent(*this);
 }

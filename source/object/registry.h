@@ -64,7 +64,7 @@ public:
         return T(m_Handle);
     }
 
-    operator bool() {
+    operator bool() const{
         if (isNull) {
             return false;
         }

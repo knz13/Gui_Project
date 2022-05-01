@@ -422,7 +422,7 @@ void ObjectPropertyRegister::GetAllChildren(ObjectHandle current, std::vector<Ob
 
 	vec.push_back(current);
 
-	for (auto handle : current.GetAsObject().Properties().GetChildren()) {
+	for (auto& handle : current.GetAsObject().Properties().GetChildren()) {
 		if (handle) {
 			GetAllChildren(handle, vec);
 		}

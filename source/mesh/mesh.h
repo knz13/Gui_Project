@@ -1,7 +1,6 @@
 #pragma once
 #include "../global.h"
 #include "../opengl_wrappers/vertex_array.h"
-#include "drawing_modes.h"
 #include "../general/transform.h"
 #include "../components/component.h"
 
@@ -51,7 +50,7 @@ public:
     
     std::string GetShaderName();
     Shader& GetShader();
-    void SetDrawingMode(std::string mode);
+    
 
     FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> PreDrawn();
     FunctionSink<void(Mesh&)> PostDrawn();
@@ -60,7 +59,7 @@ public:
     void Update(float deltaTime) override;
     void ShowProperties() override;
 
-    Mesh& operator=(const Mesh& other);
+   
     
 
     bool ReadyToDraw();
@@ -79,12 +78,11 @@ private:
     
     
     MeshAttribute::Vertex m_Vertices;
-    std::shared_ptr<DrawingMode<DrawingModeHelpers::Null>> m_DrawingMode;
     std::map<std::string,MeshAttribute::ShaderUniformVariable> m_PublicShaderVariables;
-    int m_DrawingModeComboItem = 0;
+    
     VertexArray* m_VAO=nullptr;
     std::string m_ShaderName = "";
-    std::string m_CurrentDrawingMode = "Triangles";
+    
     
     EventLauncher<void(Mesh&,Shader&,const glm::mat4&)> m_PreDrawFuncs;
     EventLauncher<void(Mesh&)> m_PostDrawFuncs;
