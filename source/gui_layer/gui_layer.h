@@ -25,7 +25,8 @@ namespace GuiLayer {
     void SetupStaticButtonStyle(std::function<void()> beginCommand);
     void SetupWindowStyle(std::string windowName,std::function<void(ImGuiWindowFlags)> beginCommand);
     void SetupChildStyle(std::function<void()> command);
-    
+    bool LoadScene(std::string path);
+
 
     struct WindowIDs {
         

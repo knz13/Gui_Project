@@ -16,4 +16,7 @@
 #include "components/internal_use.h"
 #include "assets/folder_asset.h"
 #include "assets/text_asset.h"
+#include "assets/scene_asset.h"
+#include "assets/material_asset.h"
+#include "assets/shader_asset.h"
 

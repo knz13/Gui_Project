@@ -14,6 +14,24 @@ class AssetRegister {
 public:
 
 	static void LoadAssetsForFolder(std::string folderPath);
+	
+	template<typename T>
+	static bool IsPathRegisteredAs(std::string path) {
+		if (!std::filesystem::exists(path)) {
+			return false;
+		}
+		std::string ext = std::filesystem::path(path).extension().string();
+
+		if (m_RegisteredClassesByExtension.find(ext) != m_RegisteredClassesByExtension.end()) {
+			if (m_RegisteredClassesByExtension[ext] == HelperFunctions::GetClassName<T>()) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+
+	}
+
 	static std::string GetRegisteredAssetForExtension(std::string extension);
 	static ObjectHandle LoadAssetForPath(std::string path);
 	static ObjectHandle GetAssetForPath(std::string path);
@@ -130,6 +148,7 @@ public:
 	}
 
 protected:
+	
 	virtual void SetupExplorerIcon(ImVec2 size) {};
 	virtual void OnDestroy() {};
 	virtual void OnCreate() {};

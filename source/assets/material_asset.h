@@ -16,9 +16,9 @@ class MaterialAsset : public AssetObjectSpecifier<MaterialAsset, MaterialAssetSt
 public:
 	MaterialAsset(entt::entity e);
 
-
+	static std::vector<std::string> GetAssetExtensions();
 
 private:
-
+	
 
 };

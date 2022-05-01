@@ -268,6 +268,28 @@ void GuiLayer::SetupChildStyle(std::function<void()> command)
     ImGui::PopStyleColor(2);
 }
 
+bool GuiLayer::LoadScene(std::string path)
+{
+    if (!AssetRegister::IsPathRegisteredAs<SceneAsset>(path)) {
+        return false;
+    }
+    if (BaseSettings::LoadedScenePath != "") {
+        //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+        //TODO: popup here
+    }
+    ObjectPropertyRegister::ClearEntities();
+
+    BaseSettings::LoadedScenePath = path;
+
+    if (!ObjectPropertyRegister::DeserializeScene(BaseSettings::LoadedScenePath)) {
+        DEBUG_LOG("Could not deserialize scene at path: " + path);
+        return false;
+    }
+
+    return true;
+
+}
+
 std::string GuiLayer::GetImGuiID(void* ptr) {
     return ("##" + std::to_string(std::hash<void*>()(ptr)));
 }
