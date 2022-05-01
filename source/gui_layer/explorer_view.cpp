@@ -101,7 +101,7 @@ void GuiLayer::ExplorerView::Update(Window& win) {
 
     ImGui::End();
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 }
 
 void GuiLayer::ExplorerView::Setup(Window& win)

@@ -9,7 +9,6 @@
 #include <filesystem>
 #include <map>
 #include <concepts>
-#include "../vendor/json/include/nlohmann/json.hpp"
 #include "../vendor/glm/glm/glm.hpp"
 #include "../vendor/glm/glm/gtc/quaternion.hpp"
 #include "../vendor/glm/glm/gtx/quaternion.hpp"
