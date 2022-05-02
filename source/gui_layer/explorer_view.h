@@ -9,15 +9,20 @@ public:
     static void Update(Window& win);
 
     static void Setup(Window& win);
+    static void Reload();
 
     static void SetCurrentPath(std::string path);
+    static void SetupDefaultPopupMenuWidgets();
     
+    
+    static ObjectHandle& GetTempObject();
 private:
     static void OnUpdatePathOrReload();
     static void ShowAllSubFolders(std::string current);
     static bool FolderHasFoldersInside(std::string folderPath);
     static void SetupFolderExplorerAboveFileExplorer();
 
+    static inline ObjectHandle m_CurrentCreatingObject;
     static inline size_t m_CurrentRenamingFileHash = 0;
     static inline ObjectHandle m_RenamingObject;
     static inline ImVec2 m_WidgetSize = ImVec2(80,80);

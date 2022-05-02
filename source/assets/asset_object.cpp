@@ -9,7 +9,7 @@ void AssetRegister::LoadAssetsForFolder(std::string folderPath)
 	if (!std::filesystem::exists(folderPath)) {
 		return;
 	}
-	for (auto file : std::filesystem::directory_iterator(folderPath)) {
+	for (auto& file : std::filesystem::directory_iterator(folderPath)) {
 		if (!IsRegistered(file.path().string())) {
 			LoadAssetForPath(file.path().string());
 		}
@@ -18,6 +18,19 @@ void AssetRegister::LoadAssetsForFolder(std::string folderPath)
 
 }
 
+
+std::string AssetRegister::GetExtensionForClass(std::string className)
+{
+	if (m_RegisteredExtensionByClass.find(className) != m_RegisteredExtensionByClass.end()) {
+		return m_RegisteredExtensionByClass[className];
+	}
+	return "";
+}
+
+bool AssetRegister::IsAsset(std::string typeName)
+{
+	return std::find(m_RegisteredAssetClasses.begin(), m_RegisteredAssetClasses.end(), typeName) != m_RegisteredAssetClasses.end();
+}
 
 bool AssetRegister::IsRegistered(std::string path)
 {
@@ -29,10 +42,51 @@ bool AssetRegister::IsRegistered(std::string path)
 
 std::string AssetRegister::GetRegisteredAssetForExtension(std::string extension)
 {
-	if (m_RegisteredClassesByExtension.find(extension) != m_RegisteredClassesByExtension.end()) {
-		return m_RegisteredClassesByExtension[extension];
+	if (m_RegisteredClassByExtension.find(extension) != m_RegisteredClassByExtension.end()) {
+		return m_RegisteredClassByExtension[extension];
 	}
 	return "";
+}
+
+bool AssetRegister::CreateAssetAtFolder(std::string folder, std::string assetType)
+{
+	if (!std::filesystem::exists(folder)) {
+		DEBUG_LOG("Trying to create asset at folder " + folder + " which does not exist!");
+		return false;
+	}
+	if (!ObjectPropertyRegister::IsClassRegistered(assetType)) {
+		DEBUG_LOG("Could not create asset at folder " + folder + "!\nClass " + assetType + " is not registered!");
+		return false;
+	}
+	if (!IsAsset(assetType)) {
+		DEBUG_LOG("Class " + assetType + " is not an asset type!");
+		return false;
+	}
+
+	ObjectHandle handle = ObjectPropertyRegister::CreateObjectFromType(assetType, "tempName" + std::to_string(std::hash<std::string>()(folder + assetType)));
+	if (!handle) {
+		return false;
+	}
+
+	handle.GetAsObject().Properties().SetName("");
+
+	AssetObject obj(handle.ID());
+
+	auto result = HelperFunctions::CallMetaFunction(assetType,"Rename On Creation",handle.ID(),folder);
+
+	if (!result) {
+		DEBUG_LOG("Could not call meta function!");
+		return false;
+	}
+
+	GuiLayer::ExplorerView::GetTempObject() = handle;
+	GuiLayer::AnyObjectSelected() = handle;
+
+
+	return true;
+
+
+
 }
 
 ObjectHandle AssetRegister::LoadAssetForPath(std::string path)
@@ -61,6 +115,7 @@ ObjectHandle AssetRegister::LoadAssetForPath(std::string path)
 
 ObjectHandle AssetRegister::GetAssetForPath(std::string path)
 {
+	path = std::filesystem::path(path).lexically_normal().string();
 	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
 		return ObjectHandle(m_RegisteredAssetsByPath[path]);
 	}
@@ -77,6 +132,7 @@ std::string AssetRegister::GetPathFromAsset(ObjectHandle handle)
 
 bool AssetRegister::UnloadAsset(std::string path)
 {
+	path = std::filesystem::path(path).lexically_normal().string();
 	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
 		ObjectPropertyRegister::DeleteObject(m_RegisteredAssetsByPath[path]);
 		return true;
@@ -89,7 +145,8 @@ bool AssetRegister::UnloadAsset(std::string path)
 
 void AssetRegister::RegisterPath(entt::entity e, std::string path)
 {
-	
+	path = std::filesystem::path(path).lexically_normal().string();
+
 	UnregisterPath(path);
 
 	m_RegisteredAssetsByPath[path] = e;
@@ -112,14 +169,15 @@ void AssetRegister::UnregisterPath(entt::entity e)
 	}
 }
 
-void AssetRegister::UnregisterPath(std::string path)
+void AssetRegister::UnregisterPath(std::string path,bool shouldDelete)
 {
+	path = std::filesystem::path(path).lexically_normal().string();
 	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
 		entt::entity id = m_RegisteredAssetsByPath[path];
 		m_RegisteredAssetsByPath.erase(path);
 		m_RegistererdPathsByAsset.erase(id);
 
-		if (ObjectHandle(id)) {
+		if (ObjectHandle(id) && shouldDelete) {
 			ObjectPropertyRegister::DeleteObject(Object(id));
 		}
 

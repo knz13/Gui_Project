@@ -15,7 +15,7 @@ class FolderAsset : public AssetObjectSpecifier<FolderAsset, FolderAssetProperti
 public:
 	FolderAsset(entt::entity e);
 
-	static std::vector<std::string> GetAssetExtensions();
+	static std::string GetAssetExtension();
 
 
 private:

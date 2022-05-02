@@ -7,7 +7,7 @@ FolderAsset::FolderAsset(entt::entity e) : AssetObjectSpecifier(e)
 
 }
 
-std::vector<std::string> FolderAsset::GetAssetExtensions()
+std::string FolderAsset::GetAssetExtension()
 {
 	return {};
 }

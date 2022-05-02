@@ -11,7 +11,7 @@ class ShaderAsset : public AssetObjectSpecifier<ShaderAsset, ShaderAssetStorage>
 public:
 	ShaderAsset(entt::entity e);
 
-	static std::vector<std::string> GetAssetExtensions();
+	static std::string GetAssetExtension();
 
 };
 

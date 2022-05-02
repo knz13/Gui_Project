@@ -15,7 +15,7 @@ class SceneAsset : public AssetObjectSpecifier<SceneAsset,SceneAssetStorage> {
 public:
 	SceneAsset(entt::entity e);
 
-	static std::vector < std::string> GetAssetExtensions();
+	static std::string GetAssetExtension();
 
 private:
 	void ShowProperties() override;

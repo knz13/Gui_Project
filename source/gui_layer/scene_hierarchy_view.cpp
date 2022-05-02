@@ -87,14 +87,14 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
     }
     else {
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
         if (GuiLayer::AnyObjectSelected()) {
             if (GuiLayer::AnyObjectSelected().ID() == obj.ID()) {
                 flags |= ImGuiTreeNodeFlags_Selected;
             }
         }
 
-        ImGui::SetNextItemOpen(true);
+        ImGui::SetNextItemOpen(true,ImGuiCond_Once);
         bool isOpen = false;
 
         GuiLayer::SetupStaticTreeNodeStyle([&]() {

@@ -178,7 +178,7 @@ bool ObjectPropertyRegister::SerializeScene(std::string savePath)
 
 	stream.close();
 
-
+	GuiLayer::ExplorerView::Reload();
 
 	return true;
 }

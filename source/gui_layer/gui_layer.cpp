@@ -147,11 +147,13 @@ void GuiLayer::AddUi(Window& win) {
                             
 
                             ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+
                         }
                     }
                     else {
                         
                         ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                        
                     }
                 }
 

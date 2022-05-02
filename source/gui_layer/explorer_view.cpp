@@ -70,6 +70,12 @@ void GuiLayer::ExplorerView::Update(Window& win) {
                 explorerView = ImGui::BeginTable(("Explorer View" + GuiLayer::GetImGuiID(&win)).c_str(), columns, tableFlags, explorerSize);
                 });
 
+            if (ImGui::BeginPopupContextWindow("ExplorerViewChildWindowPopup")) {
+                SetupDefaultPopupMenuWidgets();
+                ImGui::EndPopup();
+            }
+            
+
 
             if (explorerView) {
                 for (auto& file : std::filesystem::directory_iterator(m_CurrentPath)) {
@@ -83,8 +89,18 @@ void GuiLayer::ExplorerView::Update(Window& win) {
 
                     index++;
                 }
+
+                if (m_CurrentCreatingObject) {
+                    if (AssetRegister::IsAsset(m_CurrentCreatingObject.GetAsObject().GetType())) {
+                        ImGui::TableNextColumn();
+                        m_CurrentCreatingObject.GetAs<AssetObject>().ShowOnExplorer(ImVec2(m_WidgetSize.x - 10, m_WidgetSize.y));
+                    }
+                }
+
                 ImGui::EndTable();
             }
+
+
             ImGui::EndChild();
 
             
@@ -122,6 +138,11 @@ void GuiLayer::ExplorerView::Setup(Window& win)
     
 }
 
+void GuiLayer::ExplorerView::Reload()
+{
+    OnUpdatePathOrReload();
+}
+
 void GuiLayer::ExplorerView::SetCurrentPath(std::string path)
 {
     std::replace(path.begin(), path.end(), '\\', '/');
@@ -139,14 +160,20 @@ void GuiLayer::ExplorerView::OnUpdatePathOrReload()
             AssetObject asset = AssetRegister::LoadAssetForPath(file.path().string()).GetAs<AssetObject>();
             asset.InitializeFile();
             
-            continue;
+            
         }
         vec.push_back(file.path().string());
     }
+
+    
+
     for (auto& path : m_CurrentFilesByFolder[m_CurrentPath]) {
         if (auto it = std::find(vec.begin(), vec.end(), path); it == vec.end()) {
-            DEBUG_LOG("Unloading Asset " + *it + " because it was not found in current directory!");
-            AssetRegister::UnloadAsset(*it);
+            if (!AssetRegister::IsRegistered(path)) {
+                continue;
+            }
+            DEBUG_LOG("Unloading Asset " + path + " because it was not found in current directory!");
+            AssetRegister::UnloadAsset(path);
         }
     }
     m_CurrentFilesByFolder[m_CurrentPath] = vec;
@@ -213,6 +240,27 @@ bool GuiLayer::ExplorerView::FolderHasFoldersInside(std::string folderPath)
         }
     }
     return false;
+}
+
+void GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets()
+{
+    if (ImGui::BeginMenu("Create")) {
+        if (ImGui::MenuItem("Folder")) {
+            AssetRegister::CreateAssetAtFolder(m_CurrentPath,"FolderAsset");
+        }
+        ImGui::Separator();
+        if (ImGui::MenuItem("Shader")) {
+
+        }
+        ImGui::EndMenu();
+    }
+}
+
+
+
+ObjectHandle& GuiLayer::ExplorerView::GetTempObject()
+{
+    return m_CurrentCreatingObject;
 }
 
 void GuiLayer::ExplorerView::SetupFolderExplorerAboveFileExplorer()

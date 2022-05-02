@@ -4,9 +4,9 @@ SceneAsset::SceneAsset(entt::entity e) : AssetObjectSpecifier(e)
 {
 }
 
-std::vector<std::string> SceneAsset::GetAssetExtensions()
+std::string SceneAsset::GetAssetExtension()
 {
-	return {".scene"};
+	return ".scene";
 }
 
 void SceneAsset::ShowProperties()

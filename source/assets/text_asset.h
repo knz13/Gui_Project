@@ -15,7 +15,7 @@ public:
 	TextAsset(entt::entity e);
 
 
-	static std::vector<std::string> GetAssetExtensions();
+	static std::string GetAssetExtension();
 
 	void ReadFile() override;
 private:
