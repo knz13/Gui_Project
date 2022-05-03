@@ -5,9 +5,9 @@ TextAsset::TextAsset(entt::entity e) : AssetObjectSpecifier(e)
 {
 }
 
-std::string TextAsset::GetAssetExtension()
+std::vector<std::string> TextAsset::GetAssetExtensions()
 {
-	return "";
+	return {};
 }
 
 void TextAsset::ReadFile()

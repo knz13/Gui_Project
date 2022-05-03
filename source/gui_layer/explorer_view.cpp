@@ -169,7 +169,7 @@ void GuiLayer::ExplorerView::OnUpdatePathOrReload()
 
     for (auto& path : m_CurrentFilesByFolder[m_CurrentPath]) {
         if (auto it = std::find(vec.begin(), vec.end(), path); it == vec.end()) {
-            if (!AssetRegister::IsRegistered(path)) {
+            if (!AssetRegister::PathHasRegisteredAsset(path)) {
                 continue;
             }
             DEBUG_LOG("Unloading Asset " + path + " because it was not found in current directory!");
@@ -252,6 +252,11 @@ void GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets()
         if (ImGui::MenuItem("Shader")) {
 
         }
+        if (ImGui::MenuItem("Scene")) {
+            AssetRegister::CreateAssetAtFolder(m_CurrentPath, "SceneAsset");
+        }
+
+
         ImGui::EndMenu();
     }
 }

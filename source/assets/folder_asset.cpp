@@ -7,7 +7,7 @@ FolderAsset::FolderAsset(entt::entity e) : AssetObjectSpecifier(e)
 
 }
 
-std::string FolderAsset::GetAssetExtension()
+std::vector<std::string> FolderAsset::GetAssetExtensions()
 {
 	return {};
 }
@@ -28,10 +28,7 @@ void FolderAsset::ShowProperties()
 	
 }
 
-void FolderAsset::ReadFile()
-{
 
-}
 
 void FolderAsset::SetupExplorerIcon(ImVec2 size)
 {

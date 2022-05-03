@@ -40,7 +40,7 @@ public:
 	static bool UnloadAsset(std::string path);
 	static std::string GetExtensionForClass(std::string className);
 	static bool IsAsset(std::string typeName);
-	static bool IsRegistered(std::string path);
+	static bool PathHasRegisteredAsset(std::string path);
 private:
 	static void RegisterPath(entt::entity e,std::string path);
 	static void UnregisterPath(entt::entity e);
@@ -53,14 +53,19 @@ private:
 		entt::meta<T>().type(hash).template func<&CallOnExplorerUI<T>>(entt::hashed_string("Call Explorer UI"));
 		entt::meta<T>().type(hash).template func<&CallOnRename<T>>(entt::hashed_string("Call Rename"));
 		entt::meta<T>().type(hash).template func<&CallReadFile<T>>(entt::hashed_string("Call Read File"));
+		entt::meta<T>().type(hash).template func<&CallSaveFile<T>>(entt::hashed_string("Call Save File"));
 		entt::meta<T>().type(hash).template func<&CallRenameCreation<T>>(entt::hashed_string("Rename On Creation"));
 		
+		
+
 		m_RegisteredAssetClasses.push_back(HelperFunctions::GetClassName<T>());
 
-		auto ext = T::GetAssetExtension();
-		if (ext != "") {
-			m_RegisteredExtensionByClass[HelperFunctions::GetClassName<T>()] = ext;
-			m_RegisteredClassByExtension[ext] = HelperFunctions::GetClassName<T>();
+		auto vec = T::GetAssetExtensions();
+		if(vec.size() != 0){	
+			for(auto& ext : vec){
+				m_RegisteredClassByExtension[ext] = HelperFunctions::GetClassName<T>();
+			}
+			m_RegisteredExtensionsByClass[HelperFunctions::GetClassName<T>()] = vec;
 		}
 	};
 
@@ -86,6 +91,13 @@ private:
 	}
 
 	template<typename T>
+	static void CallSaveFile(entt::entity e) {
+		T obj(e);
+
+		((AssetObject*)(&obj))->SaveFile();
+	}
+
+	template<typename T>
 	static void CallReadFile(entt::entity e) {
 		T obj(e);
 
@@ -97,7 +109,7 @@ private:
 	static inline std::vector<std::string> m_RegisteredAssetClasses;
 	static inline std::unordered_map<std::string, entt::entity> m_RegisteredAssetsByPath;
 	static inline std::unordered_map<entt::entity,std::string> m_RegistererdPathsByAsset;
-	static inline std::unordered_map<std::string, std::string> m_RegisteredExtensionByClass;
+	static inline std::unordered_map<std::string, std::vector<std::string>> m_RegisteredExtensionsByClass;
 	static inline std::unordered_map<std::string, std::string> m_RegisteredClassByExtension;
 
 
@@ -127,9 +139,11 @@ protected:
 	virtual void OnRenameCall() {};
 	virtual void SetRenameOnCreation(std::string) {};
 	void SetPath(std::string path);
-private:
 	virtual void ReadFile();
+	virtual void SaveFile();
+private:
 	
+
 	entt::entity m_Handle;
 
 	friend class GuiLayer::ExplorerView;
@@ -170,6 +184,7 @@ protected:
 	virtual void SetupExplorerIcon(ImVec2 size) {};
 	virtual void OnDestroy() {};
 	virtual void OnCreate() {};
+	
 	 
 private:
 
@@ -180,6 +195,7 @@ private:
 		
 
 		AssetRegister::RegisterPath(this->ID(), newPath);
+		HelperFunctions::CallMetaFunction(this->GetType(),"Call Read File",this->ID());
 		this->Properties().SetName(GetPrivateStorage().tempWord);
 		GetPrivateStorage().tempWord = "";
 		GetPrivateStorage().m_IsRenaming = false;
@@ -304,16 +320,19 @@ private:
 					ObjectPropertyRegister::DeleteObject({this->ID()});
 				}
 
-				this->SucceedRenaming(GetPath());
+				
 			}
 		}
 	};;
+
+	
 
 	void Init() final {
 		Registry::Get().emplace<AssetObjectSpecifierStorage>(this->ID());
 		OnCreate();
 	}
 	void Destroy() final {
+		HelperFunctions::CallMetaFunction(this->GetType(),"Call Save File",this->ID());
 		Registry::Get().erase<AssetObjectSpecifierStorage>(this->ID());
 		AssetRegister::UnregisterPath(this->ID());
 		OnDestroy();

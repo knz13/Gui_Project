@@ -313,7 +313,10 @@ void Window::DrawingLoop() {
     ObjectPropertyRegister::Each([](Object object){
         ObjectPropertyRegister::DeleteObject(object);
     });
+
+
     ObjectPropertyRegister::ClearDeletingQueue();
+    Registry::Get().clear();
 }
 
 

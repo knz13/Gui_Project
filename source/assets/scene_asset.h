@@ -15,11 +15,13 @@ class SceneAsset : public AssetObjectSpecifier<SceneAsset,SceneAssetStorage> {
 public:
 	SceneAsset(entt::entity e);
 
-	static std::string GetAssetExtension();
+	static std::vector<std::string> GetAssetExtensions();
 
 private:
+	void OnCreate() override;
+	
 	void ShowProperties() override;
-	void ReadFile() override;
+	
 	void SetupExplorerIcon(ImVec2 size) override;
 
 

@@ -4,7 +4,7 @@ MaterialAsset::MaterialAsset(entt::entity e) : AssetObjectSpecifier(e)
 {
 }
 
-std::string MaterialAsset::GetAssetExtension()
+std::vector<std::string> MaterialAsset::GetAssetExtensions()
 {
-	return ".mat";
+	return {".mat"};
 }

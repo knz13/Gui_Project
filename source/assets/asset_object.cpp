@@ -10,7 +10,7 @@ void AssetRegister::LoadAssetsForFolder(std::string folderPath)
 		return;
 	}
 	for (auto& file : std::filesystem::directory_iterator(folderPath)) {
-		if (!IsRegistered(file.path().string())) {
+		if (!PathHasRegisteredAsset(file.path().string())) {
 			LoadAssetForPath(file.path().string());
 		}
 	}
@@ -21,8 +21,8 @@ void AssetRegister::LoadAssetsForFolder(std::string folderPath)
 
 std::string AssetRegister::GetExtensionForClass(std::string className)
 {
-	if (m_RegisteredExtensionByClass.find(className) != m_RegisteredExtensionByClass.end()) {
-		return m_RegisteredExtensionByClass[className];
+	if (m_RegisteredExtensionsByClass.find(className) != m_RegisteredExtensionsByClass.end()) {
+		return m_RegisteredExtensionsByClass[className][0];
 	}
 	return "";
 }
@@ -32,7 +32,7 @@ bool AssetRegister::IsAsset(std::string typeName)
 	return std::find(m_RegisteredAssetClasses.begin(), m_RegisteredAssetClasses.end(), typeName) != m_RegisteredAssetClasses.end();
 }
 
-bool AssetRegister::IsRegistered(std::string path)
+bool AssetRegister::PathHasRegisteredAsset(std::string path)
 {
 	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
 		return true;
@@ -76,6 +76,7 @@ bool AssetRegister::CreateAssetAtFolder(std::string folder, std::string assetTyp
 
 	if (!result) {
 		DEBUG_LOG("Could not call meta function!");
+		ObjectPropertyRegister::DeleteObject(handle);
 		return false;
 	}
 
@@ -125,7 +126,10 @@ ObjectHandle AssetRegister::GetAssetForPath(std::string path)
 std::string AssetRegister::GetPathFromAsset(ObjectHandle handle)
 {
 	if (handle) {
-		return m_RegistererdPathsByAsset[handle.ID()];
+		if (m_RegistererdPathsByAsset.find(handle.ID()) != m_RegistererdPathsByAsset.end()) {
+			return m_RegistererdPathsByAsset[handle.ID()];
+		}
+		return "";
 	}
 	return "";
 }
@@ -146,6 +150,16 @@ bool AssetRegister::UnloadAsset(std::string path)
 void AssetRegister::RegisterPath(entt::entity e, std::string path)
 {
 	path = std::filesystem::path(path).lexically_normal().string();
+
+	if (!std::filesystem::exists(path) && Object(e).GetType() != "FolderAsset") {
+		std::fstream stream;
+
+		stream.open(path,std::fstream::out);
+
+
+
+		stream.close();
+	}
 
 	UnregisterPath(path);
 
@@ -214,6 +228,12 @@ void AssetObject::Rename()
 
 
 
+
+
+
+void AssetObject::SaveFile()
+{
+}
 
 
 

@@ -4,9 +4,15 @@ SceneAsset::SceneAsset(entt::entity e) : AssetObjectSpecifier(e)
 {
 }
 
-std::string SceneAsset::GetAssetExtension()
+std::vector<std::string> SceneAsset::GetAssetExtensions()
 {
-	return ".scene";
+	return {".scene"};
+}
+
+void SceneAsset::OnCreate()
+{
+	Storage().m_IconTexture = HelperFunctions::LoadTextureFromFile<Type2D>("defaults/images/ScenePlay.png");
+
 }
 
 void SceneAsset::ShowProperties()
@@ -24,10 +30,7 @@ void SceneAsset::ShowProperties()
 	}
 }
 
-void SceneAsset::ReadFile()
-{
-	Storage().m_IconTexture = HelperFunctions::LoadTextureFromFile<Type2D>("defaults/images/ScenePlay.png");
-}
+
 
 void SceneAsset::SetupExplorerIcon(ImVec2 size)
 {

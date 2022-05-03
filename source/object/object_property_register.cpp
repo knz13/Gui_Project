@@ -108,6 +108,9 @@ void ObjectPropertyRegister::ClearDeletingQueue()
 				it = object.Properties().m_ComponentClassNames.begin();
 			}
 
+			if (!HelperFunctions::CallMetaFunction(objectHandle.GetAsObject().GetType(), "Destroy", objectHandle.ID())) {
+				DEBUG_LOG("Could not call destroy for object with type: " + objectHandle.GetAsObject().GetType() + ", and name: " + objectHandle.GetAsObject().GetName());
+			}
 			Registry::Get().destroy(object.ID());
 		}
 

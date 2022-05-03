@@ -15,12 +15,11 @@ class FolderAsset : public AssetObjectSpecifier<FolderAsset, FolderAssetProperti
 public:
 	FolderAsset(entt::entity e);
 
-	static std::string GetAssetExtension();
+	static std::vector<std::string> GetAssetExtensions();
 
 
 private:
 	void ShowProperties() override;
-	void ReadFile() override;
 	void SetupExplorerIcon(ImVec2 size) override;
 
 };

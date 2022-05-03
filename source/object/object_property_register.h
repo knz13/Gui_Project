@@ -78,6 +78,7 @@ public:
 		entt::meta<Attached>().type(hash).template func<&ObjectBase::CallShowPropertiesForObject<Attached>>(entt::hashed_string("Show Properties"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallSerializeForClass<Attached>>(entt::hashed_string("Serialize"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDeserializeForClass<Attached>>(entt::hashed_string("Deserialize"));
+		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDestroyForObject<Attached>>(entt::hashed_string("Destroy"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
 		};
@@ -380,7 +381,19 @@ protected:
 
 private:
 
+	template<typename T>
+	static bool CallDestroyForObject(entt::entity e) {
+		if (!ObjectHandle(e)) {
+			return false;
+		}
 
+		T obj(e);
+
+		((ObjectBase*)(&obj))->Destroy();
+		
+		return true;
+
+	}
 	
 	static void ValidateAllGameObjects();
 	

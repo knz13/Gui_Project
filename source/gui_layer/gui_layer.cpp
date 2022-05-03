@@ -104,7 +104,14 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
         ImGui::Begin("BackWindow",0,ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking);
         ImGui::PopStyleVar(2);
-        
+
+        if (BaseSettings::LoadedScenePath != "") {
+            glfwSetWindowTitle(Window::GetCurrentWindow().GetContextPointer(), ("Kv Engine - " + std::filesystem::path(BaseSettings::LoadedScenePath).stem().string()).c_str());
+        }
+        else {
+            glfwSetWindowTitle(Window::GetCurrentWindow().GetContextPointer(), "Kv Engine");
+
+        }
         if (ImGui::BeginMainMenuBar()) {
 
             if (ImGui::BeginMenu("File")) {

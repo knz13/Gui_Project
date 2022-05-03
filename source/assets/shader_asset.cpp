@@ -4,7 +4,7 @@ ShaderAsset::ShaderAsset(entt::entity e) : AssetObjectSpecifier(e)
 {
 }
 
-std::string ShaderAsset::GetAssetExtension()
+std::vector<std::string> ShaderAsset::GetAssetExtensions()
 {
 	return {".shader"};
 }
