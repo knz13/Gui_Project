@@ -77,6 +77,10 @@ public:
         return {};
     }
 
+    static std::string GenerateStringHash(void* ptr);
+
+    static bool IsMetaClass(std::string className);
+    static bool IsMetaFunction(std::string className, std::string funcName);
 
     template<typename TextureType>
     static Texture<TextureType> LoadTextureFromFile(std::string path) {
@@ -129,6 +133,33 @@ public:
     }
 
 
+    template<typename T, auto Fun, typename... Args>
+    static constexpr auto CallFunctionForObject(entt::entity e, Args&&... args) {
+
+        T obj(e);
+
+        return std::invoke(Fun, &obj, std::forward<decltype(args)>(args)...);
+
+    }
+
+
+
+
+    template<typename Base, typename T, auto Func, typename... Args>
+    static constexpr auto CallFunctionForObjectWithVirtualBase(entt::entity e, Args&&... args) {
+
+        T obj(e);
+
+        [&obj](auto&&... ar) {
+            (((Base*)(&std::forward<T>(obj)))->*Func)(std::forward<decltype(ar)>(ar)...);
+        }(std::forward<decltype(args)>(args)...);
+
+
+        return true;
+
+    };
+
+
 
 
 private:
@@ -144,6 +175,32 @@ namespace HelperClass {
     class Null {
     private:
         int dummy = 0;
+    };
+
+    template<typename T>
+    class Meta {
+    public:
+
+        template<auto Func>
+        bool RegisterFunc(std::string funcMetaName) {
+            entt::meta<T>().type(hash).template func<Func>(entt::hashed_string(funcMetaName.c_str()));
+            return true;
+        };
+
+        template<typename Base, auto Func>
+        bool RegisterVirtualMemberFunc(std::string funcMetaName) {
+            entt::meta<T>().type(hash).template func<&HelperFunctions::CallFunctionForObjectWithVirtualBase<Base, T, Func>>(entt::hashed_string(funcMetaName.c_str()));
+            return true;
+        }
+
+        template<auto Func>
+        bool RegisterMemberFunc(std::string funcMetaName) {
+            entt::meta<T>().type(hash).template func<&HelperFunctions::CallFunctionForObject<T, Func>>(entt::hashed_string(funcMetaName.c_str()));
+            return true;
+        }
+    private:
+        entt::id_type hash = HelperFunctions::HashClassName<T>();
+
     };
 
 }

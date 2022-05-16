@@ -63,11 +63,7 @@ public:
 		};
 	};
 
-	template<typename AssetClass>
-	static void RegisterObjectAsAsset() {
-		entt::id_type hash = HelperFunctions::HashClassName<AssetClass>();
-
-	};
+	
 
 	template<typename Tag,typename Attached>
 	static void RegisterClassAsObjectTag() {

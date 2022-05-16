@@ -17,9 +17,27 @@ bool HelperFunctions::EraseWordFromString(std::string& mainWord, std::string wor
     return foundAny;
 }
 
+std::string HelperFunctions::GenerateStringHash(void* ptr)
+{
+    return std::to_string(std::hash<void*>()(ptr));
+}
+
+
 void HelperFunctions::FreeImageData(unsigned char* data)
 {
     stbi_image_free(data);
+}
+
+bool HelperFunctions::IsMetaClass(std::string className) {
+    return entt::resolve(entt::hashed_string(className.c_str())).operator bool();
+}
+
+bool HelperFunctions::IsMetaFunction(std::string className, std::string funcName)
+{
+    if (!IsMetaClass(className)) {
+        return false;
+    }
+    return entt::resolve(entt::hashed_string(className.c_str())).func(entt::hashed_string(funcName.c_str())).operator bool();
 }
 
 unsigned char* HelperFunctions::ReadTextureFile(std::string path, int* width, int* height, int* channels)
@@ -31,3 +49,5 @@ unsigned char* HelperFunctions::ReadTextureFile(std::string path, int* width, in
     }
     return data;
 }
+
+
