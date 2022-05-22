@@ -15,7 +15,6 @@
 #include "../vendor/entt/single_include/entt/entt.hpp"
 #include "../vendor/glew/include/GL/glew.h"
 #include "../vendor/glfw/include/GLFW/glfw3.h"
-#include "../vendor/thread_pool/thread_pool.hpp"
 #include "../vendor/glm/glm/gtc/type_ptr.hpp"
 #include "../vendor/assimp/include/assimp/Importer.hpp"
 #include "../vendor/assimp/include/assimp/scene.h"
@@ -28,7 +27,6 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/yaml/include/yaml-cpp/yaml.h"
-#include "../vendor/markdown/imgui_markdown.h"
 #include "../vendor/dialog/include/nfd.hpp"
 #include <source_location>
 

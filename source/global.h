@@ -18,7 +18,6 @@
 #define GLEW_STATIC
 #include "../vendor/glew/include/GL/glew.h"
 #include "../vendor/glfw/include/GLFW/glfw3.h"
-#include "../vendor/thread_pool/thread_pool.hpp"
 #include "../vendor/glm/glm/gtc/type_ptr.hpp"
 #include "general/structures.h"
 #include "general/color.h"
