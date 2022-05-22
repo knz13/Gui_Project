@@ -225,9 +225,8 @@ project("kv_project")
 
 	endforeach() 
 
-#creating executable
-add_executable(kv
-
+#creating library
+add_library(kv STATIC
 
 	${PROJECT_SOURCE_DIR}/source/assets/asset_object.cpp
 
