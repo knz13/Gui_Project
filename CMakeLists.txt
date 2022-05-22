@@ -33,6 +33,7 @@ include(GNUInstallDirs)
 include(ExternalProject)
 include(FetchContent)
 
+
 #project name
 project("kv_project")
 
@@ -42,263 +43,187 @@ project("kv_project")
 #repository download and settings for alias stb...
 
 
-	dir_exists(stb_exists ${PROJECT_SOURCE_DIR}/vendor/stb)
+	FetchContent_Declare(stb_project
 
+		GIT_REPOSITORY https://github.com/nothings/stb
 
-	if(NOT ${stb_exists})
+		GIT_TAG origin/master
 
-		FetchContent_Declare(stb
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/stb
 
-			GIT_REPOSITORY https://github.com/nothings/stb
+	)
 
-			GIT_TAG origin/master
-
-			SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/stb
-
-		)
-		FetchContent_MakeAvailable(stb)
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES stb_project)
 
 
 #repository download and settings for alias assimp...
 
 
-	dir_exists(assimp_exists ${PROJECT_SOURCE_DIR}/vendor/assimp)
+	#adding options
 
+	set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "")
 
-	if(NOT ${assimp_exists})
+	set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
 
-		ExternalProject_Add(assimp
+	FetchContent_Declare(assimp_project
 
-			GIT_REPOSITORY https://github.com/assimp/assimp
+		GIT_REPOSITORY https://github.com/assimp/assimp
 
-			GIT_TAG v5.2.2
+		GIT_TAG v5.2.2
 
-			CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/assimp
-					   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/assimp
 
-				       -DASSIMP_BUILD_TESTS=OFF
+	)
 
-				       -DBUILD_SHARED_LIBS=OFF
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/assimp/lib/${CMAKE_STATIC_LIBRARY_PREFIX}assimp-vc143-mt$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/assimp/lib/${CMAKE_STATIC_LIBRARY_PREFIX}zlibstatic$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		)
-
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES assimp_project)
 
 
 #repository download and settings for alias imguizmo...
 
 
-	dir_exists(imguizmo_exists ${PROJECT_SOURCE_DIR}/vendor/imguizmo)
+	FetchContent_Declare(imguizmo_project
 
+		GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo
 
-	if(NOT ${imguizmo_exists})
+		GIT_TAG 1.83
 
-		FetchContent_Declare(imguizmo
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imguizmo
 
-			GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo
+	)
 
-			GIT_TAG 1.83
-
-			SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imguizmo
-
-		)
-		FetchContent_MakeAvailable(imguizmo)
-	endif()
-
-
-#repository download and settings for alias react_physics...
-
-
-	dir_exists(react_physics_exists ${PROJECT_SOURCE_DIR}/vendor/react_physics)
-
-
-	if(NOT ${react_physics_exists})
-
-		ExternalProject_Add(react_physics
-
-			GIT_REPOSITORY https://github.com/DanielChappuis/reactphysics3d
-
-			GIT_TAG v0.9.0
-
-			CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/react_physics
-					   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/react_physics/lib/${CMAKE_STATIC_LIBRARY_PREFIX}reactphysics3d$<$<CONFIG:Debug>:>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		)
-
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES imguizmo_project)
 
 
 #repository download and settings for alias imgui...
 
 
-	dir_exists(imgui_exists ${PROJECT_SOURCE_DIR}/vendor/imgui)
+	FetchContent_Declare(imgui_project
 
+		GIT_REPOSITORY https://github.com/ocornut/imgui
 
-	if(NOT ${imgui_exists})
+		GIT_TAG origin/docking
 
-		FetchContent_Declare(imgui
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imgui
 
-			GIT_REPOSITORY https://github.com/ocornut/imgui
+	)
 
-			GIT_TAG origin/docking
-
-			SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/imgui
-
-		)
-		FetchContent_MakeAvailable(imgui)
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES imgui_project)
 
 
 #repository download and settings for alias entt...
 
 
-	dir_exists(entt_exists ${PROJECT_SOURCE_DIR}/vendor/entt)
+	FetchContent_Declare(entt_project
 
+		GIT_REPOSITORY https://github.com/skypjack/entt
 
-	if(NOT ${entt_exists})
+		GIT_TAG origin/master
 
-		FetchContent_Declare(entt
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
 
-			GIT_REPOSITORY https://github.com/skypjack/entt
+	)
 
-			GIT_TAG origin/master
-
-			SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
-
-		)
-		FetchContent_MakeAvailable(entt)
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES entt_project)
 
 
 #repository download and settings for alias yaml...
 
 
-	dir_exists(yaml_exists ${PROJECT_SOURCE_DIR}/vendor/yaml)
+	#adding options
 
+	set(YAML_BUILD_TESTS OFF CACHE INTERNAL "")
 
-	if(NOT ${yaml_exists})
+	FetchContent_Declare(yaml_project
 
-		ExternalProject_Add(yaml
+		GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
 
-			GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+		GIT_TAG yaml-cpp-0.7.0
 
-			GIT_TAG yaml-cpp-0.7.0
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/yaml
 
-			CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/yaml
-					   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+	)
 
-				       -DYAML_BUILD_TESTS=OFF
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/yaml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}yaml-cpp$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		)
-
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES yaml_project)
 
 
 #repository download and settings for alias dialog...
 
 
-	dir_exists(dialog_exists ${PROJECT_SOURCE_DIR}/vendor/dialog)
+	FetchContent_Declare(dialog_project
 
+		GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
 
-	if(NOT ${dialog_exists})
+		GIT_TAG origin/master
 
-		ExternalProject_Add(dialog
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/dialog
 
-			GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
+	)
 
-			GIT_TAG origin/master
-
-			CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/dialog
-					   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/dialog/lib/${CMAKE_STATIC_LIBRARY_PREFIX}nfd$<$<CONFIG:Debug>:>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		)
-
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES dialog_project)
 
 
 #repository download and settings for alias glew...
 
 
-	dir_exists(glew_exists ${PROJECT_SOURCE_DIR}/vendor/glew)
+	FetchContent_Declare(glew_project
 
+		GIT_REPOSITORY https://github.com/Perlmint/glew-cmake
 
-	if(NOT ${glew_exists})
+		GIT_TAG glew-cmake-2.2.0
 
-		ExternalProject_Add(glew
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/glew
 
-			GIT_REPOSITORY https://github.com/Perlmint/glew-cmake
+	)
 
-			GIT_TAG glew-cmake-2.2.0
-
-			CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/glew
-					   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/glew/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glew$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		)
-
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES glew_project)
 
 
 #repository download and settings for alias glfw...
 
 
-	dir_exists(glfw_exists ${PROJECT_SOURCE_DIR}/vendor/glfw)
+	FetchContent_Declare(glfw_project
 
+		GIT_REPOSITORY https://github.com/glfw/glfw
 
-	if(NOT ${glfw_exists})
+		GIT_TAG 3.3.7
 
-		ExternalProject_Add(glfw
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/glfw
 
-			GIT_REPOSITORY https://github.com/glfw/glfw
+	)
 
-			GIT_TAG 3.3.7
-
-			CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PROJECT_SOURCE_DIR}/vendor/glfw
-					   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-
-		BUILD_BYPRODUCTS ${PROJECT_SOURCE_DIR}/vendor/glfw/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3$<$<CONFIG:Debug>:>${CMAKE_STATIC_LIBRARY_SUFFIX}
-
-		)
-
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES glfw_project)
 
 
 #repository download and settings for alias glm...
 
 
-	dir_exists(glm_exists ${PROJECT_SOURCE_DIR}/vendor/glm)
+	FetchContent_Declare(glm_project
 
+		GIT_REPOSITORY https://github.com/g-truc/glm
 
-	if(NOT ${glm_exists})
+		GIT_TAG 0.9.9.8
 
-		FetchContent_Declare(glm
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/glm
 
-			GIT_REPOSITORY https://github.com/g-truc/glm
+	)
 
-			GIT_TAG 0.9.9.8
-
-			SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/glm
-
-		)
-		FetchContent_MakeAvailable(glm)
-	endif()
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES glm_project)
 
 
 #find package settings for alias opengl
 
 	find_package(OpenGL REQUIRED)
+
+	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
+
+	foreach(X IN LISTS ${PROJECT_NAME}_DEPENDENCIES)
+
+		FetchContent_GetProperties(${X}
+			SOURCE_DIR ${X}_SOURCE_DIR
+			BINARY_DIR ${X}_BINARY_DIR
+		)
+
+	endforeach() 
 
 #creating executable
 add_executable(kv
@@ -399,49 +324,18 @@ add_executable(kv
 set_property(TARGET kv PROPERTY CXX_STANDARD 20)
 
 
-#setting dependencies...
-
-
-if(NOT ${assimp_exists})
-	add_dependencies(kv assimp)
-endif()
-
-if(NOT ${react_physics_exists})
-	add_dependencies(kv react_physics)
-endif()
-
-if(NOT ${yaml_exists})
-	add_dependencies(kv yaml)
-endif()
-
-if(NOT ${dialog_exists})
-	add_dependencies(kv dialog)
-endif()
-
-if(NOT ${glew_exists})
-	add_dependencies(kv glew)
-endif()
-
-if(NOT ${glfw_exists})
-	add_dependencies(kv glfw)
-endif()
-
 #adding libraries...
 
 
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/lib/${CMAKE_STATIC_LIBRARY_PREFIX}assimp-vc143-mt$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX})
+target_link_libraries(kv PUBLIC assimp)
 
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/lib/${CMAKE_STATIC_LIBRARY_PREFIX}zlibstatic$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX})
+target_link_libraries(kv PUBLIC yaml-cpp)
 
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/react_physics/lib/${CMAKE_STATIC_LIBRARY_PREFIX}reactphysics3d$<$<CONFIG:Debug>:>${CMAKE_STATIC_LIBRARY_SUFFIX})
+target_link_libraries(kv PUBLIC nfd)
 
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/yaml/lib/${CMAKE_STATIC_LIBRARY_PREFIX}yaml-cpp$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX})
+target_link_libraries(kv PUBLIC libglew_static)
 
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/dialog/lib/${CMAKE_STATIC_LIBRARY_PREFIX}nfd$<$<CONFIG:Debug>:>${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glew/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glew$<$<CONFIG:Debug>:d>${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-target_link_libraries(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3$<$<CONFIG:Debug>:>${CMAKE_STATIC_LIBRARY_SUFFIX})
+target_link_libraries(kv PUBLIC glfw)
 
 target_link_libraries(kv PUBLIC ${OpenGL_LIBRARIES})
 
@@ -459,9 +353,9 @@ target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/stb/)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 
-target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imguizmo/)
+target_include_directories(kv PUBLIC ${assimp_project_BINARY_DIR}/include)
 
-target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/react_physics/include)
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imguizmo/)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imgui/)
 

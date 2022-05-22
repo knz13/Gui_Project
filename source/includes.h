@@ -27,7 +27,7 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/yaml/include/yaml-cpp/yaml.h"
-#include "../vendor/dialog/include/nfd.hpp"
+#include "../vendor/dialog/src/include/nfd.hpp"
 #include <source_location>
 
 using namespace std;
@@ -79,7 +79,7 @@ static void ClearGLErrors() {
 static bool GetGLError(int line, std::string file) {
     GLenum code = glGetError();
     if (code != GL_NO_ERROR) {
-        cout << "OpenGL error '" << gluErrorString(code) << "' \nAt line: " << line << " \nIn file: " << file << endl;
+        cout << "OpenGL error '" << std::to_string(code) << "' \nAt line: " << line << " \nIn file: " << file << endl;
         return true;
     }
     return false;

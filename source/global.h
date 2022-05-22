@@ -14,8 +14,9 @@
 #include "../vendor/glm/glm/gtx/quaternion.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "../vendor/glm/glm/gtx/matrix_decompose.hpp"
-
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include "../vendor/glew/include/GL/glew.h"
 #include "../vendor/glfw/include/GLFW/glfw3.h"
 #include "../vendor/glm/glm/gtc/type_ptr.hpp"
@@ -40,7 +41,6 @@
 #include "components/component.h"
 #include "object/object.h"
 #include "components/add_only_to.h"
-#include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
 using namespace std;
 
 
