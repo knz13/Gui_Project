@@ -3,19 +3,18 @@
 
 void GuiLayer::SceneHierarchyView::Update(Window& win) {
     
-    GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
+    GuiLayer::SetupWindowStyle("Scene Hierarchy",[&](ImGuiWindowFlags flags){
         ImGui::Begin("Scene Hierarchy",0,flags );
     });
 
     
     
-
+   
 
    
     if(Registry::Get().alive() > 0){
         
-        Registry::Get().each([&](const entt::entity e){
-            Object obj(e);
+        GameObject::ForEach([&](GameObject obj){
             if (obj.HasComponent<InternalUse>()) {
                 return;
             }
@@ -63,7 +62,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
     ImGui::End();
 }
 
-void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
+void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
     
     SceneHierarchyViewComponent& comp = obj.GetComponent<SceneHierarchyViewComponent>();
     bool& openRename = comp.m_IsChoosingName;
@@ -86,17 +85,24 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
             ImGui::TreePop();
         }
     }
-    else{
+    else {
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
-        if(GameView::AnyObjectSelected()){
-            if(GameView::AnyObjectSelected().objectID == obj.ID()){
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+        if (GuiLayer::AnyObjectSelected()) {
+            if (GuiLayer::AnyObjectSelected().ID() == obj.ID()) {
                 flags |= ImGuiTreeNodeFlags_Selected;
             }
         }
 
-        ImGui::SetNextItemOpen(true);
-        if(ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(),flags)){
+        ImGui::SetNextItemOpen(true,ImGuiCond_Once);
+        bool isOpen = false;
+
+        GuiLayer::SetupStaticTreeNodeStyle([&]() {
+            isOpen = ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
+        });
+
+
+        if (isOpen){
             
             if(ImGui::BeginDragDropSource()){
 
@@ -121,7 +127,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
             if(ImGui::BeginPopupContextItem(GuiLayer::GetImGuiID(&obj.Transform()).c_str())){
                 
                 if(ImGui::MenuItem("Duplicate")){
-                    Registry::CopyEntity(obj);
+                    ObjectPropertyRegister::CopyObject(obj);
                 }
                 if(ImGui::MenuItem("Rename")){
                     nameToRename = obj.Properties().GetName();
@@ -129,7 +135,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
                 }
 
                 if(ImGui::MenuItem("Delete")){
-                    Registry::DeleteObject(obj);
+                    ObjectPropertyRegister::DeleteObject(obj);
                 }
 
                 if(obj.Properties().GetParent()){
@@ -146,15 +152,17 @@ void GuiLayer::SceneHierarchyView::SetupObject(Object obj) {
 
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
-                if(GameView::AnyObjectSelected()){
-                    Object(GameView::AnyObjectSelected().objectID).Properties().SetHightlightState(false);
+                if(GuiLayer::AnyObjectSelected()){
+                    if (GuiLayer::AnyObjectSelected().IsType(HelperFunctions::HashClassName<GameObject>())) {
+                        GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
+                    }
                 }
-                GameView::AnyObjectSelected() = ClickedObjectProperties(obj.ID());
-                Object(GameView::AnyObjectSelected().objectID).Properties().SetHightlightState(true);
+                GuiLayer::AnyObjectSelected() = ObjectHandle(obj.ID());
+                GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(true);
             }
 
-            for(auto& id : obj.Properties().GetChildren()){
-                SetupObject(Object(id));
+            for(auto id : obj.Properties().GetChildren()){
+                SetupObject(id.GetAs<GameObject>());
             }
 
             ImGui::TreePop();
@@ -204,11 +212,11 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             6, 7, 3
         };
 
-        Object obj = Registry::CreateObject("Cube");
+        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Cube");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
-        mesh.SetShader("default_shaders/base_shader");
+        mesh.SetShader("defaults/default_shaders/base_shader");
         
     };
 
@@ -227,17 +235,22 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             2,3,0
         };
 
-        Object obj = Registry::CreateObject("Plane");
+        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Plane");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
-        mesh.SetShader("default_shaders/base_shader");
+        mesh.SetShader("defaults/default_shaders/base_shader");
     };
 
     m_DefaultObjects["Camera"] = [](){
-        Object obj = Registry::CreateObject("Camera");
+        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Camera");
         obj.AddComponent<Camera>();
     };
 
 
+}
+
+void GuiLayer::SceneHierarchyViewComponent::Init()
+{
+    this->HideInEditor(true);
 }

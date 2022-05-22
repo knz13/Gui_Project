@@ -3,13 +3,12 @@
 
 
 
-class TransformComponent : public EventReceiver,public Component<TransformComponent,AddToEveryObject<TransformComponent>> {
+class TransformComponent : public EventReceiver,public GameComponent<TransformComponent>, public AddOnlyTo<TransformComponent,GameObject> {
     KV_CLASS
 public:
     TransformComponent();
     TransformComponent(const TransformComponent& mov);
 
-    void Init() override;
 
     
     void Rotate(float x,float y,float z);
@@ -41,14 +40,17 @@ public:
     const glm::vec3& GetRotationRadians();
     const glm::vec3& GetPosition();
 
-    void Update(float deltaTime);
-    void ShowProperties();
+    void Update(float deltaTime) override;
+    void ShowProperties() override;
     void SetFromModelMatrix(glm::mat4 matrix);
     glm::mat4 GetModelMatrix();
-protected:
-    std::function<nlohmann::json()> GetSerializerFunction();
+
 
 private:
+    YAML::Node Serialize() override;
+    bool Deserialize(YAML::Node& node) override;
+
+    void Init() override;
     
     glm::mat4 GetCumulativeMatrix(std::vector<glm::mat4>* outVec=nullptr);
     glm::mat4 CalculateModelMatrix(bool passScale = true);

@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "../../vendor/glm/glm/glm.hpp"
+#include "../../vendor/imgui/imgui.h"
 
 
 class Color {
@@ -18,9 +19,19 @@ public:
      * 
      * @return the color as integers from 0 to 255
      */
-    glm::ivec3 AsIntegers();
+    glm::ivec3 AsIntegers() const;
+
+    ImVec4 AsImVec4();
     
+    Color& operator+= (const Color& other);
+    Color& operator-= (const Color& other);
+
+    Color operator+ (const Color& other);
+
+    Color operator- (const Color& color);
+
     /**
+    * 
      * Sets the color from rgb values normalized
      */
     void Set(float r,float g,float b);
@@ -43,7 +54,7 @@ public:
     
 
 private:
-    glm::vec3 m_ColorValue;
+    glm::vec3 m_ColorValue = glm::vec3(0,0,0);
 
 
 };

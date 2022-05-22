@@ -1,35 +1,43 @@
 #include "properties_view.h"
 #include "../kv.h"
+#include "../assets/asset_object.h"
 
 void GuiLayer::PropertiesView::Update(Window& win) {
-    GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
+    GuiLayer::SetupWindowStyle("Properties",[&](ImGuiWindowFlags flags){
         ImGui::Begin("Properties",0,flags );
     });
-    static bool randomAddress = false;
+    
 
     
 
-    if(GameView::AnyObjectSelected()){
-        Object selected(GameView::AnyObjectSelected().objectID);
-        selected.Properties().CallShowPropertiesFunctions();
-        
-        
-        if(ImGui::BeginPopupContextWindow(GuiLayer::GetImGuiID(&randomAddress).c_str(),ImGuiPopupFlags_MouseButtonRight)){
-            
-            
-            if(ImGui::BeginMenu("Add Component")){
-                for(auto& componentName : Object::GetRegisteredClasses()){
-                    if(!selected.HasComponent(componentName)){
-                        if(ImGui::MenuItem(componentName.c_str())){
-                            selected.TryAddComponent(componentName);
+    if (GuiLayer::AnyObjectSelected()) {
+        Object selected = GuiLayer::AnyObjectSelected().GetAsObject();
+        selected.ShowObjectProperties();
+
+        if (selected.GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+            GameObject selectedObj(selected.ID());
+
+            ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize("Add Component").x / 2);
+
+            GuiLayer::SetupStaticButtonStyle([]() {
+                ImGui::Button("Add Component");
+                });
+            if (ImGui::BeginPopupContextItem("PropertiesViewContextMenuItem", ImGuiPopupFlags_MouseButtonLeft)) {
+
+                for (auto& componentName : GameObject::GetRegisteredComponents()) {
+                    if (!selected.HasComponent(componentName)) {
+                        if (ImGui::MenuItem(componentName.c_str())) {
+                            selectedObj.AddComponentByName(componentName);
                         }
                     }
                 }
-                ImGui::EndMenu();
-            }
 
-            ImGui::EndPopup();
+
+
+                ImGui::EndPopup();
+            }
         }
+
     }
 
     ImGui::End();

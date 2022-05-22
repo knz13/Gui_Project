@@ -3,7 +3,7 @@
 
 
 
-class InternalUse : public Component<InternalUse> {
+class InternalUse : public GameComponent<InternalUse> {
 
 
 };

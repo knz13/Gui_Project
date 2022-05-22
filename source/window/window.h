@@ -5,7 +5,6 @@
 class Camera;
 class Framebuffer;
 class Mesh;
-class Texture;
 class Window;
 class VertexArray;
 class Shader;
@@ -13,17 +12,18 @@ struct WindowEvents {
 
     WindowEvents(Window& win) : m_Master(win) {};
 
-
-    FunctionSink<void(Window&,MouseScrollEventProperties)> MouseScrollEvent();
-    FunctionSink<void(Window&,MouseButtonEventProperties)> MouseButtonEvent();
+    FunctionSink<void(Window&, bool)> FocusEvent();
+    FunctionSink<void(Window&,SDL_MouseWheelEvent)> MouseScrollEvent();
+    FunctionSink<void(Window&,SDL_MouseButtonEvent)> MouseButtonEvent();
     FunctionSink<void(Window&,MouseEventProperties)> MouseEnteredWindowEvent();
     FunctionSink<void(Window&,MouseEventProperties)> MouseLeftWindowEvent();
-    FunctionSink<void(Window&,KeyEventProperties)> KeyEvent();
-    FunctionSink<void(Window&,MouseEventProperties)> MouseMovedEvent();
+    FunctionSink<void(Window&,SDL_KeyboardEvent)> KeyEvent();
+    FunctionSink<void(Window&,SDL_MouseMotionEvent)> MouseMovedEvent();
     FunctionSink<void(Window&)> PreDrawingLoopEvent();
     FunctionSink<void(Window&)> PostDrawingLoopEvent();
     FunctionSink<void(Window&)> ClosingEvent();
     FunctionSink<void(Window&,WindowResizedEventProperties)> ResizedEvent();
+    FunctionSink<void(Window&, SDL_Event&)> AllEvents();
 
 private:
     Window& m_Master;
@@ -64,16 +64,16 @@ public:
     WindowCreators Create();
     
     
-    ObjectHandle GetCurrentCamera();
+    TemplatedObjectHandle<GameObject> GetCurrentCamera();
     void SetClearColor(Color color);
     
     void DisableCamera();
-    void SetCamera(Object obj);
+    void SetCamera(GameObject obj);
     
     void SetViewPort(int x,int y,int width,int height);
 
     const WindowCreationProperties& Properties() const;
-    GLFWwindow* GetContextPointer();
+    SDL_GLContext& GetContext();
     float GetDeltaTime();
     
 
@@ -81,11 +81,15 @@ public:
     
     
     static Window& GetCurrentWindow();
-    static Window* GetWindow(GLFWwindow* win);
+   
     static FunctionSink<void(Window&)> WindowCreationEvent();
     
     RayCastHit RayCast(glm::vec2 screenPos);
     
+
+    SDL_Window* GetWindowPointer();
+
+    glm::vec2 GetMousePos();
 
 protected:
 
@@ -100,7 +104,9 @@ private:
     
     bool m_IsOpen = true;
     WindowCreationProperties m_Properties;
-    GLFWwindow* m_ContextPointer=nullptr;
+    //GLFWwindow* m_ContextPointer=nullptr;
+    SDL_Window* m_WindowPointer;
+    SDL_GLContext m_Context;
 
     
     entt::entity m_MainCamera = entt::null;
@@ -113,14 +119,15 @@ private:
     std::vector<std::unique_ptr<VertexArray>> m_CreatedVertexArrays;
     std::map<std::string,std::unique_ptr<Shader>> m_CreatedShaders;
 
-    
+    EventLauncher<void(Window&, bool)> m_FocusEventFuncs;
     EventLauncher<void(Window&,WindowResizedEventProperties)> m_WindowResizedEventFuncs;
-    EventLauncher<void(Window&,MouseEventProperties)> m_MouseMovedFuncs;
+    EventLauncher<void(Window&,SDL_MouseMotionEvent)> m_MouseMovedFuncs;
     EventLauncher<void(Window&,MouseEventProperties)> m_MouseEnteredWindowFuncs;
     EventLauncher<void(Window&,MouseEventProperties)> m_MouseLeftWindowFuncs;
-    EventLauncher<void(Window&,MouseButtonEventProperties)> m_MouseButtonFuncs;
-    EventLauncher<void(Window&,MouseScrollEventProperties)> m_MouseScrollFuncs;
-    EventLauncher<void(Window&,KeyEventProperties)> m_KeyEventFuncs;
+    EventLauncher<void(Window&,SDL_MouseButtonEvent)> m_MouseButtonFuncs;
+    EventLauncher<void(Window&,SDL_MouseWheelEvent)> m_MouseScrollFuncs;
+    EventLauncher<void(Window&,SDL_KeyboardEvent)> m_KeyEventFuncs;
+    EventLauncher<void(Window&, SDL_Event&)> m_EventCallback;
     EventLauncher<void(Window&)> m_PreDrawingLoopFuncs;
     EventLauncher<void(Window&)> m_PostDrawingLoopFuncs;
     EventLauncher<void(Window&)> m_ClosingCallbackFuncs;
@@ -133,7 +140,7 @@ private:
     static Window* m_MainWindow;
     static EventLauncher<void(Window&)> m_StartWindowFuncs;
 
-    static std::map<GLFWwindow*,Window*> m_CurrentWindows;
+   
 
     friend struct WindowCreators;
     friend struct WindowEvents;

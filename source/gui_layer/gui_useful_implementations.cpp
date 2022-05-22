@@ -4,7 +4,6 @@
 #include "../vendor/imgui/imstb_textedit.h"
 #include "../vendor/imgui/imstb_rectpack.h"
 #include "../kv.h"
-#include "GLFW/glfw3.h"
 #include <iomanip>
 
 void BeginGroupPanel(const char* name, const ImVec2& size) {
@@ -148,6 +147,18 @@ void ImGui::AlignNextRight() {
     ImGui::SetNextItemWidth(ImGui::GetWindowSize().x -ImGui::GetCursorPosX() - 8);
 }
 
+void ImGui::TextCenterAligned(std::string text)
+{
+    ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(text.c_str()).x / 2);
+
+    ImGui::Text(text.c_str());
+}
+
+void ImGui::TextEditCenterAligned(std::string* textPtr)
+{
+    ImGui::InputText(GuiLayer::GetImGuiID(textPtr).c_str(), textPtr);
+}
+
 void ImGui::AlignedText(std::string text) {
     ImGui::SetCursorPosX(2);
     ImGui::BulletText(text.c_str());
@@ -180,14 +191,16 @@ void ImGui::DragTextFloat(std::string text,float* val,float speed,float min,floa
 
     if(selected){
         if(selected != wasSelected){
-            double x,y;
-            glfwGetCursorPos(Window::GetCurrentWindow().GetContextPointer(),&x,&y);
-            lastPosX = x;
+            
+            lastPosX = Window::GetCurrentWindow().GetMousePos().x;
         }
         if(IsMouseDown(ImGuiMouseButton_Left)){
-            glfwSetInputMode(Window::GetCurrentWindow().GetContextPointer(),GLFW_CURSOR,GLFW_CURSOR_DISABLED);
-            double x,y;
-            glfwGetCursorPos(Window::GetCurrentWindow().GetContextPointer(),&x,&y);
+            SDL_ShowCursor(SDL_DISABLE);
+            
+            glm::vec2 vec = Window::GetCurrentWindow().GetMousePos();
+            double x, y;
+            x = vec.x;
+            y = vec.y;
             if(min < max){
                 if(*val > min || *val < max){
                     *val += (x - lastPosX) * Window::GetCurrentWindow().GetDeltaTime()*speed * 100;
@@ -200,7 +213,7 @@ void ImGui::DragTextFloat(std::string text,float* val,float speed,float min,floa
             
         }
         if(IsMouseReleased(ImGuiMouseButton_Left)){
-            glfwSetInputMode(Window::GetCurrentWindow().GetContextPointer(),GLFW_CURSOR,GLFW_CURSOR_NORMAL);
+            SDL_ShowCursor(SDL_ENABLE);
             selected = false;
         }
         
@@ -218,4 +231,76 @@ void ImGui::DragTextFloat(std::string text,float* val,float speed,float min,floa
 
 void ImGui::Drag3AxisFloat(std::string text, float* values, float speed, float min, float max) {
     
+}
+
+bool ImGui::CheckboxEx(const char* label, bool* v)
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id = window->GetID(label);
+    const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+    const float square_sz = GetFrameHeight();
+    const ImVec2 pos = window->DC.CursorPos;
+    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 1.5f));
+    ItemSize(total_bb, style.FramePadding.y);
+    if (!ItemAdd(total_bb, id))
+        return false;
+
+    bool hovered, held;
+    bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
+    if (pressed)
+    {
+        *v = !(*v);
+        MarkItemEdited(id);
+    }
+    
+
+    const float boxSize = IM_FLOOR(square_sz * 0.65f);
+    const float boxOffsetHorz = IM_FLOOR(style.ItemSpacing.x * 1.2f);
+    const float boxOffsetVert = IM_FLOOR(std::floor(0.5f * (square_sz - boxSize)));
+
+    ImRect check_bb(pos + ImVec2(boxOffsetHorz, boxOffsetVert), pos + ImVec2(boxOffsetHorz + boxSize, boxOffsetVert + boxSize));
+    ImU32 check_col = GetColorU32((g.CurrentItemFlags & ImGuiItemFlags_Disabled) ? ImGuiCol_FrameBg : ImGuiCol_Text);
+    RenderNavHighlight(total_bb, id);
+
+    ImVec4 border_col = style.Colors[hovered ? ImGuiCol_Text : ImGuiCol_CheckMark];
+    border_col.w *= 0.5f;
+
+    ImGui::PushStyleColor(ImGuiCol_Border, border_col);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+    RenderFrame(check_bb.Min, check_bb.Max, ImColor(0, 0, 0, 0), true, 0.0f);
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
+
+    if (g.CurrentItemFlags & ImGuiItemFlags_MixedValue)
+    {
+        // Undocumented tristate/mixed/indeterminate checkbox (#2644)
+        ImVec2 pad(ImMax(1.0f, IM_FLOOR(square_sz / 7.0f)), ImMax(1.0f, IM_FLOOR(square_sz / 7.0f)));
+        window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, 0.0f);
+    }
+    else if (*v)
+    {
+        const float pad = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
+        ImVec2 checkMarkPts[3] = {
+            check_bb.Min + ImVec2(pad, pad + boxSize * 0.3f),
+            check_bb.Min + ImVec2(boxSize * 0.45f, boxSize - pad),
+            check_bb.Min + ImVec2(boxSize - pad, pad),
+        };
+        window->DrawList->AddPolyline(checkMarkPts, 3, ImColor(check_col), false, 2.5f);
+    }
+
+    check_bb = ImRect(pos, pos + ImVec2(square_sz, square_sz));
+
+    if (g.LogEnabled)
+        LogRenderedText(&total_bb.Min, *v ? "[x]" : "[ ]");
+    if (label_size.x > 0.0f)
+        RenderText(ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y), label);
+
+    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.CurrentItemFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
+    return pressed;
 }

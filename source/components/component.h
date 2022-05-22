@@ -1,38 +1,23 @@
 #pragma once 
-#include "add_to_every_object.h"
 #include <concepts>
+#include "../../vendor/entt/single_include/entt/entt.hpp"
+#include "../object/registry.h"
 
-namespace ComponentHelpers {
-    class Null;
-};
 
-template<typename T=ComponentHelpers::Null,typename ... Behaviors>
-class Component : public Behaviors...{
+
+
+
+class Component {
+
 public:
-    bool IsEnabled(){
-        return GetActiveState();
-    }
-    bool IsVisibleInEditor(){
-        return !m_ShouldHideInEditor;
-    }
-    bool IsRemovable(){
-        return m_IsRemovable;
+    bool Valid() {
+        return Registry::Get().valid(m_MasterHandle);
     }
 
     
-
-    bool CanBeDisabled() {
-        return m_CanBeDisabled;
-    }
 protected:
-    Component() {
-        (void*)Component::Initialized;
-    };
-
-    Component<T,Behaviors...>& operator=(const Component<T,Behaviors...>& comp){
-        m_MyClassTypeID = comp.m_MyClassTypeID;
-        m_ShouldHideInEditor = comp.m_ShouldHideInEditor;
-        m_BaseComponentActiveState = comp.m_BaseComponentActiveState;
+    
+    Component& operator=(const Component& comp){
         return *this;
 
     }
@@ -45,35 +30,32 @@ protected:
      */
     virtual void Destroy() {};
 
-    virtual void Update(float deltaTime) {};
-    virtual void ShowProperties() {};
+    virtual void Update(float delta) {};
 
-    void HideInEditor(bool state){
-        m_ShouldHideInEditor = state;
-    }
-    void SetActiveState(bool state){
-        m_BaseComponentActiveState = state;
-    }
+    /**
+     * Serializer function.
+     * Called before Destroy().
+     * *WARNING* -> node is already inside of component
+     */
+    virtual YAML::Node Serialize() { return {}; };
 
-    void MakeRemovable(bool state){
-        m_IsRemovable = state;
-    }
+    /**
+     * Deserializer function.
+     * Called after Init()
+     * *WARNING* -> node is already inside of component
+     */
+    virtual bool Deserialize(YAML::Node& node) { return true; };
 
-    void MakeAlwaysEnabled(bool state){
-        m_CanBeDisabled = !state;
-    }
+    
+
 
     
 
     ~Component(){}
 
-    Object GetMasterObject() const {
-        return Object(m_MasterHandle);
-    }
+    
 
-    bool GetActiveState() {
-        return m_BaseComponentActiveState;
-    }
+    
 
 
 private:
@@ -82,33 +64,18 @@ private:
         m_MasterHandle = entity;
     };
     
-    entt::id_type m_MyClassTypeID = 0;
+    
     entt::entity m_MasterHandle = entt::null;
-    bool m_BaseComponentActiveState = true;
-    bool m_ShouldHideInEditor = false;
-    bool m_CanBeDisabled = true;
-    bool m_IsRemovable = true;
     
     
     
-    static inline bool Initialized = [](){
-        if(entt::type_id<T>().name() != entt::type_id<ComponentHelpers::Null>().name()){
-            Object::RegisterClassAsComponent<T>(); 
-        }
-        return true;
-    }();
-
-
-    friend class Object;
-    friend class ObjectPropertiesComponent;
+    friend class Window;
     
-
-};
-
-
-namespace ComponentHelpers {
-    class Null : public Component<Null>{
-    };
+    template<typename,typename>
+    friend class ComponentSpecifier;
+    
+    
+    friend class ObjectPropertyRegister;
 
 };
 

@@ -6,11 +6,10 @@ class Window;
 
 namespace GuiLayer {
 
-struct SceneHierarchyViewComponent : public Component<SceneHierarchyViewComponent,AddToEveryObject<SceneHierarchyViewComponent>> {
+struct SceneHierarchyViewComponent : public GameComponent<SceneHierarchyViewComponent>, public AddOnlyTo<SceneHierarchyViewComponent,GameObject> {
+    void Init() override;
     
-    void Init() { this->HideInEditor(true);};
-    void ShowProperties(){};
-    void Update(float time){};
+    
 
     bool m_IsChoosingName = false;
 
@@ -24,7 +23,7 @@ public:
     static void Update(Window& win);
 
 private:
-    static void SetupObject(Object obj);
+    static void SetupObject(GameObject obj);
 
     static inline std::map<std::string,std::function<void()>> m_DefaultObjects;
 };

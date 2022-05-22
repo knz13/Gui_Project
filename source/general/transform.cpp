@@ -52,7 +52,7 @@ void TransformComponent::InstantScaleChange(float x, float y, float z) {
 }
 void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
     
-    Object current = GetMasterObject();
+    GameObject current = GetMasterObject().GetAsObject();
     
     std::vector<glm::mat4> vec;
     GetCumulativeMatrix(&vec);
@@ -81,11 +81,11 @@ glm::mat4 TransformComponent::GetModelMatrix() {
 
 glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec){
     std::vector<glm::mat4> matrices {this->CalculateModelMatrix()};
-    bool foundFinalMatrix = !GetMasterObject().Properties().GetParent();
-    Object current = GetMasterObject();
+    bool foundFinalMatrix = !GetMasterObject().GetAsObject().Properties().GetParent();
+    GameObject current = GetMasterObject().GetAsObject();
     while (!foundFinalMatrix){
         if(current.Properties().GetParent()){
-            current = current.Properties().GetParent().GetAsObject();
+            current = current.Properties().GetParent().GetAs<GameObject>();
         }
         else{
             foundFinalMatrix = true;
@@ -170,8 +170,8 @@ const glm::vec3& TransformComponent::GetScale() const {
 }
 
 TransformComponent::TransformComponent() {
-    MakeAlwaysEnabled(true);
-};
+
+}
 
 TransformComponent::TransformComponent(const TransformComponent& mov)  {
     m_Position = mov.m_Position;
@@ -182,6 +182,29 @@ const glm::vec3& TransformComponent::GetRotationRadians() {
     return m_Rotation;
 }
 
+
+
+YAML::Node TransformComponent::Serialize()
+{
+    YAML::Node node;
+    HelperFunctions::SerializeVariable("position", m_Position, node);
+    HelperFunctions::SerializeVariable("rotation", m_Rotation, node);
+    HelperFunctions::SerializeVariable("scale", m_Scale, node);
+
+    return node;
+}
+
+bool TransformComponent::Deserialize(YAML::Node& node)
+{
+    HelperFunctions::DeserializeVariable("position", m_Position, node);
+    HelperFunctions::DeserializeVariable("rotation", m_Rotation, node);
+    HelperFunctions::DeserializeVariable("scale", m_Scale, node);
+
+    return true;
+
+}
+
 void TransformComponent::Init() {
+    MakeAlwaysEnabled(true);
     MakeRemovable(false);
 }

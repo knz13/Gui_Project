@@ -4,7 +4,8 @@
 class Framebuffer;
 class Object;
 class Window;
-class Camera : public Component<Camera> {
+class RenderTextureAsset;
+class Camera : public GameComponent<Camera> {
 
     KV_CLASS
     
@@ -38,14 +39,18 @@ public:
     void SetRenderTarget(std::shared_ptr<Framebuffer> framebuffer);
     void SetViewport(float x,float y,float width,float height);
 
-    void Update(float deltaTime);
-    void ShowProperties();
 
 private:
+    YAML::Node Serialize() override;
+    bool Deserialize(YAML::Node& node) override;
+
+    void Update(float deltaTime) override;
+    void ShowProperties() override;
     void Init() override;
     void Destroy() override;
 
     std::function<void(Camera&)> m_DrawingFunc;
+    //TemplatedObjectHandle<RenderTextureAsset> m_Target;
     std::shared_ptr<Framebuffer> m_RenderTarget;
     glm::vec4 m_ViewPort = glm::vec4(0,0,0,0);
     float m_DrawNear = 0;

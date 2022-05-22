@@ -45,33 +45,34 @@ void GuiLayer::GameView::Update(Window& win) {
     
     static ImVec2 lastSize;
 
-    GuiLayer::SetupWindowStyle([&](ImGuiWindowFlags flags){
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    GuiLayer::SetupWindowStyle("Game View",[&](ImGuiWindowFlags flags){
             ImGui::Begin("Game View",0,flags);
-        });
+    });
+    
+    ImGui::PopStyleVar();
 
+    ImGui::BeginChild("GameRender");
+    float windowPositionX = ImGui::GetWindowPos().x;
+    float windowPositionY = ImGui::GetWindowPos().y;
+    float windowSizeX = ImGui::GetWindowSize().x;
+    float windowSizeY = ImGui::GetWindowSize().y;
         
-        ImGui::BeginChild("GameRender");
-
-        float windowPositionX = ImGui::GetWindowPos().x;
-        float windowPositionY = ImGui::GetWindowPos().y;
-        float windowSizeX = ImGui::GetWindowSize().x;
-        float windowSizeY = ImGui::GetWindowSize().y;
-        
-        if(!initialized){
+    if(!initialized){
             
-            m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+        m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y);
+        m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
+        m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0,0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+        initialized = true;
+    }
+    else{
+        glm::vec4 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
+        if(lastSize.x != currentSize.z || lastSize.y != currentSize.w) {
+            m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
-            m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0,0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-            initialized = true;
+            m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
         }
-        else{
-            glm::vec4 currentSize = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetViewPort();
-            if(lastSize.x != currentSize.z || lastSize.y != currentSize.w) {
-                m_RaycastTexture = std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-                m_EditorCamera.GetAsObject().GetComponent<Camera>().SetRenderTarget(std::make_shared<Framebuffer>(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
-                m_EditorCamera.GetAsObject().GetComponent<Camera>().SetViewport(0, 0, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-            }
-        }
+    }
         
 
         
@@ -79,36 +80,36 @@ void GuiLayer::GameView::Update(Window& win) {
 
 
 
-        lastSize = ImGui::GetWindowSize();
-        // Get the size of the child (i.e. the whole draw size of the windows).
-        ImVec2 wsize = ImGui::GetWindowSize();
+    lastSize = ImGui::GetWindowSize();
+    // Get the size of the child (i.e. the whole draw size of the windows).
+    ImVec2 wsize = ImGui::GetWindowSize();
         
-        //m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget()
-        ImGui::Image((ImTextureID)m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget().GetAttachedTexture().GetID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
+    //m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget()
+    ImGui::Image((ImTextureID)m_EditorCamera.GetAsObject().GetComponent<Camera>().GetRenderTarget().GetAttachedTexture().GetID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
+    
+
+    HandleSelectionGuizmo(win);
         
-
-        HandleSelectionGuizmo(win);
-        
-        HandleEditorCameraMovement(win);
+    HandleEditorCameraMovement(win);
 
 
-        HandleObjectSelection(win);
+    HandleObjectSelection(win);
 
 
-        ImGui::EndChild();
+    ImGui::EndChild();
 
-        ImGui::End();
+    ImGui::End();
 
 
         
-        m_RaycastTexture.get()->Clear();
+    m_RaycastTexture.get()->Clear();
 
        
 
 }
 
 void GuiLayer::GameView::Setup(Window& win) {
-    Object obj = Registry::CreateObject("Editor Camera");
+    GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Editor Camera");
     obj.AddComponent<Camera>();
     
     obj.AddComponent<InternalUse>();
@@ -126,9 +127,6 @@ void GuiLayer::GameView::Setup(Window& win) {
     });
 }
 
-ClickedObjectProperties& GuiLayer::GameView::AnyObjectSelected() {
-    return m_IsObjectSelected;
-}
 
 void GuiLayer::GameView::SetupEditorCameraDrawing()
 {
@@ -170,7 +168,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
             
 
 
-            if (Object(entity).Properties().ShouldHighlight()) {
+            if (GameObject(entity).GetHighlightState()) {
 
                 GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
                 GL_CALL(glStencilMask(0xFF));
@@ -187,7 +185,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
                 std::string currentShaderName = drawable.GetShaderName();
                 Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("default_Shaders/single_color_shader", &result);
 
-                ObjectPropertiesComponent& comp = Object(entity).Properties();
+                GameObject comp(entity);
 
                 glm::mat4 mvpSecond = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
 
@@ -283,10 +281,10 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
     m_ContentRectMax = ImVec2(ImGui::GetWindowSize().x + m_ContentRectMin.x, ImGui::GetWindowSize().y + m_ContentRectMin.y);
 
     if (!hasSetupWheelCallback) {
-        win.Events().MouseScrollEvent().Connect([&](Window& window, MouseScrollEventProperties mouseWheelEventProperties) {
+        win.Events().MouseScrollEvent().Connect([&](Window& window, SDL_MouseWheelEvent mouseWheelEventProperties) {
             if (Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
                 
-                m_EditorCamera.GetAsObject().GetComponent<Camera>().MoveInRelationToView(0, 0, -mouseWheelEventProperties.offset.y * window.GetDeltaTime() * 400);
+                m_EditorCamera.GetAsObject().GetComponent<Camera>().MoveInRelationToView(0, 0, -mouseWheelEventProperties.y * window.GetDeltaTime() * 400);
                 
             }
         });
@@ -297,60 +295,64 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
 
 void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
 {
+    static bool first = true;
     static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
-    if (m_IsObjectSelected && m_EditorCamera) {
+    if (GuiLayer::AnyObjectSelected() && m_EditorCamera) {
+        if (GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
-        ImGuizmo::SetDrawlist();
-        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+            GameObject clickedObject = GuiLayer::AnyObjectSelected().GetAs<GameObject>();
+            glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection();
+            glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
+            TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
 
-        Object clickedObject(m_IsObjectSelected.objectID);
-        glm::mat4 proj = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetProjection();
-        glm::mat4 view = m_EditorCamera.GetAsObject().GetComponent<Camera>().GetView();
-        TransformComponent& objectTransform = clickedObject.GetComponent<TransformComponent>();
+            if (objectTransform.GetScale().x == 0) {
+                objectTransform.SetScale(0.1, 0, 0);
+            }
+            if (objectTransform.GetScale().y == 0) {
+                objectTransform.SetScale(0, 0.1, 0);
+            }
+            if (objectTransform.GetScale().z == 0) {
+                objectTransform.SetScale(0, 0, 0.1);
+            }
 
-        if (objectTransform.GetScale().x == 0) {
-            objectTransform.SetScale(0.1, 0, 0);
+            glm::mat4 model = objectTransform.GetModelMatrix();
+
+            float snap[5] = { 0,0,0,0,0.1 };
+            ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), (ImGuizmo::OPERATION)imguizmoMode, ImGuizmo::MODE::LOCAL, glm::value_ptr(model), 0, snap);
+
+
+
+
+            if (ImGuizmo::IsUsing()) {
+                m_CanSelect = false;
+                objectTransform.SetFromModelMatrix(model);
+
+            }
+
         }
-        if (objectTransform.GetScale().y == 0) {
-            objectTransform.SetScale(0, 0.1, 0);
-        }
-        if (objectTransform.GetScale().z == 0) {
-            objectTransform.SetScale(0, 0, 0.1);
-        }
-
-        glm::mat4 model = objectTransform.GetModelMatrix();
-
-        float snap[5] = { 0,0,0,0,0.1 };
-        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), (ImGuizmo::OPERATION)imguizmoMode, ImGuizmo::MODE::LOCAL, glm::value_ptr(model), 0, snap);
-
-
-
-
-        if (ImGuizmo::IsUsing()) {
-            m_CanSelect = false;
-            objectTransform.SetFromModelMatrix(model);
-
-        }
-
-
 
     }
     ImVec2 gameSize = ImGui::GetWindowSize();
 
-    win.Events().KeyEvent().Connect([&](Window& window, KeyEventProperties keyEvent) {
+    if(first){
+        win.Events().KeyEvent().Connect([&](Window& window, SDL_KeyboardEvent keyEvent) {
 
-        if (keyEvent.action == GLFW_PRESS && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
-            if (keyEvent.key == GLFW_KEY_E) {
-                imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
+            if (keyEvent.type == SDL_KEYDOWN && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
+                if (keyEvent.keysym.scancode == SDLK_e) {
+                    imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
+                }
+                if (keyEvent.keysym.scancode == SDLK_r) {
+                    imguizmoMode = ImGuizmo::OPERATION::ROTATE;
+                }
+                if (keyEvent.keysym.scancode == SDLK_t) {
+                    imguizmoMode = ImGuizmo::OPERATION::SCALE;
+                }
             }
-            if (keyEvent.key == GLFW_KEY_R) {
-                imguizmoMode = ImGuizmo::OPERATION::ROTATE;
-            }
-            if (keyEvent.key == GLFW_KEY_T) {
-                imguizmoMode = ImGuizmo::OPERATION::SCALE;
-            }
-        }
-    });
+        });
+        first = false;
+    }
 
 
 
@@ -373,19 +375,19 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
         
         RayCastHit hit = RayCast(pos);
         if (hit) {
-            if (m_IsObjectSelected) {
-                Object(m_IsObjectSelected.objectID).Properties().SetHightlightState(false);
+            if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+                GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
             }
-            m_IsObjectSelected = ClickedObjectProperties(hit.hitObjectID);
-            Object(m_IsObjectSelected.objectID).Properties().SetHightlightState(true);
+            GuiLayer::AnyObjectSelected() = ObjectHandle(hit.hitObjectID);
+            GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(true);
         }
 
     }
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()) {
-        if (m_IsObjectSelected) {
-            Object(m_IsObjectSelected.objectID).Properties().SetHightlightState(false);
+        if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+            GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
         }
-        m_IsObjectSelected = ClickedObjectProperties();
+        GuiLayer::AnyObjectSelected() = ObjectHandle();
     }
 
     m_CanSelect = true;

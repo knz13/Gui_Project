@@ -27,7 +27,7 @@ Framebuffer::Framebuffer(float sizeX,float sizeY) : m_Size(sizeX,sizeY){
         
         this->Bind();
         
-        m_AttachedTexture = std::shared_ptr<Texture>(new Texture([=](Texture& tex){
+        m_AttachedTexture = std::shared_ptr<Texture<Type2D>>(new Texture<Type2D>([=](Texture<Type2D>& tex){
             tex.Bind();
 
             GL_CALL(glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, sizeX, sizeY));
@@ -90,6 +90,6 @@ const glm::vec2& Framebuffer::GetSize() {
     return m_Size;    
 }
 
-Texture& Framebuffer::GetAttachedTexture() {
+Texture<Type2D>& Framebuffer::GetAttachedTexture() {
     return *m_AttachedTexture.get();
 }

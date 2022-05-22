@@ -4,3 +4,4 @@
 /out*
 .vs
 CmakeSettings.json
+/enc_temp_folder*

@@ -4,7 +4,6 @@
 
 
 
-
 int main(){
     
 
@@ -15,13 +14,14 @@ int main(){
     prop.openGLVersionMinor = 3;
     prop.width = 1280;
     
+    
     prop.height = 720;
     prop.title = "window";
     Window win(prop);
 
     GuiLayer::AddUi(win);
     
-
+    //Object obj = ObjectPropertyRegister::CreateObjectFromType("GameObject", "Hey!");
     
 
 
@@ -29,6 +29,6 @@ int main(){
 
     
 
-
+    return 0;
     
 }
