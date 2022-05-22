@@ -1,7 +1,7 @@
 #pragma once
 #include "../general/helpers.h"
 #include "../vendor/entt/single_include/entt/entt.hpp"
-#include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
+
 #include <random>
 
 namespace ComponentHelpers {
@@ -24,7 +24,7 @@ public:
     
     
 
-    static reactphysics3d::PhysicsCommon& GetPhysicsCommon();
+    
     
     static std::string GetComponentDisplayName(std::string componentClassName);
 
@@ -43,7 +43,7 @@ private:
 
     
     static std::mt19937 m_RandomGenerator;
-    static reactphysics3d::PhysicsCommon m_PhysicsManager;
+   
     static entt::registry m_Registry;
 
 };

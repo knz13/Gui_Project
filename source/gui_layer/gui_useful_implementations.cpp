@@ -4,7 +4,6 @@
 #include "../vendor/imgui/imstb_textedit.h"
 #include "../vendor/imgui/imstb_rectpack.h"
 #include "../kv.h"
-#include "GLFW/glfw3.h"
 #include <iomanip>
 
 void BeginGroupPanel(const char* name, const ImVec2& size) {
@@ -192,14 +191,16 @@ void ImGui::DragTextFloat(std::string text,float* val,float speed,float min,floa
 
     if(selected){
         if(selected != wasSelected){
-            double x,y;
-            glfwGetCursorPos(Window::GetCurrentWindow().GetContextPointer(),&x,&y);
-            lastPosX = x;
+            
+            lastPosX = Window::GetCurrentWindow().GetMousePos().x;
         }
         if(IsMouseDown(ImGuiMouseButton_Left)){
-            glfwSetInputMode(Window::GetCurrentWindow().GetContextPointer(),GLFW_CURSOR,GLFW_CURSOR_DISABLED);
-            double x,y;
-            glfwGetCursorPos(Window::GetCurrentWindow().GetContextPointer(),&x,&y);
+            SDL_ShowCursor(SDL_DISABLE);
+            
+            glm::vec2 vec = Window::GetCurrentWindow().GetMousePos();
+            double x, y;
+            x = vec.x;
+            y = vec.y;
             if(min < max){
                 if(*val > min || *val < max){
                     *val += (x - lastPosX) * Window::GetCurrentWindow().GetDeltaTime()*speed * 100;
@@ -212,7 +213,7 @@ void ImGui::DragTextFloat(std::string text,float* val,float speed,float min,floa
             
         }
         if(IsMouseReleased(ImGuiMouseButton_Left)){
-            glfwSetInputMode(Window::GetCurrentWindow().GetContextPointer(),GLFW_CURSOR,GLFW_CURSOR_NORMAL);
+            SDL_ShowCursor(SDL_ENABLE);
             selected = false;
         }
         

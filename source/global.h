@@ -14,10 +14,10 @@
 #include "../vendor/glm/glm/gtx/quaternion.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "../vendor/glm/glm/gtx/matrix_decompose.hpp"
-
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include "../vendor/glew/include/GL/glew.h"
-#include "../vendor/glfw/include/GLFW/glfw3.h"
 #include "../vendor/glm/glm/gtc/type_ptr.hpp"
 #include "general/structures.h"
 #include "general/color.h"
@@ -29,7 +29,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "gui_layer/gui_useful_implementations.h"
-#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_sdl.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/imguizmo/ImGuizmo.h"
@@ -40,7 +40,8 @@
 #include "components/component.h"
 #include "object/object.h"
 #include "components/add_only_to.h"
-#include "../vendor/react_physics/include/reactphysics3d/reactphysics3d.h"
+#define SDL_MAIN_HANDLED
+#include "SDL.h"
 using namespace std;
 
 

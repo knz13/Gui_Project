@@ -281,10 +281,10 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
     m_ContentRectMax = ImVec2(ImGui::GetWindowSize().x + m_ContentRectMin.x, ImGui::GetWindowSize().y + m_ContentRectMin.y);
 
     if (!hasSetupWheelCallback) {
-        win.Events().MouseScrollEvent().Connect([&](Window& window, MouseScrollEventProperties mouseWheelEventProperties) {
+        win.Events().MouseScrollEvent().Connect([&](Window& window, SDL_MouseWheelEvent mouseWheelEventProperties) {
             if (Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
                 
-                m_EditorCamera.GetAsObject().GetComponent<Camera>().MoveInRelationToView(0, 0, -mouseWheelEventProperties.offset.y * window.GetDeltaTime() * 400);
+                m_EditorCamera.GetAsObject().GetComponent<Camera>().MoveInRelationToView(0, 0, -mouseWheelEventProperties.y * window.GetDeltaTime() * 400);
                 
             }
         });
@@ -337,16 +337,16 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
     ImVec2 gameSize = ImGui::GetWindowSize();
 
     if(first){
-        win.Events().KeyEvent().Connect([&](Window& window, KeyEventProperties keyEvent) {
+        win.Events().KeyEvent().Connect([&](Window& window, SDL_KeyboardEvent keyEvent) {
 
-            if (keyEvent.action == GLFW_PRESS && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
-                if (keyEvent.key == GLFW_KEY_E) {
+            if (keyEvent.type == SDL_KEYDOWN && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
+                if (keyEvent.keysym.scancode == SDLK_e) {
                     imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
                 }
-                if (keyEvent.key == GLFW_KEY_R) {
+                if (keyEvent.keysym.scancode == SDLK_r) {
                     imguizmoMode = ImGuizmo::OPERATION::ROTATE;
                 }
-                if (keyEvent.key == GLFW_KEY_T) {
+                if (keyEvent.keysym.scancode == SDLK_t) {
                     imguizmoMode = ImGuizmo::OPERATION::SCALE;
                 }
             }

@@ -5,7 +5,7 @@
 #include <ctime>
 
 
-reactphysics3d::PhysicsCommon Registry::m_PhysicsManager;
+
 entt::registry Registry::m_Registry;
 std::mt19937 Registry::m_RandomGenerator(time(nullptr));
 entt::registry& Registry::Get() {
@@ -39,9 +39,7 @@ std::string Registry::GetComponentDisplayName(std::string componentClassName)
 
 
 
-reactphysics3d::PhysicsCommon& Registry::GetPhysicsCommon() {
-    return m_PhysicsManager; 
-}
+
 
 size_t Registry::GenerateRandomNumber() {
     return m_RandomGenerator();

@@ -14,7 +14,7 @@
 #include "../vendor/entt/single_include/entt/entt.hpp"
 #include "../vendor/entt/single_include/entt/entt.hpp"
 #include "../vendor/glew/include/GL/glew.h"
-#include "../vendor/glfw/include/GLFW/glfw3.h"
+
 #include "../vendor/glm/glm/gtc/type_ptr.hpp"
 #include "../vendor/assimp/include/assimp/Importer.hpp"
 #include "../vendor/assimp/include/assimp/scene.h"
@@ -23,11 +23,11 @@
 #include "../vendor/assimp/include/assimp/cimport.h"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_sdl.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/yaml/include/yaml-cpp/yaml.h"
-#include "../vendor/dialog/include/nfd.hpp"
+#include "../vendor/dialog/src/include/nfd.hpp"
 #include <source_location>
 
 using namespace std;
@@ -79,7 +79,7 @@ static void ClearGLErrors() {
 static bool GetGLError(int line, std::string file) {
     GLenum code = glGetError();
     if (code != GL_NO_ERROR) {
-        cout << "OpenGL error '" << gluErrorString(code) << "' \nAt line: " << line << " \nIn file: " << file << endl;
+        cout << "OpenGL error '" << std::to_string(code) << "' \nAt line: " << line << " \nIn file: " << file << endl;
         return true;
     }
     return false;
