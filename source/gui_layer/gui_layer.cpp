@@ -26,7 +26,7 @@ void GuiLayer::Init() {
         }
 
         // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(win.GetContextPointer(), true);
+        ImGui_ImplSDL2_InitForOpenGL(Window::GetCurrentWindow().GetWindowPointer(),Window::GetCurrentWindow().GetContext());
         ImGui_ImplOpenGL3_Init("#version 430 core");
     });
 
@@ -36,6 +36,9 @@ void GuiLayer::Init() {
 void GuiLayer::AddUi(Window& win) {
     
     
+    win.Events().AllEvents().Connect([](Window&, SDL_Event& ev) {
+        ImGui_ImplSDL2_ProcessEvent(&ev);
+    });
 
     if (NFD_Init() == NFD_OKAY) {
         win.Events().ClosingEvent().Connect([](Window& win) {
@@ -67,10 +70,10 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::Render();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
+           
         }
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -89,7 +92,7 @@ void GuiLayer::AddUi(Window& win) {
 
 
         ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
         
@@ -106,10 +109,10 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::PopStyleVar(2);
 
         if (BaseSettings::LoadedScenePath != "") {
-            glfwSetWindowTitle(Window::GetCurrentWindow().GetContextPointer(), ("Kv Engine - " + std::filesystem::path(BaseSettings::LoadedScenePath).stem().string()).c_str());
+            SDL_SetWindowTitle(Window::GetCurrentWindow().GetWindowPointer(), ("Kv Engine - " + std::filesystem::path(BaseSettings::LoadedScenePath).stem().string()).c_str());
         }
         else {
-            glfwSetWindowTitle(Window::GetCurrentWindow().GetContextPointer(), "Kv Engine");
+            SDL_SetWindowTitle(Window::GetCurrentWindow().GetWindowPointer(), "Kv Engine");
 
         }
         if (ImGui::BeginMainMenuBar()) {

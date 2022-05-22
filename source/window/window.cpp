@@ -2,63 +2,76 @@
 #include "kv.h"
 
 
-std::map<GLFWwindow*,Window*> Window::m_CurrentWindows;
+
 EventLauncher<void(Window&)> Window::m_StartWindowFuncs;
 Window* Window::m_MainWindow = nullptr;
 
 Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     Window::m_MainWindow = this;
-    if(glfwInit() != GLFW_TRUE){
-        DEBUG_ERROR("GLFW was not initiated!");
-        return;
-    }
+    
+    SDL_Init(SDL_INIT_EVERYTHING);
+
+    int contextFlags = 0;
+    int windowFlags = SDL_WINDOW_OPENGL;
 
     if(prop.windowFlags != WindowFlag::None){
         if(prop.windowFlags & WindowFlag::OpenGLDebugContext){
-            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
+            contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
         }
         if(prop.windowFlags & WindowFlag::InitiallyMinimized){
-            glfwWindowHint(GLFW_VISIBLE,GLFW_FALSE);
+            windowFlags |= SDL_WINDOW_MINIMIZED;
         }
-        if(prop.windowFlags & WindowFlag::NotDecorated){
-            glfwWindowHint(GLFW_DECORATED,GLFW_FALSE);
+        else {
+            windowFlags |= SDL_WINDOW_MAXIMIZED;
         }
-        if(prop.windowFlags & WindowFlag::NotResizeable){
-            glfwWindowHint(GLFW_RESIZABLE,GLFW_FALSE);
+        
+        if(!(prop.windowFlags & WindowFlag::NotResizeable)){
+            windowFlags |= SDL_WINDOW_RESIZABLE;
         }
-        if(prop.windowFlags & WindowFlag::NotFocused){
-            glfwWindowHint(GLFW_FOCUSED,GLFW_FALSE);
-        }
-        if(prop.windowFlags & WindowFlag::FocusOnShow){
-            glfwWindowHint(GLFW_FOCUS_ON_SHOW,GLFW_TRUE);
-        }
+        
+        
         
         if((prop.openGLVersionMajor == 3 && prop.openGLVersionMinor > 2) || prop.openGLVersionMajor > 3){
             if(prop.windowFlags & WindowFlag::CoreProfile){
-                glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+                contextFlags |= SDL_GL_CONTEXT_PROFILE_CORE;
             }
             else {
-                glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_COMPAT_PROFILE);
+                contextFlags |= SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
             }
         }
     }
 
     
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,prop.openGLVersionMajor);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,prop.openGLVersionMinor);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, prop.openGLVersionMajor);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, prop.openGLVersionMinor);
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
 
     if(prop.windowFlags & WindowFlag::FullScreen){
-        this->m_ContextPointer = glfwCreateWindow(prop.width,prop.height,prop.title.c_str(),glfwGetPrimaryMonitor(),NULL);
+        windowFlags |= SDL_WINDOW_FULLSCREEN;
     }
-    else {
-        this->m_ContextPointer = glfwCreateWindow(prop.width,prop.height,prop.title.c_str(),NULL,NULL);
+   
+    this->m_WindowPointer = SDL_CreateWindow(prop.title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        prop.width,prop.height, windowFlags);
+
+    if (!this->m_WindowPointer) {
+        DEBUG_ERROR(("Could not create window:" + std::string(SDL_GetError())).c_str());
+        return;
     }
 
-    Window::m_CurrentWindows[this->m_ContextPointer] = this;
+
+    this->m_Context = SDL_GL_CreateContext(m_WindowPointer);
+
+    if (!m_Context) {
+        DEBUG_ERROR(("Could not create context:" + std::string(SDL_GetError())).c_str());
+        return;
+    }
+    SDL_GL_MakeCurrent(m_WindowPointer, m_Context);
     
-
-    glfwMakeContextCurrent(this->m_ContextPointer);
+    SDL_GL_SetSwapInterval(1);
 
     glewExperimental = true;
     if(glewInit() != GLEW_OK){
@@ -77,7 +90,17 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     m_MainCamera = mainCamera.ID();
 
-    
+    this->Events().ClosingEvent().Connect([](Window&) {
+
+        ObjectPropertyRegister::Each([](Object object) {
+            ObjectPropertyRegister::DeleteObject(object);
+            });
+
+
+        ObjectPropertyRegister::ClearDeletingQueue();
+
+        Registry::Get().clear();
+        });
 
     
     GL_CALL(glEnable(GL_PROGRAM_POINT_SIZE));
@@ -87,78 +110,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     GL_CALL(glEnable(GL_BLEND));
     GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-    glfwSetKeyCallback(this->GetContextPointer(),[](GLFWwindow* ptr,int key, int scancode, int action, int mods){
-        Window& win = *Window::GetWindow(ptr);
-        KeyEventProperties prop;
-        prop.key = key;
-        prop.scancode = scancode;
-        prop.action = action;
-        prop.mods = mods;
-        win.m_KeyEventFuncs.EmitEvent(win,prop);
-    });
-
-    glfwSetCursorPosCallback(this->GetContextPointer(),[](GLFWwindow* window, double xpos, double ypos){
-        Window& win = *Window::GetWindow(window);
-        MouseEventProperties prop;
-        prop.position = glm::vec2(xpos,ypos);
-        win.m_MouseMovedFuncs.EmitEvent(win,prop);
-    });
-
-    glfwSetCursorEnterCallback(this->GetContextPointer(),[](GLFWwindow* window,int entered){
-        double xpos,ypos;
-        glfwGetCursorPos(window,&xpos,&ypos);
-        MouseEventProperties prop;
-        prop.position = glm::vec2(xpos,ypos);
-        Window& win = *Window::GetWindow(window);
-        if(entered){
-            win.m_MouseEnteredWindowFuncs.EmitEvent(win,prop);
-        }
-        else {
-            win.m_MouseLeftWindowFuncs.EmitEvent(win,prop);
-        }
-    });
-
-    glfwSetMouseButtonCallback(this->GetContextPointer(),[](GLFWwindow* window, int button, int action, int mods){
-        double xpos,ypos;
-        glfwGetCursorPos(window,&xpos,&ypos);
-        Window& win = *Window::GetWindow(window);
-        MouseButtonEventProperties prop;
-        prop.button = button;
-        prop.action = action;
-        prop.mods = mods;
-        prop.position = glm::vec2(xpos,ypos);
-        win.m_MouseButtonFuncs.EmitEvent(win,prop);
-    });
-
-    glfwSetScrollCallback(this->GetContextPointer(),[](GLFWwindow* window, double xoffset, double yoffset){
-        Window& win = *Window::GetWindow(window);
-        MouseScrollEventProperties prop;
-        prop.offset = glm::vec2(xoffset,yoffset);
-        win.m_MouseScrollFuncs.EmitEvent(win,prop);
-    });
-
-    glfwSetFramebufferSizeCallback(this->GetContextPointer(),[](GLFWwindow* window, int width, int height){
-        Window& win = *Window::GetWindow(window);
-        WindowResizedEventProperties prop;
-        prop.width = width;
-        prop.height = height;
-        win.m_WindowResizedEventFuncs.EmitEvent(win,prop);
-    });
-
-    glfwSetWindowCloseCallback(this->GetContextPointer(),[](GLFWwindow* window){
-        Window& win = *Window::GetWindow(window);
-        win.m_IsOpen = false;
-        
-    });
-
-    glfwSetWindowFocusCallback(this->GetContextPointer(), [](GLFWwindow* window, int focused) {
-        bool hasFocus = focused == GLFW_TRUE ? true : false;
-
-        Window& win = *Window::GetWindow(window);
-        win.m_FocusEventFuncs.EmitEvent(win,hasFocus);
-
-        
-    });
+    
 
     this->Events().ResizedEvent().Connect([](Window& win,WindowResizedEventProperties prop){
         win.m_Properties.width = prop.width;
@@ -185,31 +137,83 @@ Window::~Window() {
 
     
 
-    Window::m_CurrentWindows.erase(m_ContextPointer);
+    
 
-    glfwDestroyWindow(m_ContextPointer);
+    SDL_DestroyWindow(m_WindowPointer);
 }
 
 bool Window::IsOpen() {
-    return !glfwWindowShouldClose(m_ContextPointer);
+    return m_IsOpen;
 }
 
-GLFWwindow* Window::GetContextPointer() {
-    return m_ContextPointer;
+SDL_GLContext& Window::GetContext() {
+    return m_Context;
 }
 
 void Window::EndDrawState() {
     m_PostDrawingLoopFuncs.EmitEvent(*this);
     
     
-    glfwSwapBuffers(m_ContextPointer);
+    SDL_GL_SwapWindow(m_WindowPointer);
 
 }
 
 void Window::BeginDrawState() {
     m_PreDrawingLoopFuncs.EmitEvent(*this);
 
-    glfwPollEvents();
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) {
+        m_EventCallback.EmitEvent(*this, event);
+        switch (event.type) {
+        case SDL_WINDOWEVENT:
+            switch (event.window.event) {
+            case SDL_WINDOWEVENT_CLOSE:
+                m_ClosingCallbackFuncs.EmitEvent(*this);
+                m_IsOpen = false;
+                break;
+            case SDL_WINDOWEVENT_ENTER:
+                m_MouseEnteredWindowFuncs.EmitEvent(*this, {GetMousePos()});
+                break;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                m_FocusEventFuncs.EmitEvent(*this, false);
+                break;
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                m_FocusEventFuncs.EmitEvent(*this, true);
+                break;
+            case SDL_WINDOWEVENT_LEAVE:
+                m_MouseLeftWindowFuncs.EmitEvent(*this, { GetMousePos() });
+                break;
+            case SDL_WINDOWEVENT_TAKE_FOCUS:
+                m_FocusEventFuncs.EmitEvent(*this, true);
+                break;
+
+            }
+            break;
+        case SDL_KEYDOWN:
+            m_KeyEventFuncs.EmitEvent(*this, event.key);
+            break;
+        case SDL_KEYUP:
+            m_KeyEventFuncs.EmitEvent(*this, event.key);
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            m_MouseButtonFuncs.EmitEvent(*this, event.button);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            m_MouseButtonFuncs.EmitEvent(*this, event.button);
+            break;
+        case SDL_MOUSEMOTION:
+            m_MouseMovedFuncs.EmitEvent(*this, event.motion);
+            break;
+        case SDL_MOUSEWHEEL:
+            m_MouseScrollFuncs.EmitEvent(*this, event.wheel);
+            break;
+        case SDL_DROPFILE:
+            break;
+        case SDL_DROPTEXT:
+            break;
+        }
+    }
 
     glm::vec3 color = m_ClearColor.Normalized();
     GL_CALL(glClearColor(color.x,color.y,color.z,1.0f));
@@ -264,13 +268,13 @@ void Window::DrawingLoop() {
 
     while(IsOpen()){
 
-        glfwMakeContextCurrent(m_ContextPointer);
+        SDL_GL_MakeCurrent(m_WindowPointer,m_Context);
 
         
         
         BeginDrawState();
         
-        currentTime = glfwGetTime();
+        currentTime = SDL_GetTicks();
         m_DeltaTime = static_cast<float>(currentTime - oldTime);
 
         oldTime = currentTime;
@@ -310,23 +314,12 @@ void Window::DrawingLoop() {
     
 
 
-    ObjectPropertyRegister::Each([](Object object){
-        ObjectPropertyRegister::DeleteObject(object);
-    });
-
-
-    ObjectPropertyRegister::ClearDeletingQueue();
-    Registry::Get().clear();
+    
 }
 
 
 
-Window* Window::GetWindow(GLFWwindow* win) {
-    if(Window::m_CurrentWindows.find(win) != Window::m_CurrentWindows.end()){
-        return Window::m_CurrentWindows[win];
-    }
-    return nullptr;
-}
+
 
 VertexArray& WindowCreators::NewVertexArray() {
     VertexArray& vertex = *m_Master.m_CreatedVertexArrays.emplace_back(std::make_unique<VertexArray>()).get();
@@ -396,39 +389,44 @@ WindowCreators Window::Create() {
 
 
 FunctionSink<void(Window&,MouseEventProperties)> WindowEvents::MouseLeftWindowEvent() {
-    return FunctionSink<void(Window&,MouseEventProperties)>(m_Master.m_MouseLeftWindowFuncs);
+    return { m_Master.m_MouseLeftWindowFuncs };
 }
 
 
 
 FunctionSink<void(Window&,MouseEventProperties)> WindowEvents::MouseEnteredWindowEvent() {
-    return FunctionSink<void(Window&,MouseEventProperties)>(m_Master.m_MouseEnteredWindowFuncs);
+    return { m_Master.m_MouseEnteredWindowFuncs };
 }
 
-FunctionSink<void(Window&,MouseButtonEventProperties)> WindowEvents::MouseButtonEvent() {
-    return FunctionSink<void(Window&,MouseButtonEventProperties)>(m_Master.m_MouseButtonFuncs);
+FunctionSink<void(Window&,SDL_MouseButtonEvent)> WindowEvents::MouseButtonEvent() {
+    return { m_Master.m_MouseButtonFuncs };
 }
 
 FunctionSink<void(Window&, bool)> WindowEvents::FocusEvent()
 {
-    return FunctionSink<void(Window&, bool)>(m_Master.m_FocusEventFuncs);
+    return { m_Master.m_FocusEventFuncs };
 }
 
-FunctionSink<void(Window&,MouseScrollEventProperties)> WindowEvents::MouseScrollEvent() {
-    return FunctionSink<void(Window&,MouseScrollEventProperties)>(m_Master.m_MouseScrollFuncs);
+FunctionSink<void(Window&,SDL_MouseWheelEvent)> WindowEvents::MouseScrollEvent() {
+    return { m_Master.m_MouseScrollFuncs };
 }
 
 FunctionSink<void(Window&,WindowResizedEventProperties)> WindowEvents::ResizedEvent() {
-    return FunctionSink<void(Window&,WindowResizedEventProperties)>(m_Master.m_WindowResizedEventFuncs);
+    return { m_Master.m_WindowResizedEventFuncs };
 }
 
-FunctionSink<void(Window&,KeyEventProperties)> WindowEvents::KeyEvent() {
-    return FunctionSink<void(Window&,KeyEventProperties)>(m_Master.m_KeyEventFuncs);
-}
-
-FunctionSink<void(Window&, MouseEventProperties)> WindowEvents::MouseMovedEvent()
+FunctionSink<void(Window&, SDL_Event&)> WindowEvents::AllEvents()
 {
-    return FunctionSink<void(Window&, MouseEventProperties)>(m_Master.m_MouseMovedFuncs);
+    return {m_Master.m_EventCallback};
+}
+
+FunctionSink<void(Window&,SDL_KeyboardEvent)> WindowEvents::KeyEvent() {
+    return { m_Master.m_KeyEventFuncs };
+}
+
+FunctionSink<void(Window&, SDL_MouseMotionEvent)> WindowEvents::MouseMovedEvent()
+{
+    return { m_Master.m_MouseMovedFuncs };
 }
 
 FunctionSink<void(Window&)> Window::WindowCreationEvent() {
@@ -449,6 +447,18 @@ FunctionSink<void(Window&)> WindowEvents::ClosingEvent() {
 
 RayCastHit Window::RayCast(glm::vec2 screenPos) {
     return GuiLayer::GameView::RayCast(ImVec2(screenPos.x,screenPos.y));    
+}
+
+SDL_Window* Window::GetWindowPointer()
+{
+    return m_WindowPointer;
+}
+
+glm::vec2 Window::GetMousePos()
+{
+    glm::ivec2 vec;
+    SDL_GetMouseState(&vec.x, &vec.y);
+    return glm::vec2(vec);
 }
 
 float Window::GetDeltaTime() {

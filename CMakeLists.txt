@@ -178,22 +178,6 @@ project("kv_project")
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES glew_project)
 
 
-#repository download and settings for alias glfw...
-
-
-	FetchContent_Declare(glfw_project
-
-		GIT_REPOSITORY https://github.com/glfw/glfw
-
-		GIT_TAG 3.3.7
-
-		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/glfw
-
-	)
-
-	list(APPEND ${PROJECT_NAME}_DEPENDENCIES glfw_project)
-
-
 #repository download and settings for alias glm...
 
 
@@ -210,9 +194,21 @@ project("kv_project")
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES glm_project)
 
 
-#find package settings for alias opengl
+#repository download and settings for alias sdl_repo...
 
-	find_package(OpenGL REQUIRED)
+
+	FetchContent_Declare(sdl_repo_project
+
+		GIT_REPOSITORY https://github.com/libsdl-org/SDL
+
+		GIT_TAG release-2.0.22
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/sdl_repo
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES sdl_repo_project)
+
 
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
 
@@ -225,8 +221,9 @@ project("kv_project")
 
 	endforeach() 
 
-#creating library
-add_library(kv STATIC
+#creating executable
+add_executable(kv
+
 
 	${PROJECT_SOURCE_DIR}/source/assets/asset_object.cpp
 
@@ -314,7 +311,7 @@ add_library(kv STATIC
 
 	${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
 
-	${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_glfw.cpp
+	${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_sdl.cpp
 
 	${PROJECT_SOURCE_DIR}/vendor/imgui/misc/cpp/imgui_stdlib.cpp
 
@@ -334,11 +331,9 @@ target_link_libraries(kv PUBLIC nfd)
 
 target_link_libraries(kv PUBLIC libglew_static)
 
-target_link_libraries(kv PUBLIC glfw)
+target_link_libraries(kv PUBLIC SDL2::SDL2-static)
 
-target_link_libraries(kv PUBLIC ${OpenGL_LIBRARIES})
-
-target_link_libraries(kv PUBLIC OpenGL::GLU)
+target_link_libraries(kv PUBLIC SDL2::SDL2main)
 
 
 #adding includes...
@@ -366,6 +361,6 @@ target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/dialog/include
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glew/include)
 
-target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
-
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glm/)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/sdl_repo/include)
