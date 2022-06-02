@@ -2,7 +2,7 @@
 #include "../kv.h"
 
 std::shared_ptr<Framebuffer> GuiLayer::GameView::m_RaycastTexture;
-ObjectHandle GuiLayer::GameView::m_EditorCamera;
+ecspp::ObjectHandle GuiLayer::GameView::m_EditorCamera;
 bool GuiLayer::GameView::m_CanSelect = true;
 RayCastHit GuiLayer::GameView::RayCast(ImVec2 pos) {
     uint32_t max = 0;
@@ -117,7 +117,7 @@ void GuiLayer::GameView::Setup(Window& win) {
     obj.GetComponent<Camera>().SetLookAt(0, 0, 0);
 
 
-    m_EditorCamera = ObjectHandle(obj.ID());
+    m_EditorCamera = ecspp::ObjectHandle(obj.ID());
 
     SetupEditorCameraDrawing();
 
@@ -378,7 +378,7 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
             if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
                 GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
             }
-            GuiLayer::AnyObjectSelected() = ObjectHandle(hit.hitObjectID);
+            GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle(hit.hitObjectID);
             GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(true);
         }
 
@@ -387,7 +387,7 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
         if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
             GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
         }
-        GuiLayer::AnyObjectSelected() = ObjectHandle();
+        GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle();
     }
 
     m_CanSelect = true;

@@ -91,8 +91,8 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     m_MainCamera = mainCamera.ID();
 
     this->Events().ClosingEvent().Connect([](Window&) {
-
-        ObjectPropertyRegister::Each([](Object object) {
+        
+        ObjectPropertyRegister::Each([](ecspp::Object object) {
             ObjectPropertyRegister::DeleteObject(object);
             });
 

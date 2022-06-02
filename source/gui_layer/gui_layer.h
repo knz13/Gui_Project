@@ -18,7 +18,7 @@ namespace GuiLayer {
 
     std::string GetImGuiID(void* ptr);
     
-    ObjectHandle& AnyObjectSelected();
+    ecspp::ObjectHandle& AnyObjectSelected();
 
     void SetupWidgetStyle(std::function<void()> beginCommand);
     void SetupStaticTreeNodeStyle(std::function<void()> beginCommand);

@@ -166,7 +166,7 @@ struct RayCastHit {
     }
     
     operator bool() const {
-        return Registry::Get().valid(hitObjectID);
+        return ecspp::Registry::Get().valid(hitObjectID);
     };
 
     entt::entity hitObjectID = entt::null;

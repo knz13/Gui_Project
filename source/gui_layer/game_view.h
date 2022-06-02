@@ -3,7 +3,6 @@
 #include "gui_view.h"
 
 class Window;
-class Object;
 class Framebuffer;
 class FolderAsset;
 
@@ -22,7 +21,7 @@ private:
 
     static bool m_CanSelect;
     static std::shared_ptr<Framebuffer> m_RaycastTexture;
-    static ObjectHandle m_EditorCamera;
+    static ecspp::ObjectHandle m_EditorCamera;
     
     static inline ImVec2 m_ContentRectMin;
     static inline ImVec2 m_ContentRectMax;

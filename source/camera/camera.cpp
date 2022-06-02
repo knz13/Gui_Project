@@ -93,7 +93,7 @@ void Camera::Destroy()
     m_RenderTarget.reset();
 }
 
-void Camera::LookAt(Object& obj) {
+void Camera::LookAt(ecspp::Object& obj) {
     this->SetLookAt(obj.GetComponent<TransformComponent>().GetPosition().x,obj.GetComponent<TransformComponent>().GetPosition().y,obj.GetComponent<TransformComponent>().GetPosition().z);
 }
 

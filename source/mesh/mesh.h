@@ -2,7 +2,6 @@
 #include "../global.h"
 #include "../opengl_wrappers/vertex_array.h"
 #include "../general/transform.h"
-#include "../components/component.h"
 
 class Shader;
 class Mesh;

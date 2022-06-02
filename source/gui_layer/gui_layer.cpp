@@ -345,8 +345,8 @@ void GuiLayer::WindowIDs::CreateDock(std::string name, ImGuiID id)
     m_RegisteredIDs[name] = id;
 }
 
-ObjectHandle& GuiLayer::AnyObjectSelected() {
-    static ObjectHandle m_Selected;
+ecspp::ObjectHandle& GuiLayer::AnyObjectSelected() {
+    static ecspp::ObjectHandle m_Selected;
 
     return m_Selected;
 }

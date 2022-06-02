@@ -36,7 +36,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
         const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AddChildren",ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
 
         if(payload){
-            Object unParentTarget(*(entt::entity*)payload->Data);
+            ecspp::Object unParentTarget(*(entt::entity*)payload->Data);
             unParentTarget.Properties().ClearParent();
         }
 
@@ -45,7 +45,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
     if(ImGui::BeginPopupContextItem("AddingObjectsAndPropertiesPopup", ImGuiPopupFlags_MouseButtonRight)){
 
-        if(ImGui::BeginMenu("Create Object")){
+        if(ImGui::BeginMenu("Create ecspp::Object")){
             for(auto& [name,func] : m_DefaultObjects){
                 if(ImGui::MenuItem(name.c_str())){
                     func();
@@ -115,7 +115,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
                 
                 const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AddChildren");
                 if(payload){
-                    Object maybeChildren(*(entt::entity*)payload->Data);
+                    ecspp::Object maybeChildren(*(entt::entity*)payload->Data);
                     if(!maybeChildren.Properties().IsInChildren(obj)){
                         maybeChildren.Properties().ClearParent();
                         maybeChildren.Properties().SetParent(obj);
@@ -157,7 +157,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
                         GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
                     }
                 }
-                GuiLayer::AnyObjectSelected() = ObjectHandle(obj.ID());
+                GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle(obj.ID());
                 GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(true);
             }
 

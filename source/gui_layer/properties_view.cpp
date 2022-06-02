@@ -11,7 +11,7 @@ void GuiLayer::PropertiesView::Update(Window& win) {
     
 
     if (GuiLayer::AnyObjectSelected()) {
-        Object selected = GuiLayer::AnyObjectSelected().GetAsObject();
+        ecspp::Object selected = GuiLayer::AnyObjectSelected().GetAs<ecspp::Object>();
         selected.ShowObjectProperties();
 
         if (selected.GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {

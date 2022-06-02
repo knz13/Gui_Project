@@ -1,5 +1,4 @@
 #pragma once
-#include "../object/tagged_object.h"
 #include "../gui_layer/gui_useful_implementations.h"
 #include "../gui_layer/gui_layer.h"
 #include <filesystem>
@@ -34,9 +33,9 @@ public:
 
 	static std::string GetRegisteredAssetForExtension(std::string extension);
 	static bool CreateAssetAtFolder(std::string folder,std::string assetType);
-	static ObjectHandle LoadAssetForPath(std::string path);
-	static ObjectHandle GetAssetForPath(std::string path);
-	static std::string GetPathFromAsset(ObjectHandle handle);
+	static ecspp::ObjectHandle LoadAssetForPath(std::string path);
+	static ecspp::ObjectHandle GetAssetForPath(std::string path);
+	static std::string GetPathFromAsset(ecspp::ObjectHandle handle);
 	static bool UnloadAsset(std::string path);
 	static std::string GetExtensionForClass(std::string className);
 	static bool IsAsset(std::string typeName);
@@ -48,15 +47,11 @@ private:
 
 	template<typename T>
 	static void RegisterClassAsAsset() {
-		entt::id_type hash = HelperFunctions::HashClassName<T>();
-		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<T>>(entt::hashed_string("Create"));
-		entt::meta<T>().type(hash).template func<&CallOnExplorerUI<T>>(entt::hashed_string("Call Explorer UI"));
-		entt::meta<T>().type(hash).template func<&CallOnRename<T>>(entt::hashed_string("Call Rename"));
-		entt::meta<T>().type(hash).template func<&CallReadFile<T>>(entt::hashed_string("Call Read File"));
-		entt::meta<T>().type(hash).template func<&CallSaveFile<T>>(entt::hashed_string("Call Save File"));
-		entt::meta<T>().type(hash).template func<&CallRenameCreation<T>>(entt::hashed_string("Rename On Creation"));
-		
-		
+		ecspp::Meta<T>().RegisterFunc<&CallOnExplorerUI<T>>("Call Explorer UI");
+		ecspp::Meta<T>().RegisterFunc<&CallOnRename<T>>("Call Rename");
+		ecspp::Meta<T>().RegisterFunc<&CallReadFile<T>>("Call Read File");
+		ecspp::Meta<T>().RegisterFunc<&CallSaveFile<T>>("Call Save File");
+		ecspp::Meta<T>().RegisterFunc<&CallRenameCreation<T>>("Rename On Creation");		
 
 		m_RegisteredAssetClasses.push_back(HelperFunctions::GetClassName<T>());
 
@@ -120,12 +115,6 @@ private:
 
 };
 
-//Do Not Use!
-template<typename Derived,typename Storage,typename ComponentName = ComponentHelpers::Null>
-class AssetComponent : public ComponentSpecifier<ComponentName, AssetObjectSpecifier<Derived,Storage>> {
-
-};
-
 class AssetObject {
 public:
 	AssetObject(entt::entity e);
@@ -163,9 +152,12 @@ private:
 };
 
 template<typename Derived,typename Storage>
-class AssetObjectSpecifier : public TaggedObject<Derived, AssetComponent<Derived,Storage>,Storage> ,public AssetObject {
+class AssetObjectSpecifier : 
+	public ecspp::RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>,
+	public ecspp::RegisterStorage<AssetObjectSpecifier<Derived,Storage>,Storage>,
+	public AssetObject {
 public:
-	AssetObjectSpecifier(entt::entity e) : TaggedObject<Derived, AssetComponent<Derived,Storage>, Storage>(e),AssetObject(e) {
+	AssetObjectSpecifier(entt::entity e) : RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>(e),AssetObject(e) {
 		(void)dummy;
 	}
 
@@ -175,7 +167,7 @@ public:
 	
 
 	std::string GetPath() {
-		return AssetRegister::GetPathFromAsset(ObjectHandle(this->ID()));
+		return AssetRegister::GetPathFromAsset(ecspp::ObjectHandle(this->ID()));
 	}
 
 
@@ -200,7 +192,7 @@ private:
 		GetPrivateStorage().tempWord = "";
 		GetPrivateStorage().m_IsRenaming = false;
 		if (GuiLayer::ExplorerView::GetTempObject().ID() == this->ID()) {
-			GuiLayer::ExplorerView::GetTempObject() = ObjectHandle();
+			GuiLayer::ExplorerView::GetTempObject() = ecspp::ObjectHandle();
 		}
 	}
 
@@ -224,7 +216,7 @@ private:
 
 	void OnRenameCall() final {
 		GetPrivateStorage().m_IsRenaming = true;
-		GetPrivateStorage().tempWord = Object::Properties().GetName();
+		GetPrivateStorage().tempWord = Properties().GetName();
 	}
 
 	AssetObjectSpecifierStorage& GetPrivateStorage() {
@@ -242,7 +234,7 @@ private:
 				GuiLayer::ExplorerView::SetCurrentPath(GetPath());
 			}
 
-			GuiLayer::AnyObjectSelected() = ObjectHandle(this->ID());
+			GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle(this->ID());
 		}
 
 		if(ImGui::BeginPopupContextItem(GuiLayer::GetImGuiID(&GetPrivateStorage()).c_str())) {

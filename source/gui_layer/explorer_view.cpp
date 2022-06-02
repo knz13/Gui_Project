@@ -263,7 +263,7 @@ void GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets()
 
 
 
-ObjectHandle& GuiLayer::ExplorerView::GetTempObject()
+ecspp::ObjectHandle& GuiLayer::ExplorerView::GetTempObject()
 {
     return m_CurrentCreatingObject;
 }

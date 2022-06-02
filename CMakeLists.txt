@@ -210,6 +210,38 @@ project("kv_project")
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES sdl_repo_project)
 
 
+#repository download and settings for alias ecspp...
+
+
+	FetchContent_Declare(ecspp_project
+
+		GIT_REPOSITORY https://github.com/knz13/ecspp
+
+		GIT_TAG origin/main
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/ecspp
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES ecspp_project)
+
+
+#repository download and settings for alias yael...
+
+
+	FetchContent_Declare(yael_project
+
+		GIT_REPOSITORY https://github.com/knz13/YAEL
+
+		GIT_TAG origin/main
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/yael
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES yael_project)
+
+
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
 
 	foreach(X IN LISTS ${PROJECT_NAME}_DEPENDENCIES)
@@ -238,8 +270,6 @@ add_executable(kv
 	${PROJECT_SOURCE_DIR}/source/assets/text_asset.cpp
 
 	${PROJECT_SOURCE_DIR}/source/camera/camera.cpp
-
-	${PROJECT_SOURCE_DIR}/source/components/component.cpp
 
 	${PROJECT_SOURCE_DIR}/source/general/color.cpp
 
@@ -272,14 +302,6 @@ add_executable(kv
 	${PROJECT_SOURCE_DIR}/source/model_loader/texture_loader.cpp
 
 	${PROJECT_SOURCE_DIR}/source/object/game_object.cpp
-
-	${PROJECT_SOURCE_DIR}/source/object/object.cpp
-
-	${PROJECT_SOURCE_DIR}/source/object/object_properties.cpp
-
-	${PROJECT_SOURCE_DIR}/source/object/object_property_register.cpp
-
-	${PROJECT_SOURCE_DIR}/source/object/registry.cpp
 
 	${PROJECT_SOURCE_DIR}/source/opengl_wrappers/framebuffer.cpp
 
@@ -364,3 +386,7 @@ target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glew/include)
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glm/)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/sdl_repo/include)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/ecspp/include)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/yael/include)

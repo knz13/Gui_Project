@@ -29,13 +29,15 @@
 #include "../vendor/yaml/include/yaml-cpp/yaml.h"
 #include "../vendor/dialog/src/include/nfd.hpp"
 #include <source_location>
+#include "../vendor/ecspp/include/ecspp.h"
+#include "../vendor/yael/yael.h"
 
 using namespace std;
 
 
 #define GL_SIZEOF(x) TestSize(x)
 #define KV_CLASS private: \
-                    friend class Registry; friend class Window; friend class Object; friend class Camera;
+                    friend class Registry; friend class Window; friend class Camera;
 #define KV_DRAWING_MODE private: friend class Mesh;
 
 

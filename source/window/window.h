@@ -46,7 +46,6 @@ private:
 
 };
 
-class ObjectHandle;
 class Window {
 
     KV_CLASS

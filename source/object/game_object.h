@@ -1,5 +1,4 @@
 #pragma once
-#include "tagged_object.h"
 #include "../general/structures.h"
 
 
@@ -14,11 +13,10 @@ private:
 };
 
 
-template<typename=ComponentHelpers::Null>
-class GameComponent;
+
 class TransformComponent;
 
-class GameObject : public TaggedObject<GameObject,GameComponent<>,GameObjectProperties> {
+class GameObject : public ecspp::RegisterObjectType<GameObject>, public ecspp::RegisterStorage<GameObject,GameObjectProperties> {
 public:
 	GameObject(entt::entity e);
 
@@ -35,9 +33,9 @@ public:
 	
 	
 protected:
-    YAML::Node Serialize() override;
-    bool Deserialize(YAML::Node& node) override;
-	void ShowProperties() override;
+    YAML::Node Serialize() ;
+    bool Deserialize(YAML::Node& node) ;
+	void ShowProperties() ;
 
 
 };
@@ -45,7 +43,7 @@ protected:
 
 
 template<typename Component>
-class GameComponent : public ComponentSpecifier<Component, GameObject> {
+class GameComponent : public ecspp::ComponentSpecifier<Component, GameObject> {
 public:
     bool IsEnabled() {
         return GetActiveState();
@@ -63,6 +61,7 @@ public:
     virtual void ShowProperties() {};
 
 protected:
+    virtual void Update(float deltaTime) {};
 
    
 

@@ -2,7 +2,6 @@
 #include "../global.h"
 
 class Framebuffer;
-class Object;
 class Window;
 class RenderTextureAsset;
 class Camera : public GameComponent<Camera> {
@@ -17,7 +16,7 @@ public:
     
 
     void MoveInRelationToView(float rightLeft,float upDown,float frontBack);
-    void LookAt(Object& obj);
+    void LookAt(ecspp::Object& obj);
     void SetLookAt(float x,float y,float z);
     void SetDirection(float x,float y,float z);
     
