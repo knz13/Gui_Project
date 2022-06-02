@@ -33,9 +33,10 @@ public:
 	
 	
 protected:
-    YAML::Node Serialize() ;
-    bool Deserialize(YAML::Node& node) ;
-	void ShowProperties() ;
+
+    virtual YAML::Node Serialize();
+    virtual bool Deserialize(YAML::Node& node);
+	virtual void ShowProperties();
 
 
 };

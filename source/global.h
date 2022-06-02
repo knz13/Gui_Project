@@ -33,13 +33,8 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/imguizmo/ImGuizmo.h"
-#include "object/registry.h"
-#include "components/add_to_every_object.h"
 #include "general/math.h"
 #include "general/helpers.h"
-#include "components/component.h"
-#include "object/object.h"
-#include "components/add_only_to.h"
 #define SDL_MAIN_HANDLED
 #include "SDL.h"
 using namespace std;

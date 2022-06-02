@@ -1,7 +1,7 @@
 #include "game_object.h"
 #include "../kv.h"
 
-GameObject::GameObject(entt::entity e) : TaggedObject(e)
+GameObject::GameObject(entt::entity e) : RegisterObjectType(e)
 {
 
 }
@@ -78,10 +78,10 @@ void GameObject::ShowProperties()
 
         
 
-        for (auto& name : Properties().GetComponentsNames()) {
-            auto* comp = GetComponentByName(name);
+        for (auto& name : GetComponentsNames()) {
+            auto& comp = GetComponentByName(name).GetAs<>();
 
-            if (!comp->IsVisibleInEditor()) {
+            if (!comp.IsVisibleInEditor()) {
                 continue;
             }
 
@@ -106,7 +106,7 @@ void GameObject::ShowProperties()
             bool selected;
             
             GuiLayer::SetupStaticTreeNodeStyle([&]() {
-                selected = ImGui::TreeNodeEx((Registry::GetComponentDisplayName(name)).c_str(), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
+                selected = ImGui::TreeNodeEx(name.c_str()), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
             });
             
                 
