@@ -157,7 +157,7 @@ class AssetObjectSpecifier :
 	public ecspp::RegisterStorage<AssetObjectSpecifier<Derived,Storage>,Storage>,
 	public AssetObject {
 public:
-	AssetObjectSpecifier(entt::entity e) : RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>(e),AssetObject(e) {
+	AssetObjectSpecifier(entt::entity e) : ecspp::RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>(e),AssetObject(e) {
 		(void)dummy;
 	}
 
@@ -172,7 +172,7 @@ public:
 
 
 protected:
-	
+	virtual void ShowProperties() {};
 	virtual void SetupExplorerIcon(ImVec2 size) {};
 	virtual void OnDestroy() {};
 	virtual void OnCreate() {};
@@ -216,11 +216,11 @@ private:
 
 	void OnRenameCall() final {
 		GetPrivateStorage().m_IsRenaming = true;
-		GetPrivateStorage().tempWord = Properties().GetName();
+		GetPrivateStorage().tempWord =	this->GetName();
 	}
 
 	AssetObjectSpecifierStorage& GetPrivateStorage() {
-		return Registry::Get().get<AssetObjectSpecifierStorage>(this->ID());
+		return ecspp::Registry::Get().get<AssetObjectSpecifierStorage>(this->ID());
 	}
 
 	void OnExplorerUI(ImVec2 size) final {
@@ -261,14 +261,14 @@ private:
 		SetupExplorerIcon(size);
 
 		if (!GetPrivateStorage().m_IsRenaming) {
-			ImGui::Text(GetMaxWord(this->Properties().GetName(), size.x).c_str());
+			ImGui::Text(GetMaxWord(this->GetName(), size.x).c_str());
 		}
 		else {
 			//TODO: Make all this related to the explorerView and a method named GetRenamingObject() or something like that...
 			ImGui::SetNextItemWidth(size.x);
 			ImGui::SetKeyboardFocusHere();
 			if (ImGui::InputText(GuiLayer::GetImGuiID(this).c_str(), &GetPrivateStorage().tempWord, ImGuiInputTextFlags_EnterReturnsTrue)) {
-				if (GetPrivateStorage().tempWord == this->Properties().GetName()) {
+				if (GetPrivateStorage().tempWord == this->GetName()) {
 					GetPrivateStorage().m_IsRenaming = false;
 					return;
 				}
@@ -309,7 +309,7 @@ private:
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape, false)) {
 				if (GetPrivateStorage().m_DeleteIfNotRename) {
-					ObjectPropertyRegister::DeleteObject({this->ID()});
+					this->DeleteObject({this->ID()});
 				}
 
 				
@@ -320,12 +320,12 @@ private:
 	
 
 	void Init() final {
-		Registry::Get().emplace<AssetObjectSpecifierStorage>(this->ID());
+		ecspp::Registry::Get().emplace<AssetObjectSpecifierStorage>(this->ID());
 		OnCreate();
 	}
 	void Destroy() final {
 		HelperFunctions::CallMetaFunction(this->GetType(),"Call Save File",this->ID());
-		Registry::Get().erase<AssetObjectSpecifierStorage>(this->ID());
+		ecspp::Registry::Get().erase<AssetObjectSpecifierStorage>(this->ID());
 		AssetRegister::UnregisterPath(this->ID());
 		OnDestroy();
 

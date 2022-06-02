@@ -63,7 +63,7 @@ public:
     WindowCreators Create();
     
     
-    TemplatedObjectHandle<GameObject> GetCurrentCamera();
+    ecspp::NamedObjectHandle<GameObject> GetCurrentCamera();
     void SetClearColor(Color color);
     
     void DisableCamera();

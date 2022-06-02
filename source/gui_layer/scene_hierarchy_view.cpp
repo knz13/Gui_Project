@@ -12,13 +12,15 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
    
 
    
-    if(Registry::Get().alive() > 0){
+    if(ecspp::Registry::Get().alive() > 0){
         
         GameObject::ForEach([&](GameObject obj){
+            /*
             if (obj.HasComponent<InternalUse>()) {
                 return;
             }
-            if(obj.Properties().GetParent()){
+            */
+            if(obj.GetParent()){
                 return;
             }
             SceneHierarchyView::SetupObject(obj);
@@ -161,7 +163,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
                 GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(true);
             }
 
-            for(auto id : obj.Properties().GetChildren()){
+            for(auto id : obj.GetChildren()){
                 SetupObject(id.GetAs<GameObject>());
             }
 
@@ -212,7 +214,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             6, 7, 3
         };
 
-        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Cube");
+        GameObject obj = GameObject::CreateNew("Cube");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
@@ -235,7 +237,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
             2,3,0
         };
 
-        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Plane");
+        GameObject obj = GameObject::CreateNew("Plane");
         Mesh& mesh = obj.AddComponent<Mesh>();
 
         mesh.SetVertices(vertices);
@@ -243,7 +245,7 @@ void GuiLayer::SceneHierarchyView::SetupDefaultObjects() {
     };
 
     m_DefaultObjects["Camera"] = [](){
-        GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Camera");
+        GameObject obj = GameObject::CreateNew("Camera");
         obj.AddComponent<Camera>();
     };
 

@@ -11,10 +11,10 @@ void GuiLayer::PropertiesView::Update(Window& win) {
     
 
     if (GuiLayer::AnyObjectSelected()) {
-        ecspp::Object selected = GuiLayer::AnyObjectSelected().GetAs<ecspp::Object>();
-        selected.ShowObjectProperties();
+        ecspp::Object selected = GuiLayer::AnyObjectSelected().GetAsObject();
+        //selected.ShowObjectProperties();
 
-        if (selected.GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+        if (selected.GetTypeID() == HelperFunctions::HashClassName<GameObject>()) {
             GameObject selectedObj(selected.ID());
 
             ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize("Add Component").x / 2);
@@ -24,7 +24,7 @@ void GuiLayer::PropertiesView::Update(Window& win) {
                 });
             if (ImGui::BeginPopupContextItem("PropertiesViewContextMenuItem", ImGuiPopupFlags_MouseButtonLeft)) {
 
-                for (auto& componentName : GameObject::GetRegisteredComponents()) {
+                for (auto& componentName : GameObject::GetRegisteredComponentsForType()) {
                     if (!selected.HasComponent(componentName)) {
                         if (ImGui::MenuItem(componentName.c_str())) {
                             selectedObj.AddComponentByName(componentName);

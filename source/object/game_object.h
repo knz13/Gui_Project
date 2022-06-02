@@ -63,7 +63,8 @@ public:
 
 protected:
     virtual void Update(float deltaTime) {};
-
+    virtual YAML::Node Serialize() { return {}; };
+    virtual bool Deserialize(YAML::Node& node) { return true; };
    
 
     void HideInEditor(bool state) {
