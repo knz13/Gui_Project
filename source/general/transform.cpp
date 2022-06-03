@@ -81,11 +81,11 @@ glm::mat4 TransformComponent::GetModelMatrix() {
 
 glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec){
     std::vector<glm::mat4> matrices {this->CalculateModelMatrix()};
-    bool foundFinalMatrix = !GetMasterObject().GetAsObject().Properties().GetParent();
+    bool foundFinalMatrix = !GetMasterObject().GetAsObject().GetParent();
     GameObject current = GetMasterObject().GetAsObject();
     while (!foundFinalMatrix){
-        if(current.Properties().GetParent()){
-            current = current.Properties().GetParent().GetAs<GameObject>();
+        if(current.GetParent()){
+            current = current.GetParent().GetAs<GameObject>();
         }
         else{
             foundFinalMatrix = true;

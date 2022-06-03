@@ -12,7 +12,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
    
 
    
-    if(ecspp::Registry::Get().alive() > 0){
+    if(ecspp::Registry().alive() > 0){
         
         GameObject::ForEach([&](GameObject obj){
             /*
@@ -39,7 +39,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
         if(payload){
             ecspp::Object unParentTarget(*(entt::entity*)payload->Data);
-            unParentTarget.Properties().ClearParent();
+            unParentTarget.ClearParent();
         }
 
         ImGui::EndDragDropTarget();
@@ -77,7 +77,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
             ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,10);
             ImGui::SetKeyboardFocusHere();
             if(ImGui::InputText("##",&nameToRename,ImGuiInputTextFlags_EnterReturnsTrue)){
-                obj.Properties().SetName(nameToRename);
+                obj.SetName(nameToRename);
                 openRename = false;
             }
             ImGui::PopStyleVar();
@@ -100,7 +100,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
         bool isOpen = false;
 
         GuiLayer::SetupStaticTreeNodeStyle([&]() {
-            isOpen = ImGui::TreeNodeEx((obj.Properties().GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
+            isOpen = ImGui::TreeNodeEx((obj.GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
         });
 
 
@@ -109,7 +109,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
             if(ImGui::BeginDragDropSource()){
 
                 ImGui::SetDragDropPayload("AddChildren",&obj.ID(),sizeof(entt::entity),ImGuiCond_Once);
-                ImGui::Text(obj.Properties().GetName().c_str());
+                ImGui::Text(obj.GetName().c_str());
                 ImGui::EndDragDropSource();
             }
             if(ImGui::BeginDragDropTarget()){
@@ -118,9 +118,9 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
                 const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AddChildren");
                 if(payload){
                     ecspp::Object maybeChildren(*(entt::entity*)payload->Data);
-                    if(!maybeChildren.Properties().IsInChildren(obj)){
-                        maybeChildren.Properties().ClearParent();
-                        maybeChildren.Properties().SetParent(obj);
+                    if(!maybeChildren.IsInChildren(obj)){
+                        maybeChildren.ClearParent();
+                        maybeChildren.SetParent(obj);
                     }
                 }
                 ImGui::EndDragDropTarget();
@@ -129,20 +129,20 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
             if(ImGui::BeginPopupContextItem(GuiLayer::GetImGuiID(&obj.Transform()).c_str())){
                 
                 if(ImGui::MenuItem("Duplicate")){
-                    ObjectPropertyRegister::CopyObject(obj);
+                    ecspp::CopyObject(obj);
                 }
                 if(ImGui::MenuItem("Rename")){
-                    nameToRename = obj.Properties().GetName();
+                    nameToRename = obj.GetName();
                     openRename = true;
                 }
 
                 if(ImGui::MenuItem("Delete")){
-                    ObjectPropertyRegister::DeleteObject(obj);
+                    ecspp::DeleteObject(obj);
                 }
 
-                if(obj.Properties().GetParent()){
+                if(obj.GetParent()){
                     if(ImGui::MenuItem("Make Independent")){
-                        obj.Properties().ClearParent();
+                        obj.ClearParent();
                     }
                 }
 

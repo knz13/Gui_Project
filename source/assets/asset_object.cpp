@@ -54,7 +54,7 @@ bool AssetRegister::CreateAssetAtFolder(std::string folder, std::string assetTyp
 		DEBUG_LOG("Trying to create asset at folder " + folder + " which does not exist!");
 		return false;
 	}
-	if (!ObjectPropertyRegister::IsClassRegistered(assetType)) {
+	if (!ecspp::ObjectPropertyRegister::IsClassRegistered(assetType)) {
 		DEBUG_LOG("Could not create asset at folder " + folder + "!\nClass " + assetType + " is not registered!");
 		return false;
 	}
@@ -63,12 +63,12 @@ bool AssetRegister::CreateAssetAtFolder(std::string folder, std::string assetTyp
 		return false;
 	}
 
-	ecspp::ObjectHandle handle = ObjectPropertyRegister::CreateObjectFromType(assetType, "tempName" + std::to_string(std::hash<std::string>()(folder + assetType)));
+	ecspp::ObjectHandle handle = ecspp::CreateNewObject(assetType, "tempName" + std::to_string(std::hash<std::string>()(folder + assetType)));
 	if (!handle) {
 		return false;
 	}
 
-	handle.GetAsObject().Properties().SetName("");
+	handle.GetAsObject().SetName("");
 
 	AssetObject obj(handle.ID());
 
@@ -76,7 +76,7 @@ bool AssetRegister::CreateAssetAtFolder(std::string folder, std::string assetTyp
 
 	if (!result) {
 		DEBUG_LOG("Could not call meta function!");
-		ObjectPropertyRegister::DeleteObject(handle);
+		ecspp::DeleteObject(handle.GetAsObject());
 		return false;
 	}
 
@@ -94,18 +94,18 @@ ecspp::ObjectHandle AssetRegister::LoadAssetForPath(std::string path)
 {
 	if (!GetAssetForPath(path)) {
 		if (std::filesystem::is_directory(path)) {
-			ecspp::ObjectHandle obj = ObjectPropertyRegister::CreateObjectFromType("FolderAsset", std::filesystem::path(path).stem().string());
+			ecspp::ObjectHandle obj = ecspp::CreateNewObject("FolderAsset", std::filesystem::path(path).stem().string());
 			FolderAsset asset(obj.ID());
 			asset.SetPath(path);
 			return ecspp::ObjectHandle(asset.ID());
 		}
 		if (std::string extClass = AssetRegister::GetRegisteredAssetForExtension(std::filesystem::path(path).extension().string()); extClass != "") {
-			ecspp::ObjectHandle obj = ObjectPropertyRegister::CreateObjectFromType(extClass, std::filesystem::path(path).stem().string());
+			ecspp::ObjectHandle obj = ecspp::CreateNewObject(extClass, std::filesystem::path(path).stem().string());
 			AssetObject asset(obj.ID());
 			asset.SetPath(path);
 			return ecspp::ObjectHandle(obj.ID());
 		}
-		ecspp::ObjectHandle obj = ObjectPropertyRegister::CreateObjectFromType("TextAsset", std::filesystem::path(path).stem().string());
+		ecspp::ObjectHandle obj = ecspp::CreateNewObject("TextAsset", std::filesystem::path(path).stem().string());
 		AssetObject asset(obj.ID());
 		asset.SetPath(path);
 		return ecspp::ObjectHandle(obj.ID());
@@ -138,7 +138,7 @@ bool AssetRegister::UnloadAsset(std::string path)
 {
 	path = std::filesystem::path(path).lexically_normal().string();
 	if (m_RegisteredAssetsByPath.find(path) != m_RegisteredAssetsByPath.end()) {
-		ObjectPropertyRegister::DeleteObject(m_RegisteredAssetsByPath[path]);
+		ecspp::DeleteObject(m_RegisteredAssetsByPath[path]);
 		return true;
 	}
 	DEBUG_LOG("Could not unload asset at path " + path + " because the asset could not be found!");
@@ -177,7 +177,7 @@ void AssetRegister::UnregisterPath(entt::entity e)
 		m_RegistererdPathsByAsset.erase(e);
 
 		if (ecspp::ObjectHandle(e)) {
-			ObjectPropertyRegister::DeleteObject(ecspp::Object(e));
+			ecspp::DeleteObject(ecspp::Object(e));
 		}
 
 	}
@@ -192,7 +192,7 @@ void AssetRegister::UnregisterPath(std::string path,bool shouldDelete)
 		m_RegistererdPathsByAsset.erase(id);
 
 		if (ecspp::ObjectHandle(id) && shouldDelete) {
-			ObjectPropertyRegister::DeleteObject(ecspp::Object(id));
+			ecspp::DeleteObject(ecspp::Object(id));
 		}
 
 	}
@@ -210,19 +210,19 @@ AssetObject::~AssetObject()
 
 void AssetObject::InitializeFile()
 {
-	HelperFunctions::CallMetaFunction(ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeOfObject()), "Call Read File",m_Handle);
+	HelperFunctions::CallMetaFunction(ecspp::ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeID()), "Call Read File",m_Handle);
 	
 }
 
 void AssetObject::ShowOnExplorer(ImVec2 size)
 {
-	HelperFunctions::CallMetaFunction(ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeOfObject()), "Call Explorer UI",m_Handle,size);
+	HelperFunctions::CallMetaFunction(ecspp::ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeID()), "Call Explorer UI",m_Handle,size);
 
 }
 
 void AssetObject::Rename()
 {
-	HelperFunctions::CallMetaFunction(ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeOfObject()), "Call Rename",m_Handle);
+	HelperFunctions::CallMetaFunction(ecspp::ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeID()), "Call Rename",m_Handle);
 
 }
 

@@ -14,4 +14,5 @@
 #include "assets/scene_asset.h"
 #include "assets/material_asset.h"
 #include "assets/shader_asset.h"
+#include "object/internal_use.h"
 

@@ -61,7 +61,7 @@ void Camera::Init()
     m_ViewPort.w = Window::GetCurrentWindow().Properties().height;
     this->SetDrawingFunction([](Camera& camera) {
 
-        auto view = Registry::Get().view<TransformComponent, Mesh>();
+        auto view = ecspp::Registry().view<TransformComponent, Mesh>();
         for (auto entity : view) {
 
             auto& transform = view.get<TransformComponent>(entity);

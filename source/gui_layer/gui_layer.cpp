@@ -135,11 +135,11 @@ void GuiLayer::AddUi(Window& win) {
                         if (BaseSettings::LoadedScenePath != "") {
                             //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
                         }
-                        ObjectPropertyRegister::ClearEntities();
+                        //ObjectPropertyRegister::ClearEntities();
 
                         BaseSettings::LoadedScenePath = path.get();
 
-                        ObjectPropertyRegister::DeserializeScene(BaseSettings::LoadedScenePath);
+                        //ObjectPropertyRegister::DeserializeScene(BaseSettings::LoadedScenePath);
                     }
                 }
 
@@ -156,13 +156,13 @@ void GuiLayer::AddUi(Window& win) {
                             BaseSettings::LoadedScenePath = path.get();
                             
 
-                            ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                            //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
 
                         }
                     }
                     else {
                         
-                        ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                        //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
                         
                     }
                 }
@@ -177,7 +177,7 @@ void GuiLayer::AddUi(Window& win) {
                         BaseSettings::LoadedScenePath = path.get();
                         
 
-                        ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
+                        //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
                     }
                 }
 
@@ -289,14 +289,16 @@ bool GuiLayer::LoadScene(std::string path)
         //ObjectPropertyRegister::SerializeScene(BaseSettings::LoadedScenePath);
         //TODO: popup here
     }
-    ObjectPropertyRegister::ClearEntities();
+    //ObjectPropertyRegister::ClearEntities();
 
     BaseSettings::LoadedScenePath = path;
 
+    /*
     if (!ObjectPropertyRegister::DeserializeScene(BaseSettings::LoadedScenePath)) {
         DEBUG_LOG("Could not deserialize scene at path: " + path);
         return false;
     }
+    */
 
     return true;
 

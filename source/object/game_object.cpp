@@ -79,9 +79,9 @@ void GameObject::ShowProperties()
         
 
         for (auto& name : GetComponentsNames()) {
-            auto& comp = GetComponentByName(name).GetAs<>();
+            auto* comp = &GetComponentByName(name).GetAs<GameComponent>();
 
-            if (!comp.IsVisibleInEditor()) {
+            if (!comp->IsVisibleInEditor()) {
                 continue;
             }
 
@@ -106,7 +106,7 @@ void GameObject::ShowProperties()
             bool selected;
             
             GuiLayer::SetupStaticTreeNodeStyle([&]() {
-                selected = ImGui::TreeNodeEx(name.c_str()), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
+                selected = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
             });
             
                 

@@ -60,11 +60,11 @@ public:
     }
 
     virtual void ShowProperties() {};
-
-protected:
     virtual void Update(float deltaTime) {};
     virtual YAML::Node Serialize() { return {}; };
     virtual bool Deserialize(YAML::Node& node) { return true; };
+
+protected:
    
 
     void HideInEditor(bool state) {

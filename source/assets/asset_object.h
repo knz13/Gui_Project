@@ -188,7 +188,7 @@ private:
 
 		AssetRegister::RegisterPath(this->ID(), newPath);
 		HelperFunctions::CallMetaFunction(this->GetType(),"Call Read File",this->ID());
-		this->Properties().SetName(GetPrivateStorage().tempWord);
+		this->SetName(GetPrivateStorage().tempWord);
 		GetPrivateStorage().tempWord = "";
 		GetPrivateStorage().m_IsRenaming = false;
 		if (GuiLayer::ExplorerView::GetTempObject().ID() == this->ID()) {
@@ -198,7 +198,7 @@ private:
 
 	void SetRename() {
 		GetPrivateStorage().m_IsRenaming = true;
-		GetPrivateStorage().tempWord = this->Properties().GetName();
+		GetPrivateStorage().tempWord = this->GetName();
 	}
 	void SetRenameOnCreation(std::string currDir) final {
 		SetRename();
@@ -220,7 +220,7 @@ private:
 	}
 
 	AssetObjectSpecifierStorage& GetPrivateStorage() {
-		return ecspp::Registry::Get().get<AssetObjectSpecifierStorage>(this->ID());
+		return ecspp::Registry().get<AssetObjectSpecifierStorage>(this->ID());
 	}
 
 	void OnExplorerUI(ImVec2 size) final {
@@ -309,7 +309,7 @@ private:
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape, false)) {
 				if (GetPrivateStorage().m_DeleteIfNotRename) {
-					this->DeleteObject({this->ID()});
+					ecspp::DeleteObject(ecspp::ObjectHandle(this->ID()));
 				}
 
 				
@@ -320,12 +320,12 @@ private:
 	
 
 	void Init() final {
-		ecspp::Registry::Get().emplace<AssetObjectSpecifierStorage>(this->ID());
+		ecspp::Registry().emplace<AssetObjectSpecifierStorage>(this->ID());
 		OnCreate();
 	}
 	void Destroy() final {
 		HelperFunctions::CallMetaFunction(this->GetType(),"Call Save File",this->ID());
-		ecspp::Registry::Get().erase<AssetObjectSpecifierStorage>(this->ID());
+		ecspp::Registry().erase<AssetObjectSpecifierStorage>(this->ID());
 		AssetRegister::UnregisterPath(this->ID());
 		OnDestroy();
 

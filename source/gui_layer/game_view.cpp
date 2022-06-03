@@ -31,7 +31,7 @@ RayCastHit GuiLayer::GameView::RayCast(ImVec2 pos) {
     }
 
     m_RaycastTexture.get()->Unbind();
-    if(Registry::Get().valid((entt::entity)(pickedID))){
+    if(ecspp::ObjectHandle((entt::entity)(pickedID))){
         return RayCastHit((entt::entity)pickedID);
     }
     else{
@@ -109,7 +109,7 @@ void GuiLayer::GameView::Update(Window& win) {
 }
 
 void GuiLayer::GameView::Setup(Window& win) {
-    GameObject obj = ObjectPropertyRegister::CreateNew<GameObject>("Editor Camera");
+    GameObject obj = GameObject::CreateNew("Editor Camera");
     obj.AddComponent<Camera>();
     
     obj.AddComponent<InternalUse>();
@@ -137,7 +137,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
         m_RaycastTexture.get()->GetAttachedTexture().Bind();
         GL_CALL(glBindImageTexture(3, m_RaycastTexture.get()->GetAttachedTexture().GetID(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F));
 
-        auto view = Registry::Get().view<TransformComponent, Mesh>();
+        auto view = ecspp::Registry().view<TransformComponent, Mesh>();
         for (auto entity : view) {
 
 
@@ -298,7 +298,7 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
     static bool first = true;
     static int imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
     if (GuiLayer::AnyObjectSelected() && m_EditorCamera) {
-        if (GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+        if (GuiLayer::AnyObjectSelected().GetAsObject().GetTypeID() == HelperFunctions::HashClassName<GameObject>()) {
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
@@ -375,7 +375,7 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
         
         RayCastHit hit = RayCast(pos);
         if (hit) {
-            if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+            if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeID() == HelperFunctions::HashClassName<GameObject>()) {
                 GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
             }
             GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle(hit.hitObjectID);
@@ -384,7 +384,7 @@ void GuiLayer::GameView::HandleObjectSelection(Window& win)
 
     }
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered()) {
-        if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeOfObject() == HelperFunctions::HashClassName<GameObject>()) {
+        if (GuiLayer::AnyObjectSelected() && GuiLayer::AnyObjectSelected().GetAsObject().GetTypeID() == HelperFunctions::HashClassName<GameObject>()) {
             GuiLayer::AnyObjectSelected().GetAs<GameObject>().SetHighlightState(false);
         }
         GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle();

@@ -82,7 +82,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     
 
-    GameObject mainCamera = ObjectPropertyRegister::CreateNew<GameObject>("Main Camera");
+    GameObject mainCamera = GameObject::CreateNew("Main Camera");
     mainCamera.AddComponent<Camera>();
     mainCamera.Transform().SetPosition(0, 5, 2);
 
@@ -92,14 +92,14 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     this->Events().ClosingEvent().Connect([](Window&) {
         
-        ObjectPropertyRegister::Each([](ecspp::Object object) {
-            ObjectPropertyRegister::DeleteObject(object);
+        
+        ecspp::ForEachObject([](ecspp::ObjectHandle handle) {
+            ecspp::DeleteObject(handle);
             });
 
 
-        ObjectPropertyRegister::ClearDeletingQueue();
+        ecspp::ClearDeletingQueue();
 
-        Registry::Get().clear();
         });
 
     
@@ -253,8 +253,8 @@ void Window::SetViewPort(int x, int y, int width, int height)
 
 
 
-TemplatedObjectHandle<GameObject> Window::GetCurrentCamera() {
-    return TemplatedObjectHandle<GameObject>(m_MainCamera);
+ecspp::NamedObjectHandle<GameObject> Window::GetCurrentCamera() {
+    return ecspp::NamedObjectHandle<GameObject>(m_MainCamera);
 }
 
 
@@ -280,8 +280,10 @@ void Window::DrawingLoop() {
         oldTime = currentTime;
 
         GameObject::ForEach([&](GameObject obj) {
-            for (auto& name : obj.Properties().GetComponentsNames()) {
-                obj.GetComponentByName(name)->Update(m_DeltaTime);
+            for (auto& name : obj.GetComponentsNames()) {
+                if (auto comp = obj.GetComponentByName(name); comp) {
+                    comp.GetAs<GameComponent>().Update(m_DeltaTime);
+                }
             }
         });
             
@@ -289,7 +291,7 @@ void Window::DrawingLoop() {
 
         
 
-        auto view = Registry::Get().view<Camera>();
+        auto view = ecspp::Registry().view<Camera>();
         for (auto entity : view) {
             Camera& camera = view.get<Camera>(entity);
             if (!GameObject(entity).IsActive()) {
@@ -481,5 +483,5 @@ void Window::PostDrawOperations() {
         m_ClosingCallbackFuncs.EmitEvent(*this);
     }
 
-    ObjectPropertyRegister::ClearDeletingQueue();
+    ecspp::ClearDeletingQueue();
 }
