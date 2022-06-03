@@ -30,7 +30,7 @@
 #include "../vendor/dialog/src/include/nfd.hpp"
 #include <source_location>
 #include "../vendor/ecspp/include/ecspp.h"
-#include "../vendor/yael/yael.h"
+#include "../vendor/yael/include/yael.h"
 
 using namespace std;
 

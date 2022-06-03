@@ -1,7 +1,7 @@
 #include "game_object.h"
 #include "../kv.h"
 
-GameObject::GameObject(entt::entity e) : RegisterObjectType(e)
+GameObject::GameObject(entt::entity e) : RegisterObjectType(e),RegisterStorage(e)
 {
 
 }

@@ -157,7 +157,8 @@ class AssetObjectSpecifier :
 	public ecspp::RegisterStorage<AssetObjectSpecifier<Derived,Storage>,Storage>,
 	public AssetObject {
 public:
-	AssetObjectSpecifier(entt::entity e) : ecspp::RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>(e),AssetObject(e) {
+	AssetObjectSpecifier(entt::entity e) : ecspp::RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>(e),AssetObject(e),
+		ecspp::RegisterStorage<AssetObjectSpecifier<Derived,Storage>,Storage>(e) {
 		(void)dummy;
 	}
 

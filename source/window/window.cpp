@@ -10,7 +10,7 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
     Window::m_MainWindow = this;
     
-    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Init(SDL_INIT_VIDEO);
 
     int contextFlags = 0;
     int windowFlags = SDL_WINDOW_OPENGL;
@@ -99,6 +99,8 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 
 
         ecspp::ClearDeletingQueue();
+
+        ecspp::Registry().clear();
 
         });
 
@@ -288,24 +290,22 @@ void Window::DrawingLoop() {
         });
             
            
-
+        assert(GameObject(m_MainCamera).HasComponent<Camera>());
         
 
-        auto view = ecspp::Registry().view<Camera>();
-        for (auto entity : view) {
-            Camera& camera = view.get<Camera>(entity);
-            if (!GameObject(entity).IsActive()) {
-                continue;
+        Camera::ForEach([](Camera& camera) {
+            if (!camera.GetMasterObject().GetAsObject().IsActive()) {
+                return;
             }
             if (!camera.IsEnabled()) {
-                continue;
+                return;
             }
             if (!camera.HasRenderTarget()) {
-                continue;
+                return;
             }
 
             camera.Render();
-        }
+            });
 
         EndDrawState();
 

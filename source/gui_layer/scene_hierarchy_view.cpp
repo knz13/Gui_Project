@@ -15,11 +15,11 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
     if(ecspp::Registry().alive() > 0){
         
         GameObject::ForEach([&](GameObject obj){
-            /*
+            
             if (obj.HasComponent<InternalUse>()) {
                 return;
             }
-            */
+            
             if(obj.GetParent()){
                 return;
             }
