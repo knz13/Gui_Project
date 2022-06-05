@@ -183,7 +183,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
                 transform.InstantScaleChange(0.1, 0.1, 0.1);
                 bool result;
                 std::string currentShaderName = drawable.GetShaderName();
-                Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("default_Shaders/single_color_shader", &result);
+                Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("defaults/default_shaders/single_color_shader", &result);
 
                 GameObject comp(entity);
 

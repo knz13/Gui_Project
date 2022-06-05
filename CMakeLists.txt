@@ -110,22 +110,6 @@ project("kv_project")
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES imgui_project)
 
 
-#repository download and settings for alias entt...
-
-
-	FetchContent_Declare(entt_project
-
-		GIT_REPOSITORY https://github.com/skypjack/entt
-
-		GIT_TAG origin/master
-
-		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
-
-	)
-
-	list(APPEND ${PROJECT_NAME}_DEPENDENCIES entt_project)
-
-
 #repository download and settings for alias yaml...
 
 
@@ -331,9 +315,9 @@ add_executable(kv
 
 	${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
 
-	${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
-
 	${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_sdl.cpp
+
+	${PROJECT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_opengl3.cpp
 
 	${PROJECT_SOURCE_DIR}/vendor/imgui/misc/cpp/imgui_stdlib.cpp
 
@@ -361,21 +345,17 @@ target_link_libraries(kv PUBLIC SDL2::SDL2main)
 #adding includes...
 
 
-target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/source)
-
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/source)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/stb/)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 
-target_include_directories(kv PUBLIC ${assimp_project_BINARY_DIR}/include)
-
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imguizmo/)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imgui/)
-
-target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/yaml/include)
 
@@ -383,10 +363,18 @@ target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/dialog/include
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glew/include)
 
-target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glm/)
-
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/sdl_repo/include)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glm/)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/ecspp/include)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/yael/include)
+
+#------------------- Extra Lines ----------------
+
+	# Extra Lines for alias copy ...
+add_custom_command(
+TARGET kv POST_BUILD
+COMMAND ${CMAKE_COMMAND}
+-E create_symlink ${CMAKE_SOURCE_DIR}/defaults $<TARGET_FILE_DIR:kv>/defaults)

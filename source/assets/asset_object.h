@@ -1,6 +1,7 @@
 #pragma once
 #include "../gui_layer/gui_useful_implementations.h"
 #include "../gui_layer/gui_layer.h"
+#include "../object/base_object.h"
 #include <filesystem>
 
 namespace GuiLayer {
@@ -153,12 +154,12 @@ private:
 
 template<typename Derived,typename Storage>
 class AssetObjectSpecifier : 
-	public ecspp::RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>,
-	public ecspp::RegisterStorage<AssetObjectSpecifier<Derived,Storage>,Storage>,
+	public ComponentlessBaseObject<Derived>,
+	public ecspp::RegisterStorage<Derived,Storage>,
 	public AssetObject {
 public:
-	AssetObjectSpecifier(entt::entity e) : ecspp::RegisterComponentlessObjectType<AssetObjectSpecifier<Derived,Storage>>(e),AssetObject(e),
-		ecspp::RegisterStorage<AssetObjectSpecifier<Derived,Storage>,Storage>(e) {
+	AssetObjectSpecifier(entt::entity e) : ComponentlessBaseObject<Derived>(e),AssetObject(e),
+		ecspp::RegisterStorage<Derived,Storage>(e) {
 		(void)dummy;
 	}
 

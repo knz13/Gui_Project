@@ -1,5 +1,6 @@
 #pragma once
 #include "../general/structures.h"
+#include "base_object.h"
 
 
 class GameObjectProperties {
@@ -13,10 +14,13 @@ private:
 };
 
 
+namespace GuiLayer {
+    class PropertiesView;
+}
 
 class TransformComponent;
 
-class GameObject : public ecspp::RegisterObjectType<GameObject>, public ecspp::RegisterStorage<GameObject,GameObjectProperties> {
+class GameObject : public BaseObject<GameObject>, public ecspp::RegisterStorage<GameObject,GameObjectProperties> {
 public:
 	GameObject(entt::entity e);
 
@@ -33,12 +37,11 @@ public:
 	
 	
 protected:
-
+	void ShowProperties() override;
     virtual YAML::Node Serialize();
     virtual bool Deserialize(YAML::Node& node);
-	virtual void ShowProperties();
 
-
+    friend class GuiLayer::PropertiesView;
 };
 
 

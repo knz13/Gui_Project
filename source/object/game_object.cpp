@@ -1,7 +1,7 @@
 #include "game_object.h"
 #include "../kv.h"
 
-GameObject::GameObject(entt::entity e) : RegisterObjectType(e),RegisterStorage(e)
+GameObject::GameObject(entt::entity e) : BaseObject(e),RegisterStorage(e)
 {
 
 }
@@ -43,6 +43,8 @@ void GameObject::SetActiveState(bool state)
 {
     Storage().m_Active = state;
 }
+
+
 
 
 YAML::Node GameObject::Serialize()

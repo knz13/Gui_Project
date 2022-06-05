@@ -288,10 +288,6 @@ void Window::DrawingLoop() {
                 }
             }
         });
-            
-           
-        assert(GameObject(m_MainCamera).HasComponent<Camera>());
-        
 
         Camera::ForEach([](Camera& camera) {
             if (!camera.GetMasterObject().GetAsObject().IsActive()) {
