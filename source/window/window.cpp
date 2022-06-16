@@ -284,13 +284,13 @@ void Window::DrawingLoop() {
         GameObject::ForEach([&](GameObject obj) {
             for (auto& name : obj.GetComponentsNames()) {
                 if (auto comp = obj.GetComponentByName(name); comp) {
-                    comp.GetAs<GameComponent>().Update(m_DeltaTime);
+                    comp.GetAs<GameComponent>()->Update(m_DeltaTime);
                 }
             }
         });
 
         Camera::ForEach([](Camera& camera) {
-            if (!camera.GetMasterObject().GetAsObject().IsActive()) {
+            if (!camera.GetMasterObject().GetAs<GameObject>().IsActive()) {
                 return;
             }
             if (!camera.IsEnabled()) {
@@ -348,11 +348,11 @@ Shader& WindowCreators::CachedShader(std::string shaderRelativePath, bool* loadR
     for(auto file : std::filesystem::directory_iterator(shaderRelativePath)){
         std::string fileName = file.path().filename().string();
 
-        if(fileName.ends_with("vert")){
+        if(file.path().extension().string() == (".vert")){
             std::string source = LoadFileContents(std::filesystem::absolute(shaderRelativePath + "/" + fileName).string());
             sources.push_back(std::make_pair(ShaderType::Vertex,source));
         }
-        if(fileName.ends_with("frag")){
+        if(file.path().extension().string() == (".frag")){
             std::string source = LoadFileContents(std::filesystem::absolute(shaderRelativePath + "/" + fileName).string());
             sources.push_back(std::make_pair(ShaderType::Fragment,source));
         }

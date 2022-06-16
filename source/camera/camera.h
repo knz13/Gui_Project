@@ -4,7 +4,7 @@
 class Framebuffer;
 class Window;
 class RenderTextureAsset;
-class Camera : public GameComponent<Camera> {
+class Camera : public ecspp::DefineComponent<Camera, GameComponent> {
 
     KV_CLASS
     
@@ -40,16 +40,13 @@ public:
 
 
 private:
-    YAML::Node Serialize() override;
-    bool Deserialize(YAML::Node& node) override;
+    
 
     void Update(float deltaTime) override;
-    void ShowProperties() override;
     void Init() override;
     void Destroy() override;
 
     std::function<void(Camera&)> m_DrawingFunc;
-    //TemplatedObjectHandle<RenderTextureAsset> m_Target;
     std::shared_ptr<Framebuffer> m_RenderTarget;
     glm::vec4 m_ViewPort = glm::vec4(0,0,0,0);
     float m_DrawNear = 0;

@@ -46,8 +46,7 @@ protected:
 
 
 
-template<typename Component>
-class GameComponent : public ecspp::ComponentSpecifier<Component, GameObject> {
+class GameComponent : public ecspp::Component {
 public:
     bool IsEnabled() {
         return GetActiveState();

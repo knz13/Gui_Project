@@ -1,6 +1,10 @@
 #include "mesh.h"
-#include "kv.h"
-
+#include "../kv.h"
+#include "../model_loader/model_loader.h"
+#ifndef LIBASYNC_STATIC
+#define LIBASYNC_STATIC
+#endif
+#include "../vendor/async/include/async++.h"
 
 
 bool Mesh::SetShader(std::string shaderLocation) {
@@ -39,53 +43,35 @@ bool Mesh::ReadyToDraw() {
 
     bool shaderValid = false;
     Window::GetCurrentWindow().Create().CachedShader(m_ShaderName,&shaderValid);
-    return m_ShaderName != "" && shaderValid && GetActiveState();
+    return m_ShaderName != "" && shaderValid && GetActiveState() && m_Vertices.CheckValid();
 }
 
-void Mesh::TrySetMesh(std::string path)
+bool Mesh::TrySetMesh(std::string path)
 {
+    static async::task<MeshAttribute::Vertex> m_SetMeshFuture;
+    if (path != "") {
+        m_SetMeshFuture = async::spawn([=]() {
+            if (auto result = ModelLoader::LoadModel(path); result) {
+                return result.vertices;
+            }
+            return MeshAttribute::Vertex();
+            });
 
+        return true;
+    }
+    else {
+        if (m_SetMeshFuture.valid()) {
+            if (m_SetMeshFuture.ready()) {
+                SetVertices(m_SetMeshFuture.get());
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 }
 
 
-
-YAML::Node Mesh::Serialize()
-{
-    YAML::Node node;
-
-    HelperFunctions::SerializeVariable("shader name", m_ShaderName, node);
-    
-
-    YAML::Node vertices = node["vertices"];
-
-    HelperFunctions::SerializeVariable("positions", m_Vertices.positions, node);
-    HelperFunctions::SerializeVariable("normals", m_Vertices.normals, node);
-    HelperFunctions::SerializeVariable("tex coords", m_Vertices.texCoords, node);
-    HelperFunctions::SerializeVariable("tangents", m_Vertices.tangents, node);
-    HelperFunctions::SerializeVariable("indices", m_Vertices.indices, node);
-
-    
-
-    return node;
-}
-
-bool Mesh::Deserialize(YAML::Node& node)
-{
-    HelperFunctions::DeserializeVariable("shader name", m_ShaderName, node);
-    
-
-    YAML::Node vertices = node["vertices"];
-
-    HelperFunctions::DeserializeVariable("positions", m_Vertices.positions, node);
-    HelperFunctions::DeserializeVariable("normals", m_Vertices.normals, node);
-    HelperFunctions::DeserializeVariable("tex coords", m_Vertices.texCoords, node);
-    HelperFunctions::DeserializeVariable("tangents", m_Vertices.tangents, node);
-    HelperFunctions::DeserializeVariable("indices", m_Vertices.indices, node);
-
-    SetVertices(m_Vertices);
-
-    return true;
-}
 
 VertexArray& Mesh::GetVertexArray() {
     return *m_VAO;
@@ -154,22 +140,19 @@ void Mesh::Draw(const glm::mat4& mvp) {
 
 
 
-FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> Mesh::PreDrawn() {
-    return FunctionSink<void(Mesh&,Shader&,const glm::mat4&)>(m_PreDrawFuncs);
+yael::event_sink<void(Mesh&,Shader&,const glm::mat4&)> Mesh::PreDrawn() {
+    return yael::event_sink<void(Mesh&,Shader&,const glm::mat4&)>(m_PreDrawFuncs);
 }
 
-FunctionSink<void(Mesh&)> Mesh::PostDrawn() {
-    return FunctionSink<void(Mesh&)>(m_PostDrawFuncs);
+yael::event_sink<void(Mesh&)> Mesh::PostDrawn() {
+    return yael::event_sink<void(Mesh&)>(m_PostDrawFuncs);
 }
 
 void Mesh::Update(float deltaTime) {
-    
+    TrySetMesh("");
 }
 
-void Mesh::ShowProperties() {
-   
-    
-}
+
 
 
 

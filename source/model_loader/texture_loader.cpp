@@ -3,7 +3,6 @@
 #include "stb/stb_image.h"
 #include "kv.h"
 
-
 bool TextureLoader::LoadFromFile(std::string filename, std::string path,unsigned int& id)
 {
 	GL_CALL(glGenTextures(1, &id));

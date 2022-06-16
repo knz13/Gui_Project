@@ -226,6 +226,22 @@ project("kv_project")
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES yael_project)
 
 
+#repository download and settings for alias async...
+
+
+	FetchContent_Declare(async_project
+
+		GIT_REPOSITORY https://github.com/Amanieu/asyncplusplus
+
+		GIT_TAG v1.1
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/async
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES async_project)
+
+
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
 
 	foreach(X IN LISTS ${PROJECT_NAME}_DEPENDENCIES)
@@ -240,6 +256,8 @@ project("kv_project")
 #creating executable
 add_executable(kv
 
+
+	${PROJECT_SOURCE_DIR}/main.cpp
 
 	${PROJECT_SOURCE_DIR}/source/assets/asset_object.cpp
 
@@ -301,8 +319,6 @@ add_executable(kv
 
 	${PROJECT_SOURCE_DIR}/source/window/window.cpp
 
-	${PROJECT_SOURCE_DIR}/main.cpp
-
 	${PROJECT_SOURCE_DIR}/vendor/imguizmo/ImGuizmo.cpp
 
 	${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
@@ -323,7 +339,7 @@ add_executable(kv
 
 )
 
-set_property(TARGET kv PROPERTY CXX_STANDARD 20)
+set_property(TARGET kv PROPERTY CXX_STANDARD 17)
 
 
 #adding libraries...
@@ -340,6 +356,8 @@ target_link_libraries(kv PUBLIC libglew_static)
 target_link_libraries(kv PUBLIC SDL2::SDL2-static)
 
 target_link_libraries(kv PUBLIC SDL2::SDL2main)
+
+target_link_libraries(kv PUBLIC Async++)
 
 
 #adding includes...
@@ -371,10 +389,12 @@ target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/ecspp/include)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/yael/include)
 
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/async/include)
+
 #------------------- Extra Lines ----------------
 
 	# Extra Lines for alias copy ...
 add_custom_command(
 TARGET kv POST_BUILD
 COMMAND ${CMAKE_COMMAND}
--E create_symlink ${CMAKE_SOURCE_DIR}/defaults $<TARGET_FILE_DIR:kv>/defaults)
+-E copy_directory ${CMAKE_SOURCE_DIR}/defaults $<TARGET_FILE_DIR:kv>/defaults)

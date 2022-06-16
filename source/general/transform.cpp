@@ -52,7 +52,7 @@ void TransformComponent::InstantScaleChange(float x, float y, float z) {
 }
 void TransformComponent::SetFromModelMatrix(glm::mat4 matrix) {
     
-    GameObject current = GetMasterObject().GetAsObject();
+    GameObject current = GetMasterObject().GetAs<GameObject>();
     
     std::vector<glm::mat4> vec;
     GetCumulativeMatrix(&vec);
@@ -82,7 +82,7 @@ glm::mat4 TransformComponent::GetModelMatrix() {
 glm::mat4 TransformComponent::GetCumulativeMatrix(std::vector<glm::mat4>* outVec){
     std::vector<glm::mat4> matrices {this->CalculateModelMatrix()};
     bool foundFinalMatrix = !GetMasterObject().GetAsObject().GetParent();
-    GameObject current = GetMasterObject().GetAsObject();
+    GameObject current = GetMasterObject().GetAs<GameObject>();
     while (!foundFinalMatrix){
         if(current.GetParent()){
             current = current.GetParent().GetAs<GameObject>();

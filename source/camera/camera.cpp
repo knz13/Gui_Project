@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "kv.h"
+#include "../kv.h"
 
 
 
@@ -24,27 +24,6 @@ glm::vec4 Camera::GetViewPort() const {
     return m_ViewPort;
 }
 
-YAML::Node Camera::Serialize()
-{
-    YAML::Node node;
-    HelperFunctions::SerializeVariable("fov", m_Fov, node);
-    HelperFunctions::SerializeVariable("draw distance", m_DrawDistance, node);
-    HelperFunctions::SerializeVariable("draw near", m_DrawNear, node);
-    HelperFunctions::SerializeVariable("viewport", m_ViewPort, node);
-    
-
-    return node;
-}
-
-bool Camera::Deserialize(YAML::Node& node)
-{
-    HelperFunctions::DeserializeVariable("fov", m_Fov, node);
-    HelperFunctions::DeserializeVariable("draw distance", m_DrawDistance, node);
-    HelperFunctions::DeserializeVariable("draw near", m_DrawNear, node);
-    HelperFunctions::DeserializeVariable("viewport", m_ViewPort, node);
-    
-    return true;
-}
 
 void Camera::Update(float deltaTime) {
     
@@ -71,18 +50,13 @@ void Camera::Init()
                 continue;
             }
 
-            Shader& currentObjectShader = Window::GetCurrentWindow().Create().CachedShader(drawable.m_ShaderName);
-            glm::mat4 mvp = camera.GetViewProjection(Window::GetCurrentWindow()) * transform.GetModelMatrix();
+            Shader& currentObjectShader = drawable.GetShader();
+            glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();;
 
             currentObjectShader.Bind();
             currentObjectShader.SetUniformMat4f("MVP", mvp);
 
-            
-
             drawable.Draw(mvp);
-
-            
-
         }
 
     });
@@ -106,50 +80,6 @@ glm::mat4 Camera::GetView() const{
     return glm::inverse(GetMasterObject().GetAsObject().GetComponent<TransformComponent>().GetModelMatrix());
 }
 
-void Camera::ShowProperties() {
-    
-    //bool isCurrent;
-
-    /*
-    if(Window::GetCurrentWindow().GetCurrentCamera()){
-        isCurrent = (Window::GetCurrentWindow().GetCurrentCamera().GetAsObject().ID() == this->GetMasterObject().GetAsObject().ID());
-    }
-    else{
-        isCurrent = false;
-    }
-    bool stateHolder = isCurrent;
-
-
-    ImGui::AlignedText("Set Current");
-    ImGui::SameLine();
-    ImGui::AlignNextCheckboxRight();
-    ImGui::Checkbox(GuiLayer::GetImGuiID(&m_DrawNear).c_str(),&isCurrent);
-
-    if(stateHolder && !isCurrent){
-        Window::GetCurrentWindow().DisableCamera();
-    }
-
-    if(!stateHolder && isCurrent){
-        Window::GetCurrentWindow().SetCamera(GetMasterObject().GetAsObject());
-    }
-    */
-    
-    
-    ImGui::AlignedText("Fov");
-    ImGui::SameLine();
-    ImGui::AlignNextRight();
-    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_Fov).c_str(),&m_Fov,0.1,0,150);
-    ImGui::AlignedText("Render Distance");
-    ImGui::SameLine();
-    ImGui::AlignNextRight();
-    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_DrawDistance).c_str(),&m_DrawDistance,0.1,0);
-    ImGui::AlignedText("Render Cutoff");
-    ImGui::SameLine();
-    ImGui::AlignNextRight();
-    ImGui::DragFloat(GuiLayer::GetImGuiID(&m_DrawNear).c_str(),&m_DrawNear,0.1,0);
-
-
-}
 
 Camera::Camera(CameraCreationProperties prop) {
     m_Fov = prop.fov;
@@ -218,12 +148,16 @@ bool Camera::HasRenderTarget()
 
 void Camera::Render()
 {
-    if (HasRenderTarget() && GetMasterObject().operator bool()) {
-        m_RenderTarget.get()->Clear();
-        m_RenderTarget.get()->Bind();
-        GL_CALL(glViewport(m_ViewPort.x,m_ViewPort.y,m_ViewPort.z,m_ViewPort.w));
+    if (GetMasterObject().operator bool()) {
+        if (HasRenderTarget()) {
+            m_RenderTarget.get()->Clear();
+            m_RenderTarget.get()->Bind();
+        }
+        GL_CALL(glViewport(m_ViewPort.x, m_ViewPort.y, m_ViewPort.z, m_ViewPort.w));
         m_DrawingFunc(*this);
-        m_RenderTarget.get()->Unbind();
+        if (HasRenderTarget()) {
+            m_RenderTarget.get()->Unbind();
+        }
     }
     
 }

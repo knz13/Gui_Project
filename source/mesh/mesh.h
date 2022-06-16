@@ -35,13 +35,11 @@ namespace MeshAttribute {
     };
 };
 
-class Mesh : public EventReceiver,public GameComponent<Mesh>{
-    KV_CLASS
+class Mesh : public yael::event_receiver,public ecspp::DefineComponent<Mesh, GameComponent> {
 public:
     Mesh();
     
     ~Mesh();
-
 
 
     bool SetShader(std::string shaderLocation);
@@ -50,25 +48,22 @@ public:
     std::string GetShaderName();
     Shader& GetShader();
     
-
-    FunctionSink<void(Mesh&,Shader&,const glm::mat4&)> PreDrawn();
-    FunctionSink<void(Mesh&)> PostDrawn();
+    yael::event_sink<void(Mesh&,Shader&,const glm::mat4&)> PreDrawn();
+    yael::event_sink<void(Mesh&)> PostDrawn();
 
 
     void Update(float deltaTime) override;
-    void ShowProperties() override;
 
    
     
 
     bool ReadyToDraw();
 
-    void TrySetMesh(std::string path);
+    bool TrySetMesh(std::string path);
     void Draw(const glm::mat4& mvp);
 
 private:
-    YAML::Node Serialize() override;
-    bool Deserialize(YAML::Node& node) override;
+    
 
     VertexArray& GetVertexArray();
     void Init() override;
@@ -83,9 +78,9 @@ private:
     std::string m_ShaderName = "";
     
     
-    EventLauncher<void(Mesh&,Shader&,const glm::mat4&)> m_PreDrawFuncs;
-    EventLauncher<void(Mesh&)> m_PostDrawFuncs;
-    EventLauncher<void(Mesh&)> m_DeletedFuncs;
+    yael::event_launcher<void(Mesh&,Shader&,const glm::mat4&)> m_PreDrawFuncs;
+    yael::event_launcher<void(Mesh&)> m_PostDrawFuncs;
+    yael::event_launcher<void(Mesh&)> m_DeletedFuncs;
 
     //static members
 

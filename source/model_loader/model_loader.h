@@ -18,6 +18,7 @@ struct LoadedModelResult {
 		return valid;
 	}
 
+	MeshAttribute::Vertex vertices;
 private:
 	bool valid=false;
 
@@ -27,7 +28,6 @@ private:
 struct LoadingModelProperties {
 
 	std::string modelName = "";
-	std::function<void(Mesh&)> initializationFunc = [](Mesh& model){};
 
 
 private:
@@ -48,7 +48,7 @@ class ModelLoader {
 	
 public:
 
-	static LoadedModelResult LoadModel(std::string fileName,Mesh& drawable,LoadingModelProperties prop = LoadingModelProperties());
+	static LoadedModelResult LoadModel(std::string fileName);
 
 
 private:
@@ -57,10 +57,10 @@ private:
 	static std::unordered_map<std::string,std::map<std::string,MeshAttribute::Vertex>> m_ModelCache;
 
 
-	static LoadedModelResult CopyModelFromCache(std::string cacheName,Mesh& dr,LoadingModelProperties prop);
+	static LoadedModelResult CopyModelFromCache(std::string cacheName);
 	static vector<ModelLoader::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
-	static LoadedModelResult ProcessData(Mesh& model,const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop);
-	static LoadedModelResult AssimpGetMeshData(const aiMesh* mesh,Mesh& model,LoadingModelProperties prop);
+	static LoadedModelResult ProcessData(const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop);
+	static LoadedModelResult AssimpGetMeshData(const aiMesh* mesh,LoadingModelProperties prop);
 
 
 

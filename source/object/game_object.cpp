@@ -81,7 +81,8 @@ void GameObject::ShowProperties()
         
 
         for (auto& name : GetComponentsNames()) {
-            auto* comp = &GetComponentByName(name).GetAs<GameComponent>();
+            
+            auto* comp = GetComponentByName(name).GetAs<GameComponent>();
 
             if (!comp->IsVisibleInEditor()) {
                 continue;

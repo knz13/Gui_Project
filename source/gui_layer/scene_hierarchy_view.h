@@ -6,7 +6,7 @@ class Window;
 
 namespace GuiLayer {
 
-struct SceneHierarchyViewComponent : public GameComponent<SceneHierarchyViewComponent>, public ecspp::AddOnlyTo<SceneHierarchyViewComponent,GameObject> {
+struct SceneHierarchyViewComponent : public ecspp::DefineComponent<SceneHierarchyViewComponent,GameComponent>, public ecspp::AddOnlyTo<SceneHierarchyViewComponent,GameObject> {
     void Init() override;
     
     

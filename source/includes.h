@@ -28,11 +28,9 @@
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "../vendor/yaml/include/yaml-cpp/yaml.h"
 #include "../vendor/dialog/src/include/nfd.hpp"
-#include <source_location>
 #include "../vendor/ecspp/include/ecspp.h"
 #include "../vendor/yael/include/yael.h"
 
-using namespace std;
 
 
 #define GL_SIZEOF(x) TestSize(x)
@@ -59,7 +57,7 @@ static unsigned int TestSize(unsigned int dataType) {
 }
 
 
-#define LOG(x) cout << "LOG: " << x << endl <<  "At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl
+#define LOG(x) std::cout << "LOG: " << x << std::endl <<  "At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl
 
 
 #ifdef NDEBUG
@@ -67,9 +65,9 @@ static unsigned int TestSize(unsigned int dataType) {
 #define DEBUG_WARN(x)
 #define DEBUG_ERROR(x)
 #else
-#define DEBUG_LOG(x) cout << "LOG: " << x << endl << " In Function " << std::source_location::current().function_name() << endl <<   " At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl
-#define DEBUG_WARN(x) cout << "WARNING: " << x << endl <<  "At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl
-#define DEBUG_ERROR(x) cout << "ERROR! -> " << x  << endl <<  "At line: "<< __LINE__ << endl << "In file: " << __FILE__ << endl; __debugbreak()
+#define DEBUG_LOG(x) std::cout << "LOG: " << x << std::endl <<   " At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl
+#define DEBUG_WARN(x) std::cout << "WARNING: " << x << std::endl <<  "At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl
+#define DEBUG_ERROR(x) std::cout << "ERROR! -> " << x  << std::endl <<  "At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl; __debugbreak()
 #endif
 
 static void ClearGLErrors() {
@@ -81,7 +79,7 @@ static void ClearGLErrors() {
 static bool GetGLError(int line, std::string file) {
     GLenum code = glGetError();
     if (code != GL_NO_ERROR) {
-        cout << "OpenGL error '" << std::to_string(code) << "' \nAt line: " << line << " \nIn file: " << file << endl;
+        std::cout << "OpenGL error '" << std::to_string(code) << "' \nAt line: " << line << " \nIn file: " << file << std::endl;
         return true;
     }
     return false;
