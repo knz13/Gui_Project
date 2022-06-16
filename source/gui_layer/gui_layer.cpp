@@ -35,12 +35,10 @@ void GuiLayer::Init() {
 
 void GuiLayer::AddUi(Window& win) {
     
-    ImFontConfig config;
-    config.OversampleH = 3;
     
-    BaseSettings::MainFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("defaults/fonts/OpenSans-Regular.ttf",15,&config);
+    //BaseSettings::MainFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("defaults/fonts/OpenSans-Regular.ttf",16);
 
-    ImGui::GetIO().Fonts->Build();
+    //ImGui::GetIO().Fonts->Build();
 
 
     win.Events().AllEvents().Connect([](Window&, SDL_Event& ev) {
@@ -62,16 +60,9 @@ void GuiLayer::AddUi(Window& win) {
 
     win.Events().PostDrawingLoopEvent().Connect([&](Window& win){
         
-        ImGui::PopFont();
+        //ImGui::PopFont();
 
-        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-            if (ImGui::IsKeyPressed(ImGuiKey_Equal)) {
-                BaseSettings::FontScale += 0.1;
-            }
-            if (ImGui::IsKeyPressed(ImGuiKey_Minus)) {
-                BaseSettings::FontScale -= 0.1;
-            }
-        }
+        
 
         ImGui::PopStyleColor(2);
 
@@ -84,6 +75,7 @@ void GuiLayer::AddUi(Window& win) {
             ImGui::RenderPlatformWindowsDefault();
            
         }
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         
@@ -105,7 +97,7 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
 
-        ImGui::PushFont(BaseSettings::MainFont);
+        //ImGui::PushFont(BaseSettings::MainFont);
         
         ImGui::PushStyleColor(ImGuiCol_TitleBgActive, Color(0, 0, 0).AsImVec4());
         ImGui::PushStyleColor(ImGuiCol_TitleBg, Color(0, 0, 0).AsImVec4());
@@ -116,7 +108,7 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-        ImGui::Begin("BackWindow",0,ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking);
+        ImGui::Begin("BackWindow",0,ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking);
         ImGui::PopStyleVar(2);
 
         if (BaseSettings::LoadedScenePath != "") {

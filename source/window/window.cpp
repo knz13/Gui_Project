@@ -156,13 +156,18 @@ SDL_GLContext& Window::GetContext() {
 
 void Window::EndDrawState() {
     m_PostDrawingLoopFuncs.EmitEvent(*this);
-    
-    
+   
     SDL_GL_SwapWindow(m_WindowPointer);
 
 }
 
 void Window::BeginDrawState() {
+    glm::vec3 color = m_ClearColor.Normalized();
+    GL_CALL(glClearColor(color.x,color.y,color.z,1.0f));
+    GL_CALL(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
+    GL_CALL(glStencilMask(0xFF));
+    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
     m_PreDrawingLoopFuncs.EmitEvent(*this);
 
     SDL_Event event;
@@ -219,11 +224,6 @@ void Window::BeginDrawState() {
         }
     }
 
-    glm::vec3 color = m_ClearColor.Normalized();
-    GL_CALL(glClearColor(color.x,color.y,color.z,1.0f));
-    GL_CALL(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
-    GL_CALL(glStencilMask(0xFF));
-    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 
