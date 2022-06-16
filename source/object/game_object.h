@@ -20,32 +20,6 @@ namespace GuiLayer {
 
 class TransformComponent;
 
-class GameObject : public BaseObject<GameObject>, public ecspp::RegisterStorage<GameObject,GameObjectProperties> {
-public:
-	GameObject(entt::entity e);
-
-	TransformComponent& Transform();
-
-	void SetHighlightState(bool state);
-	void SetHighlightColor(Color color);
-	Color GetHighlightColor();
-	bool GetHighlightState();
-	bool IsActive();
-	void SetActiveState(bool state);
-	
-
-	
-	
-protected:
-	void ShowProperties() override;
-    virtual YAML::Node Serialize();
-    virtual bool Deserialize(YAML::Node& node);
-
-    friend class GuiLayer::PropertiesView;
-};
-
-
-
 class GameComponent : public ecspp::Component {
 public:
     bool IsEnabled() {
@@ -67,7 +41,7 @@ public:
     virtual bool Deserialize(YAML::Node& node) { return true; };
 
 protected:
-   
+
 
     void HideInEditor(bool state) {
         m_ShouldHideInEditor = state;
@@ -97,3 +71,32 @@ private:
 
     friend class GameObject;
 };
+
+
+
+class GameObject : public BaseObject<GameObject>, public ecspp::RegisterStorage<GameObject,GameObjectProperties>, public ecspp::RegisterComponent<GameObject,GameComponent> {
+public:
+	GameObject(entt::entity e);
+
+	TransformComponent& Transform();
+
+	void SetHighlightState(bool state);
+	void SetHighlightColor(Color color);
+	Color GetHighlightColor();
+	bool GetHighlightState();
+	bool IsActive();
+	void SetActiveState(bool state);
+	
+
+	
+	
+protected:
+	void ShowProperties() override;
+    virtual YAML::Node Serialize();
+    virtual bool Deserialize(YAML::Node& node);
+
+    friend class GuiLayer::PropertiesView;
+};
+
+
+

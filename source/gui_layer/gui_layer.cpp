@@ -35,7 +35,14 @@ void GuiLayer::Init() {
 
 void GuiLayer::AddUi(Window& win) {
     
+    ImFontConfig config;
+    config.OversampleH = 3;
     
+    BaseSettings::MainFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("defaults/fonts/OpenSans-Regular.ttf",15,&config);
+
+    ImGui::GetIO().Fonts->Build();
+
+
     win.Events().AllEvents().Connect([](Window&, SDL_Event& ev) {
         ImGui_ImplSDL2_ProcessEvent(&ev);
     });
@@ -55,6 +62,8 @@ void GuiLayer::AddUi(Window& win) {
 
     win.Events().PostDrawingLoopEvent().Connect([&](Window& win){
         
+        ImGui::PopFont();
+
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
             if (ImGui::IsKeyPressed(ImGuiKey_Equal)) {
                 BaseSettings::FontScale += 0.1;
@@ -95,6 +104,8 @@ void GuiLayer::AddUi(Window& win) {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
+
+        ImGui::PushFont(BaseSettings::MainFont);
         
         ImGui::PushStyleColor(ImGuiCol_TitleBgActive, Color(0, 0, 0).AsImVec4());
         ImGui::PushStyleColor(ImGuiCol_TitleBg, Color(0, 0, 0).AsImVec4());
@@ -255,18 +266,18 @@ void GuiLayer::SetupWindowStyle(std::string name,std::function<void(ImGuiWindowF
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,0);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-    ImGui::PushStyleColor(ImGuiCol_Tab, BaseColors::WindowBg.AsImVec4());
-    ImGui::PushStyleColor(ImGuiCol_TabActive, BaseColors::WindowBg.AsImVec4());
-    ImGui::PushStyleColor(ImGuiCol_TabHovered, BaseColors::WindowBg.AsImVec4());
-    ImGui::PushStyleColor(ImGuiCol_TabUnfocused, BaseColors::WindowBg.AsImVec4());
-    ImGui::PushStyleColor(ImGuiCol_TabUnfocusedActive, BaseColors::WindowBg.AsImVec4());
+    //ImGui::PushStyleColor(ImGuiCol_Tab, BaseColors::WindowBg.AsImVec4());
+    //ImGui::PushStyleColor(ImGuiCol_TabActive, BaseColors::WindowBg.AsImVec4());
+    //ImGui::PushStyleColor(ImGuiCol_TabHovered, BaseColors::WindowBg.AsImVec4());
+    //ImGui::PushStyleColor(ImGuiCol_TabUnfocused, BaseColors::WindowBg.AsImVec4());
+    //ImGui::PushStyleColor(ImGuiCol_TabUnfocusedActive, BaseColors::WindowBg.AsImVec4());
 
 
     ImGui::SetNextWindowDockID(WindowIDs::GetID(name),ImGuiCond_Once);
     beginCommand(flags);
 
     ImGui::SetWindowFontScale(BaseSettings::FontScale);
-    ImGui::PopStyleColor(8);
+    ImGui::PopStyleColor(3);
     ImGui::PopStyleVar(3);
 }
 void GuiLayer::SetupChildStyle(std::function<void()> command)

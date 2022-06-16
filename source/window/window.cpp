@@ -42,13 +42,15 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
         }
     }
 
-    
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, prop.openGLVersionMajor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, prop.openGLVersionMinor);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+
+    prop.windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
     if(prop.windowFlags & WindowFlag::FullScreen){
         windowFlags |= SDL_WINDOW_FULLSCREEN;

@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <filesystem>
 #include <map>
-#include <concepts>
 #include "../vendor/glm/glm/glm.hpp"
 #include "../vendor/glm/glm/gtc/quaternion.hpp"
 #include "../vendor/glm/glm/gtx/quaternion.hpp"

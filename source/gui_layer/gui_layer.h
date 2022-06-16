@@ -37,7 +37,8 @@ namespace GuiLayer {
     };
 
     struct BaseSettings {
-        static inline float FontScale = 1.0f;
+        static inline int FontScale = 1;
+        static inline ImFont* MainFont = nullptr;
         static inline std::string LoadedScenePath = "";
     };
 
