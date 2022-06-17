@@ -12,6 +12,9 @@ public:
 	ShaderAsset(entt::entity e);
 
 	static std::vector<std::string> GetAssetExtensions();
+private:
+
+	void ReadFile() override;
 
 };
 

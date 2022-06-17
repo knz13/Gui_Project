@@ -8,3 +8,12 @@ std::vector<std::string> ShaderAsset::GetAssetExtensions()
 {
 	return {".shader"};
 }
+
+void ShaderAsset::ReadFile()
+{
+	std::string path = this->GetPath();
+
+
+
+
+}

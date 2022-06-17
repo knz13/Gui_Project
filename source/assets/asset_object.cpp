@@ -93,17 +93,18 @@ bool AssetRegister::CreateAssetAtFolder(std::string folder, std::string assetTyp
 ecspp::ObjectHandle AssetRegister::LoadAssetForPath(std::string path)
 {
 	if (!GetAssetForPath(path)) {
+		if (std::string extClass = AssetRegister::GetRegisteredAssetForExtension(std::filesystem::path(path).extension().string()); extClass != "") {
+			ecspp::ObjectHandle obj = ecspp::CreateNewObject(extClass, std::filesystem::path(path).stem().string());
+			AssetObject asset(obj.ID());
+			
+			asset.SetPath(path);
+			return ecspp::ObjectHandle(obj.ID());
+		}
 		if (std::filesystem::is_directory(path)) {
 			ecspp::ObjectHandle obj = ecspp::CreateNewObject("FolderAsset", std::filesystem::path(path).stem().string());
 			FolderAsset asset(obj.ID());
 			asset.SetPath(path);
 			return ecspp::ObjectHandle(asset.ID());
-		}
-		if (std::string extClass = AssetRegister::GetRegisteredAssetForExtension(std::filesystem::path(path).extension().string()); extClass != "") {
-			ecspp::ObjectHandle obj = ecspp::CreateNewObject(extClass, std::filesystem::path(path).stem().string());
-			AssetObject asset(obj.ID());
-			asset.SetPath(path);
-			return ecspp::ObjectHandle(obj.ID());
 		}
 		ecspp::ObjectHandle obj = ecspp::CreateNewObject("TextAsset", std::filesystem::path(path).stem().string());
 		AssetObject asset(obj.ID());
