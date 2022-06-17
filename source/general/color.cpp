@@ -26,12 +26,14 @@ void Color::Set(unsigned char r, unsigned char g, unsigned char b,unsigned char 
     m_ColorValue.x = r/255.0f;
     m_ColorValue.y = g/255.0f;
     m_ColorValue.z = b/255.0f;
+    m_ColorValue.w = a / 255.0f;
 }
 
 void Color::Set(float r, float g, float b,float a) {
     m_ColorValue.x = r;
     m_ColorValue.y = g;
     m_ColorValue.z = b;
+    m_ColorValue.w = a;
 }
 
 void Color::Modify(std::function<void(glm::vec4&)> changeFunction) {
@@ -45,6 +47,7 @@ Color::Color(unsigned char r,unsigned char g,unsigned char b,unsigned char a) {
     m_ColorValue.x = r/255.0f;
     m_ColorValue.y = g/255.0f;
     m_ColorValue.z = b/255.0f;
+    m_ColorValue.w = a / 255.0f;
 }
 
 Color::Color() {

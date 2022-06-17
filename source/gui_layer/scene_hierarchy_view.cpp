@@ -29,7 +29,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
             SceneHierarchyView::SetupObject(obj);
 #else 
             if (obj.HasComponent<InternalUse>()) {
-                ImGui::PushStyleColor(ImGuiCol_Header,Color::Red.AsImVec4());
+                ImGui::PushStyleColor(ImGuiCol_Header,(Color::Red - Color(60,60,60,0)).AsImVec4());
                 ImGui::PushStyleColor(ImGuiCol_HeaderActive,Color::Red.AsImVec4());
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered,Color::Red.AsImVec4());
             }
@@ -106,11 +106,15 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
     }
     else {
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed;
         if (GuiLayer::AnyObjectSelected()) {
             if (GuiLayer::AnyObjectSelected().ID() == obj.ID()) {
                 flags |= ImGuiTreeNodeFlags_Selected;
             }
+        }
+
+        if (obj.GetChildren().size() == 0) {
+            flags |= ImGuiTreeNodeFlags_Bullet;
         }
 
         ImGui::SetNextItemOpen(true,ImGuiCond_Once);
