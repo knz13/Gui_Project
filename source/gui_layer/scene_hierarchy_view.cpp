@@ -116,6 +116,9 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
         if (obj.GetChildren().size() == 0) {
             flags |= ImGuiTreeNodeFlags_Bullet;
         }
+        else {
+            flags |= ImGuiTreeNodeFlags_OpenOnArrow;
+        }
 
         ImGui::SetNextItemOpen(true,ImGuiCond_Once);
         bool isOpen = false;

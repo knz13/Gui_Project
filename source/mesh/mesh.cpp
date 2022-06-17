@@ -113,6 +113,7 @@ void Mesh::Draw(const glm::mat4& mvp) {
 
     if (!GetShader()) {
         DEBUG_LOG("Tried drawing object without shader attached! deactivating");
+        this->GetMasterObject().GetAs<GameObject>().SetActiveState(false);
         return;
     }
 

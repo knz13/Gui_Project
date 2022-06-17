@@ -33,6 +33,8 @@ public:
 
     bool HasRenderTarget();
     void Render();
+
+    void Draw(std::vector<ecspp::ObjectHandle> objects);
     
     void SetDrawingFunction(std::function<void(Camera&,ecspp::ObjectHandle)> drawingFunc);
     void SetRenderTarget(std::shared_ptr<Framebuffer> framebuffer);

@@ -152,7 +152,6 @@ void Camera::Render()
         auto view = ecspp::Registry().view<TransformComponent, Mesh>();
 
         for (auto entity : view) {
-
             if (!ecspp::ObjectHandle(entity)) {
                 continue;
             }
@@ -160,8 +159,9 @@ void Camera::Render()
             if (!GameObject(entity).GetComponent<Mesh>().ReadyToDraw()) {
                 continue;
             }
+
+            m_DrawingFunc(*this, { entity });
             
-            m_DrawingFunc(*this,{entity});
 
         }
 
@@ -172,6 +172,38 @@ void Camera::Render()
         m_OnPostDraw.EmitEvent(*this);
     }
     
+}
+
+void Camera::Draw(std::vector<ecspp::ObjectHandle> objects)
+{
+
+    if (HasRenderTarget()) {
+        m_RenderTarget.get()->Clear();
+        m_RenderTarget.get()->Bind();
+    }
+    GL_CALL(glViewport(m_ViewPort.x, m_ViewPort.y, m_ViewPort.z, m_ViewPort.w));
+       
+    for (auto& handle : objects) {
+
+        if (!handle) {
+            continue;
+        }
+
+        if (!handle.IsType<GameObject>()) {
+            continue;
+        }
+
+        if (!handle.GetAs<GameObject>().GetComponent<Mesh>().ReadyToDraw()) {
+            continue;
+        }
+
+        m_DrawingFunc(*this, handle);
+
+    }
+    if (HasRenderTarget()) {
+        m_RenderTarget.get()->Unbind();
+    }
+
 }
 
 void Camera::SetDrawingFunction(std::function<void(Camera&,ecspp::ObjectHandle)> drawingFunc)
