@@ -8,30 +8,20 @@
 
 
 bool Mesh::SetShader(std::string shaderLocation) {
-    bool loadResult;
-    Shader& shader = Window::GetCurrentWindow().Create().CachedShader(shaderLocation,&loadResult);
-    if(loadResult){
-        m_ShaderName = shaderLocation;
+    ecspp::ObjectHandle handle = ShaderAsset::LoadFromPath(shaderLocation);
 
-        for(auto& [name,prop] : shader.GetUniformLocations()){
-            if(name[0] != 'p'){ 
-                MeshAttribute::ShaderUniformVariable var;
-                if(name[1] != 'c'){
-                    var.type = prop.type;
-                }
-                else{
-                    var.type = "Color";
-                }
-                m_PublicShaderVariables[name] = var;
-            }
-        }
-
-
-        return true;
-    }
-    else {
+    if (!handle) {
         return false;
     }
+
+    if (!handle.GetAs<ShaderAsset>().operator bool()) {
+        return false;
+    }
+
+    m_ShaderName = shaderLocation;
+
+    return true;
+    
 }
 
 bool Mesh::ReadyToDraw() {
@@ -121,8 +111,14 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
 
 void Mesh::Draw(const glm::mat4& mvp) {
 
-    GetShader().Bind();
-    m_PreDrawFuncs.EmitEvent(*this, GetShader(), mvp);
+    if (!GetShader()) {
+        DEBUG_LOG("Tried drawing object without shader attached! deactivating");
+        return;
+    }
+
+    Shader& shader = GetShader().GetAs<ShaderAsset>().GetUnderlyingShader();
+    shader.Bind();
+    m_PreDrawFuncs.EmitEvent(*this, shader, mvp);
 
 
     m_VAO->Bind();
@@ -190,10 +186,8 @@ std::string Mesh::GetShaderName()
     return m_ShaderName;
 }
 
-Shader& Mesh::GetShader() {
-    bool found = false;
-    Shader& shader = Window::GetCurrentWindow().Create().CachedShader(m_ShaderName,&found);
-    return shader;
+ecspp::ObjectHandle Mesh::GetShader() {
+    return ShaderAsset::LoadFromPath(m_ShaderName);
 }
 
 void Mesh::Init() {

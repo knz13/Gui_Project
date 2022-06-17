@@ -46,7 +46,7 @@ public:
     bool SetVertices(MeshAttribute::Vertex vertexAttribute);
     
     std::string GetShaderName();
-    Shader& GetShader();
+    ecspp::ObjectHandle GetShader();
     
     yael::event_sink<void(Mesh&,Shader&,const glm::mat4&)> PreDrawn();
     yael::event_sink<void(Mesh&)> PostDrawn();

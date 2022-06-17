@@ -144,9 +144,9 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
         auto& transform = handle.GetAs<GameObject>().Transform();
         auto& drawable = handle.GetAs<GameObject>().GetComponent<Mesh>();
 
-            
+        
 
-        Shader& currentObjectShader = drawable.GetShader();
+        Shader& currentObjectShader = drawable.GetShader().GetAs<ShaderAsset>().GetUnderlyingShader();
 
         glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
         currentObjectShader.Bind();
@@ -171,14 +171,23 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
 
             drawable.Draw(mvp);
 
+            std::string currentShaderName = drawable.GetShaderName();
+
+            if (!drawable.SetShader("defaults/default_shaders/single_color_shader")) {
+                drawable.SetShader(currentShaderName);
+                DEBUG_LOG("Could not use single color shader!");
+                return;
+            }
+
+
             GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
             GL_CALL(glStencilMask(0x00));
             GL_CALL(glDisable(GL_DEPTH_TEST));
 
             transform.InstantScaleChange(0.1, 0.1, 0.1);
-            bool result;
-            std::string currentShaderName = drawable.GetShaderName();
-            Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("defaults/default_shaders/single_color_shader", &result);
+
+
+            Shader& singleColorShader = drawable.GetShader().GetAs<ShaderAsset>().GetUnderlyingShader();
 
             GameObject comp = handle.GetAs<GameObject>();
 

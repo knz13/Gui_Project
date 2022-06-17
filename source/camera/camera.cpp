@@ -43,7 +43,7 @@ void Camera::Init()
         auto& transform = handle.GetAs<GameObject>().Transform();
         auto& drawable = handle.GetAs<GameObject>().GetComponent<Mesh>();
 
-        Shader& currentObjectShader = drawable.GetShader();
+        Shader& currentObjectShader = drawable.GetShader().GetAs<ShaderAsset>().GetUnderlyingShader();
         glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();;
 
         currentObjectShader.Bind();
