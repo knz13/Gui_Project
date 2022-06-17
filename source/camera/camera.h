@@ -34,10 +34,12 @@ public:
     bool HasRenderTarget();
     void Render();
     
-    void SetDrawingFunction(std::function<void(Camera&)> drawingFunc);
+    void SetDrawingFunction(std::function<void(Camera&,ecspp::ObjectHandle)> drawingFunc);
     void SetRenderTarget(std::shared_ptr<Framebuffer> framebuffer);
     void SetViewport(float x,float y,float width,float height);
 
+    yael::event_sink<void(Camera&)> OnPreDraw();
+    yael::event_sink<void(Camera&)> OnPostDraw();
 
 private:
     
@@ -46,13 +48,15 @@ private:
     void Init() override;
     void Destroy() override;
 
-    std::function<void(Camera&)> m_DrawingFunc;
+    std::function<void(Camera&,ecspp::ObjectHandle)> m_DrawingFunc;
     std::shared_ptr<Framebuffer> m_RenderTarget;
     glm::vec4 m_ViewPort = glm::vec4(0,0,0,0);
     float m_DrawNear = 0;
     float m_DrawDistance = 100.0f;
     float m_Fov = 45;
     
+    yael::event_launcher<void(Camera&)> m_OnPreDraw;
+    yael::event_launcher<void(Camera&)> m_OnPostDraw;
     
     //static members
 

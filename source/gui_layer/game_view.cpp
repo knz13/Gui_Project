@@ -131,90 +131,77 @@ void GuiLayer::GameView::Setup(Window& win) {
 void GuiLayer::GameView::SetupEditorCameraDrawing()
 {
 
-    m_EditorCamera.GetAsObject().GetComponent<Camera>().SetDrawingFunction([=](Camera& camera) {
-        
-
+    m_EditorCamera.GetAsObject().GetComponent<Camera>().OnPreDraw().Connect([](Camera&) {
         m_RaycastTexture.get()->GetAttachedTexture().Bind();
         GL_CALL(glBindImageTexture(3, m_RaycastTexture.get()->GetAttachedTexture().GetID(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F));
+    });
+    m_EditorCamera.GetAsObject().GetComponent<Camera>().OnPostDraw().Connect([](Camera&) {
+        GL_CALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
+    });
 
-        auto view = ecspp::Registry().view<TransformComponent, Mesh>();
-        for (auto entity : view) {
+    m_EditorCamera.GetAsObject().GetComponent<Camera>().SetDrawingFunction([=](Camera& camera,ecspp::ObjectHandle handle) {
 
-
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& drawable = view.get<Mesh>(entity);
-
-            if (!drawable.ReadyToDraw()) {
-                continue;
-            }
-
-            Shader& currentObjectShader = drawable.GetShader();
-
-            glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
-            currentObjectShader.Bind();
-            currentObjectShader.SetUniformMat4f("MVP", mvp);
-
-            currentObjectShader.SetUniform1i("rayCastTexture", 3);
-
-            uint32_t val = (uint32_t)entity;
-            val++;
-
-            float r = ((uint32_t)val & 0x000000FF) >> 0;
-            float g = ((uint32_t)val & 0x0000FF00) >> 8;
-            float b = ((uint32_t)val & 0x00FF0000) >> 16;
-
-            currentObjectShader.SetUniform3f("UMyIdentifier", r/255.0f, g / 255.0f, b / 255.0f);
+        auto& transform = handle.GetAs<GameObject>().Transform();
+        auto& drawable = handle.GetAs<GameObject>().GetComponent<Mesh>();
 
             
 
+        Shader& currentObjectShader = drawable.GetShader();
 
-            if (GameObject(entity).GetHighlightState()) {
+        glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
+        currentObjectShader.Bind();
+        currentObjectShader.SetUniformMat4f("MVP", mvp);
 
-                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
-                GL_CALL(glStencilMask(0xFF));
+        currentObjectShader.SetUniform1i("rayCastTexture", 3);
+
+        uint32_t val = (uint32_t)handle.GetAsObject().ID();
+        val++;
+
+        float r = ((uint32_t)val & 0x000000FF) >> 0;
+        float g = ((uint32_t)val & 0x0000FF00) >> 8;
+        float b = ((uint32_t)val & 0x00FF0000) >> 16;
+
+        currentObjectShader.SetUniform3f("UMyIdentifier", r/255.0f, g / 255.0f, b / 255.0f);
+
+        if (handle.GetAs<GameObject>().GetHighlightState()) {
+
+            GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+            GL_CALL(glStencilMask(0xFF));
 
 
-                drawable.Draw(mvp);
+            drawable.Draw(mvp);
 
-                GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
-                GL_CALL(glStencilMask(0x00));
-                GL_CALL(glDisable(GL_DEPTH_TEST));
+            GL_CALL(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
+            GL_CALL(glStencilMask(0x00));
+            GL_CALL(glDisable(GL_DEPTH_TEST));
 
-                transform.InstantScaleChange(0.1, 0.1, 0.1);
-                bool result;
-                std::string currentShaderName = drawable.GetShaderName();
-                Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("defaults/default_shaders/single_color_shader", &result);
+            transform.InstantScaleChange(0.1, 0.1, 0.1);
+            bool result;
+            std::string currentShaderName = drawable.GetShaderName();
+            Shader& singleColorShader = Window::GetCurrentWindow().Create().CachedShader("defaults/default_shaders/single_color_shader", &result);
 
-                GameObject comp(entity);
+            GameObject comp = handle.GetAs<GameObject>();
 
-                glm::mat4 mvpSecond = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
+            glm::mat4 mvpSecond = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();
 
-                singleColorShader.Bind();
-                singleColorShader.SetUniformMat4f("MVP", mvpSecond);
-                singleColorShader.SetUniform3f("desiredColor", comp.GetHighlightColor().Normalized().x, comp.GetHighlightColor().Normalized().y, comp.GetHighlightColor().Normalized().z);
+            singleColorShader.Bind();
+            singleColorShader.SetUniformMat4f("MVP", mvpSecond);
+            singleColorShader.SetUniform3f("desiredColor", comp.GetHighlightColor().Normalized().x, comp.GetHighlightColor().Normalized().y, comp.GetHighlightColor().Normalized().z);
 
-                drawable.Draw(mvpSecond);
+            drawable.Draw(mvpSecond);
 
-                drawable.SetShader(currentShaderName);
+            drawable.SetShader(currentShaderName);
 
-                transform.InstantScaleChange(-0.1, -0.1, -0.1);
+            transform.InstantScaleChange(-0.1, -0.1, -0.1);
 
-                GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
-                GL_CALL(glStencilMask(0x00));
-                GL_CALL(glEnable(GL_DEPTH_TEST));
-
-            }
-            else {
-                drawable.Draw(mvp);
-            }
-
-            
+            GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+            GL_CALL(glStencilMask(0x00));
+            GL_CALL(glEnable(GL_DEPTH_TEST));
 
         }
-        GL_CALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
-
-        
-
+        else {
+            drawable.Draw(mvp);
+        }
     });
     
 }
@@ -242,7 +229,7 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
         }
     }
 
-    if ((ImGui::IsMouseDown(ImGuiMouseButton_Middle)) || wasMouseWheelDown) {
+    if ((ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) || wasMouseWheelDown) {
         static ImVec2 lastMouseWheelPos;
         m_CanSelect = false;
 
@@ -269,7 +256,7 @@ void GuiLayer::GameView::HandleEditorCameraMovement(Window& win)
     if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && wasMouseDown) {
         wasMouseDown = false;
     }
-    if (ImGui::IsMouseReleased(ImGuiMouseButton_Middle) && wasMouseWheelDown) {
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && wasMouseWheelDown) {
         wasMouseWheelDown = false;
     }
 

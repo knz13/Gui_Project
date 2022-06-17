@@ -38,27 +38,19 @@ void Camera::Init()
 {
     m_ViewPort.z = Window::GetCurrentWindow().Properties().width;
     m_ViewPort.w = Window::GetCurrentWindow().Properties().height;
-    this->SetDrawingFunction([](Camera& camera) {
+    this->SetDrawingFunction([](Camera& camera,ecspp::ObjectHandle handle) {
 
-        auto view = ecspp::Registry().view<TransformComponent, Mesh>();
-        for (auto entity : view) {
+        auto& transform = handle.GetAs<GameObject>().Transform();
+        auto& drawable = handle.GetAs<GameObject>().GetComponent<Mesh>();
 
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& drawable = view.get<Mesh>(entity);
+        Shader& currentObjectShader = drawable.GetShader();
+        glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();;
 
-            if (!drawable.ReadyToDraw()) {
-                continue;
-            }
+        currentObjectShader.Bind();
+        currentObjectShader.SetUniformMat4f("MVP", mvp);
 
-            Shader& currentObjectShader = drawable.GetShader();
-            glm::mat4 mvp = camera.GetProjection() * camera.GetView() * transform.GetModelMatrix();;
-
-            currentObjectShader.Bind();
-            currentObjectShader.SetUniformMat4f("MVP", mvp);
-
-            drawable.Draw(mvp);
-        }
-
+        drawable.Draw(mvp);
+        
     });
 }
 
@@ -154,15 +146,35 @@ void Camera::Render()
             m_RenderTarget.get()->Bind();
         }
         GL_CALL(glViewport(m_ViewPort.x, m_ViewPort.y, m_ViewPort.z, m_ViewPort.w));
-        m_DrawingFunc(*this);
+
+        m_OnPreDraw.EmitEvent(*this);
+
+        auto view = ecspp::Registry().view<TransformComponent, Mesh>();
+
+        for (auto entity : view) {
+
+            if (!ecspp::ObjectHandle(entity)) {
+                continue;
+            }
+
+            if (!GameObject(entity).GetComponent<Mesh>().ReadyToDraw()) {
+                continue;
+            }
+            
+            m_DrawingFunc(*this,{entity});
+
+        }
+
         if (HasRenderTarget()) {
             m_RenderTarget.get()->Unbind();
         }
+
+        m_OnPostDraw.EmitEvent(*this);
     }
     
 }
 
-void Camera::SetDrawingFunction(std::function<void(Camera&)> drawingFunc)
+void Camera::SetDrawingFunction(std::function<void(Camera&,ecspp::ObjectHandle)> drawingFunc)
 {
     m_DrawingFunc = drawingFunc;
 }
@@ -178,6 +190,16 @@ void Camera::SetViewport(float x, float y, float width, float height)
 {
     m_ViewPort = glm::vec4(x,y,width,height);
     
+}
+
+yael::event_sink<void(Camera&)> Camera::OnPreDraw()
+{
+    return {m_OnPreDraw};
+}
+
+yael::event_sink<void(Camera&)> Camera::OnPostDraw()
+{
+    return {m_OnPostDraw};
 }
 
 
