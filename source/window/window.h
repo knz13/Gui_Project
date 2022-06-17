@@ -32,19 +32,7 @@ private:
 
 
 
-class WindowCreators {
-public:
-    WindowCreators(Window& wid) : m_Master(wid){}
 
-    VertexArray& NewVertexArray();
-    Shader& CachedShader(std::string shaderRelativePath,bool* loadResult=nullptr);
-    
-
-private:
-    Window& m_Master;
-
-
-};
 
 class Window {
 
@@ -60,8 +48,7 @@ public:
     
     WindowEvents Events();
 
-    WindowCreators Create();
-    
+   
     
     ecspp::NamedObjectHandle<GameObject> GetCurrentCamera();
     void SetClearColor(Color color);
@@ -113,10 +100,6 @@ private:
     
 
     float m_DeltaTime = 0;
-
-
-    std::vector<std::unique_ptr<VertexArray>> m_CreatedVertexArrays;
-    std::map<std::string,std::unique_ptr<Shader>> m_CreatedShaders;
 
     EventLauncher<void(Window&, bool)> m_FocusEventFuncs;
     EventLauncher<void(Window&,WindowResizedEventProperties)> m_WindowResizedEventFuncs;

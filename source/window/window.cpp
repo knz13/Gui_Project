@@ -134,15 +134,6 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
 }
 
 Window::~Window() {
-    
-    
-    m_CreatedShaders.clear();
-    m_CreatedVertexArrays.clear();
-
-    
-
-    
-
     SDL_DestroyWindow(m_WindowPointer);
 }
 
@@ -314,74 +305,6 @@ void Window::DrawingLoop() {
 
     
 }
-
-
-
-
-
-VertexArray& WindowCreators::NewVertexArray() {
-    VertexArray& vertex = *m_Master.m_CreatedVertexArrays.emplace_back(std::make_unique<VertexArray>()).get();
-    return vertex;
-}
-
-Shader& WindowCreators::CachedShader(std::string shaderRelativePath, bool* loadResult) {
-    if(m_Master.m_CreatedShaders.find(shaderRelativePath) != m_Master.m_CreatedShaders.end()){
-        Shader& shader = *m_Master.m_CreatedShaders[shaderRelativePath].get();
-        if(loadResult){
-            *loadResult=true;
-        }
-        return shader;
-    }
-    
-    m_Master.m_CreatedShaders[shaderRelativePath] = std::make_unique<Shader>();
-    Shader& shader = *m_Master.m_CreatedShaders[shaderRelativePath].get();
-
-    if(!std::filesystem::exists(shaderRelativePath)){
-        LOG("Could not load shader at path " + std::filesystem::absolute(shaderRelativePath).string() + " passing empty shader");
-        if(loadResult){
-            *loadResult=false;
-        }
-        return shader;
-    }
-
-    std::vector<std::pair<ShaderType,std::string>> sources;
-    for(auto file : std::filesystem::directory_iterator(shaderRelativePath)){
-        std::string fileName = file.path().filename().string();
-
-        if(file.path().extension().string() == (".vert")){
-            std::string source = LoadFileContents(std::filesystem::absolute(shaderRelativePath + "/" + fileName).string());
-            sources.push_back(std::make_pair(ShaderType::Vertex,source));
-        }
-        if(file.path().extension().string() == (".frag")){
-            std::string source = LoadFileContents(std::filesystem::absolute(shaderRelativePath + "/" + fileName).string());
-            sources.push_back(std::make_pair(ShaderType::Fragment,source));
-        }
-    }
-    
-
-    ShaderCreationProperties prop = m_Master.m_CreatedShaders[shaderRelativePath].get()->CreateNew();
-    for(auto& [type,source] : sources){
-        prop.AddShader(type,source);
-    }
-
-    if(!prop.Generate()){
-        if(loadResult){
-            *loadResult=false;
-        }
-        return shader;
-    }
-
-    if(loadResult){
-        *loadResult=true;
-    }
-    return shader;
-
-}
-
-WindowCreators Window::Create() {
-    return WindowCreators(*this);
-}
-
 
 
 

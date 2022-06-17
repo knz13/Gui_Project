@@ -31,8 +31,7 @@ bool Mesh::ReadyToDraw() {
         SetActiveState(false);
     }
 
-    bool shaderValid = false;
-    Window::GetCurrentWindow().Create().CachedShader(m_ShaderName,&shaderValid);
+    bool shaderValid = GetShader().operator bool();
     return m_ShaderName != "" && shaderValid && GetActiveState() && m_Vertices.CheckValid();
 }
 
@@ -64,7 +63,7 @@ bool Mesh::TrySetMesh(std::string path)
 
 
 VertexArray& Mesh::GetVertexArray() {
-    return *m_VAO;
+    return *m_VAO.Get();
 }
 
 
@@ -88,7 +87,7 @@ bool Mesh::SetVertices(MeshAttribute::Vertex vertexAttribute) {
         return false;
     }
     if (!m_VAO) {
-        m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
+        m_VAO.HoldType<VertexArray>();
     }
     
     m_Vertices = vertexAttribute;
@@ -122,12 +121,12 @@ void Mesh::Draw(const glm::mat4& mvp) {
     m_PreDrawFuncs.EmitEvent(*this, shader, mvp);
 
 
-    m_VAO->Bind();
-    if(m_VAO->HasIndexBuffer()){
-        GL_CALL(glDrawElements(GL_TRIANGLES,m_VAO->GetDrawCount(),GL_UNSIGNED_INT,nullptr));
+    m_VAO.Get()->Bind();
+    if(m_VAO.Get()->HasIndexBuffer()) {
+        GL_CALL(glDrawElements(GL_TRIANGLES,m_VAO.Get()->GetDrawCount(), GL_UNSIGNED_INT, nullptr));
     }
     else {
-        GL_CALL(glDrawArrays(GL_TRIANGLES,0,m_VAO->GetDrawCount()));
+        GL_CALL(glDrawArrays(GL_TRIANGLES,0,m_VAO.Get()->GetDrawCount()));
     }
 
     m_PostDrawFuncs.EmitEvent(*this);
@@ -188,12 +187,16 @@ std::string Mesh::GetShaderName()
 }
 
 ecspp::ObjectHandle Mesh::GetShader() {
+    if (m_ShaderName == "") {
+        return {};
+    }
+
     return ShaderAsset::LoadFromPath(m_ShaderName);
 }
 
 void Mesh::Init() {
     
-    m_VAO = &Window::GetCurrentWindow().Create().NewVertexArray();
+    m_VAO.HoldType<VertexArray>();
     
     
 }

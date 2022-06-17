@@ -74,7 +74,7 @@ private:
     MeshAttribute::Vertex m_Vertices;
     std::map<std::string,MeshAttribute::ShaderUniformVariable> m_PublicShaderVariables;
     
-    VertexArray* m_VAO=nullptr;
+    ecspp::HelperClasses::PointerHolder<VertexArray> m_VAO;
     std::string m_ShaderName = "";
     
     
