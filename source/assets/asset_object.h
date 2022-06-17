@@ -48,11 +48,11 @@ private:
 
 	template<typename T>
 	static void RegisterClassAsAsset() {
-		ecspp::Meta<T>().RegisterFunc<&CallOnExplorerUI<T>>("Call Explorer UI");
-		ecspp::Meta<T>().RegisterFunc<&CallOnRename<T>>("Call Rename");
-		ecspp::Meta<T>().RegisterFunc<&CallReadFile<T>>("Call Read File");
-		ecspp::Meta<T>().RegisterFunc<&CallSaveFile<T>>("Call Save File");
-		ecspp::Meta<T>().RegisterFunc<&CallRenameCreation<T>>("Rename On Creation");		
+		ecspp::meta<T>().template RegisterFunc<&CallOnExplorerUI<T>>("Call Explorer UI");
+		ecspp::meta<T>().template RegisterFunc<&CallOnRename<T>>("Call Rename");
+		ecspp::meta<T>().template RegisterFunc<&CallReadFile<T>>("Call Read File");
+		ecspp::meta<T>().template RegisterFunc<&CallSaveFile<T>>("Call Save File");
+		ecspp::meta<T>().template RegisterFunc<&CallRenameCreation<T>>("Rename On Creation");		
 
 		m_RegisteredAssetClasses.push_back(HelperFunctions::GetClassName<T>());
 
@@ -158,8 +158,7 @@ class AssetObjectSpecifier :
 	public ecspp::RegisterStorage<Derived,Storage>,
 	public AssetObject {
 public:
-	AssetObjectSpecifier(entt::entity e) : ComponentlessBaseObject<Derived>(e),AssetObject(e),
-		RegisterStorage(e) {
+	AssetObjectSpecifier(entt::entity e) : ComponentlessBaseObject<Derived>(e), AssetObject(e), ecspp::RegisterStorage<Derived,Storage>(e) {
 		(void)dummy;
 	}
 

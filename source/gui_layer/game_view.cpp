@@ -340,13 +340,13 @@ void GuiLayer::GameView::HandleSelectionGuizmo(Window& win)
         win.Events().KeyEvent().Connect([&](Window& window, SDL_KeyboardEvent keyEvent) {
 
             if (keyEvent.type == SDL_KEYDOWN && Math::IsPointInRect(m_ContentRectMin, m_ContentRectMax, ImGui::GetMousePos())) {
-                if (keyEvent.keysym.scancode == SDLK_e) {
+                if (keyEvent.keysym.sym == SDLK_e) {
                     imguizmoMode = ImGuizmo::OPERATION::TRANSLATE;
                 }
-                if (keyEvent.keysym.scancode == SDLK_r) {
+                if (keyEvent.keysym.sym == SDLK_r) {
                     imguizmoMode = ImGuizmo::OPERATION::ROTATE;
                 }
-                if (keyEvent.keysym.scancode == SDLK_t) {
+                if (keyEvent.keysym.sym == SDLK_t) {
                     imguizmoMode = ImGuizmo::OPERATION::SCALE;
                 }
             }

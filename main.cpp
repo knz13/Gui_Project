@@ -21,7 +21,6 @@ int main(){
 
     GuiLayer::AddUi(win);
     
-    ecspp::ObjectHandle obj = ecspp::CreateNewObject("GameObject", "Hey!");
     
     
 

@@ -274,8 +274,6 @@ void Window::DrawingLoop() {
 
         SDL_GL_MakeCurrent(m_WindowPointer,m_Context);
 
-        
-        
         BeginDrawState();
         
         currentTime = SDL_GetTicks();
