@@ -8,22 +8,39 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
     });
 
     
-    
+#ifndef NDEBUG
+    ImGui::ShowDemoWindow();
+
+#endif 
    
 
    
     if(ecspp::Registry().alive() > 0){
         
         GameObject::ForEach([&](GameObject obj){
-            
-            if (obj.HasComponent<InternalUse>()) {
-                return;
-            }
-            
             if(obj.GetParent()){
                 return;
             }
+            
+#ifdef NDEBUG
+            if (obj.HasComponent<InternalUse>()) {
+                return;
+            }
             SceneHierarchyView::SetupObject(obj);
+#else 
+            if (obj.HasComponent<InternalUse>()) {
+                ImGui::PushStyleColor(ImGuiCol_Header,Color::Red.AsImVec4());
+                ImGui::PushStyleColor(ImGuiCol_HeaderActive,Color::Red.AsImVec4());
+                ImGui::PushStyleColor(ImGuiCol_HeaderHovered,Color::Red.AsImVec4());
+            }
+
+            SceneHierarchyView::SetupObject(obj);
+
+            if (obj.HasComponent<InternalUse>()) {
+                ImGui::PopStyleColor(3);
+            }
+#endif
+
             
         });
 
@@ -47,7 +64,7 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
     if(ImGui::BeginPopupContextItem("AddingObjectsAndPropertiesPopup", ImGuiPopupFlags_MouseButtonRight)){
 
-        if(ImGui::BeginMenu("Create ecspp::Object")){
+        if(ImGui::BeginMenu("Create Object")){
             for(auto& [name,func] : m_DefaultObjects){
                 if(ImGui::MenuItem(name.c_str())){
                     func();
@@ -89,7 +106,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
     }
     else {
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed;
         if (GuiLayer::AnyObjectSelected()) {
             if (GuiLayer::AnyObjectSelected().ID() == obj.ID()) {
                 flags |= ImGuiTreeNodeFlags_Selected;
@@ -99,9 +116,8 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
         ImGui::SetNextItemOpen(true,ImGuiCond_Once);
         bool isOpen = false;
 
-        GuiLayer::SetupStaticTreeNodeStyle([&]() {
-            isOpen = ImGui::TreeNodeEx((obj.GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
-        });
+        
+        isOpen = ImGui::TreeNodeEx((obj.GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
 
 
         if (isOpen){

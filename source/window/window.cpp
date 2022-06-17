@@ -276,8 +276,8 @@ void Window::DrawingLoop() {
 
         BeginDrawState();
         
-        currentTime = SDL_GetTicks();
-        m_DeltaTime = static_cast<float>(currentTime - oldTime);
+        currentTime = SDL_GetTicks64();
+        m_DeltaTime = static_cast<float>(currentTime - oldTime)/1000.0f;
 
         oldTime = currentTime;
 

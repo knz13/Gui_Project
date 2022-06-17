@@ -306,22 +306,20 @@ void GuiLayer::ExplorerView::SetupFolderExplorerAboveFileExplorer()
         if (index != vec.size() - 1) {
             ImGui::SameLine();
 
-            GuiLayer::SetupStaticButtonStyle([&]() {
-                ImGui::SmallButton(">");
+            ImGui::SmallButton(">");
 
-                if (ImGui::BeginPopupContextItem(("PopupFor" + folder).c_str(),ImGuiPopupFlags_MouseButtonLeft)) {
-                    for (auto& file : std::filesystem::directory_iterator(sumItemsUntil(vec, folder))) {
-                        if (file.is_directory()) {
-                            if (ImGui::MenuItem(file.path().stem().string().c_str(), "", std::filesystem::path(m_CurrentPath) == file.path())) {
-                                SetCurrentPath(file.path().string());
-                            }
+            if (ImGui::BeginPopupContextItem(("PopupFor" + folder).c_str(),ImGuiPopupFlags_MouseButtonLeft)) {
+                for (auto& file : std::filesystem::directory_iterator(sumItemsUntil(vec, folder))) {
+                    if (file.is_directory()) {
+                        if (ImGui::MenuItem(file.path().stem().string().c_str(), "", std::filesystem::path(m_CurrentPath) == file.path())) {
+                            SetCurrentPath(file.path().string());
                         }
                     }
-
-                    ImGui::EndPopup();
                 }
+
+                ImGui::EndPopup();
+            }
                 
-                });
             ImGui::SameLine();
         }
         index++;

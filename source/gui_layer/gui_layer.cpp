@@ -228,7 +228,12 @@ void GuiLayer::AddUi(Window& win) {
             
         }
         
-
+        ImGui::PushStyleColor(ImGuiCol_Header, BaseColors::StaticWidgetBg.AsImVec4());
+        ImGui::PushStyleColor(ImGuiCol_HeaderActive, BaseColors::StaticWidgetActiveBg.AsImVec4());
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, BaseColors::StaticWidgetHoveredBg.AsImVec4());
+        ImGui::PushStyleColor(ImGuiCol_Button, BaseColors::StaticWidgetBg.AsImVec4());
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, BaseColors::StaticWidgetActiveBg.AsImVec4());
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, BaseColors::StaticWidgetHoveredBg.AsImVec4());
        
         GuiLayer::GameView::Update(win);
         
@@ -238,6 +243,8 @@ void GuiLayer::AddUi(Window& win) {
 
 
         GuiLayer::PropertiesView::Update(win);
+
+        ImGui::PopStyleColor(6);
         
        
         ImGui::End();
@@ -264,12 +271,12 @@ void GuiLayer::SetupWindowStyle(std::string name,std::function<void(ImGuiWindowF
     //ImGui::PushStyleColor(ImGuiCol_TabHovered, BaseColors::WindowBg.AsImVec4());
     //ImGui::PushStyleColor(ImGuiCol_TabUnfocused, BaseColors::WindowBg.AsImVec4());
     //ImGui::PushStyleColor(ImGuiCol_TabUnfocusedActive, BaseColors::WindowBg.AsImVec4());
+    ImGui::SetWindowFontScale(BaseSettings::FontScale);
 
 
     ImGui::SetNextWindowDockID(WindowIDs::GetID(name),ImGuiCond_Once);
     beginCommand(flags);
 
-    ImGui::SetWindowFontScale(BaseSettings::FontScale);
     ImGui::PopStyleColor(3);
     ImGui::PopStyleVar(3);
 }

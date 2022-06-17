@@ -20,9 +20,7 @@ void GuiLayer::PropertiesView::Update(Window& win) {
 
             ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize("Add Component").x / 2);
 
-            GuiLayer::SetupStaticButtonStyle([]() {
-                ImGui::Button("Add Component");
-                });
+            ImGui::Button("Add Component");
             if (ImGui::BeginPopupContextItem("PropertiesViewContextMenuItem", ImGuiPopupFlags_MouseButtonLeft)) {
 
                 for (auto& componentName : GameObject::GetRegisteredComponentsForType()) {

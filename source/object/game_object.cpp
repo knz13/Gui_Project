@@ -108,9 +108,7 @@ void GameObject::ShowProperties()
             ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
             bool selected;
             
-            GuiLayer::SetupStaticTreeNodeStyle([&]() {
-                selected = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
-            });
+            selected = ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Selected |ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
             
                 
             if (selected) {
