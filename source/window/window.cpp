@@ -15,32 +15,32 @@ Window::Window(WindowCreationProperties prop) : m_Properties(prop) {
     int contextFlags = 0;
     int windowFlags = SDL_WINDOW_OPENGL;
 
-    if(prop.windowFlags != WindowFlag::None){
-        if(prop.windowFlags & WindowFlag::OpenGLDebugContext){
-            contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
-        }
-        if(prop.windowFlags & WindowFlag::InitiallyMinimized){
-            windowFlags |= SDL_WINDOW_MINIMIZED;
+    
+    if(prop.windowFlags & WindowFlag::OpenGLDebugContext){
+        contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
+    }
+    if(prop.windowFlags & WindowFlag::InitiallyMinimized){
+        windowFlags |= SDL_WINDOW_MINIMIZED;
+    }
+    else {
+        windowFlags |= SDL_WINDOW_MAXIMIZED;
+    }
+        
+    if(!(prop.windowFlags & WindowFlag::NotResizeable)){
+        windowFlags |= SDL_WINDOW_RESIZABLE;
+    }
+        
+        
+        
+    if((prop.openGLVersionMajor == 3 && prop.openGLVersionMinor > 2) || prop.openGLVersionMajor > 3){
+        if(prop.windowFlags & WindowFlag::CoreProfile){
+            contextFlags |= SDL_GL_CONTEXT_PROFILE_CORE;
         }
         else {
-            windowFlags |= SDL_WINDOW_MAXIMIZED;
-        }
-        
-        if(!(prop.windowFlags & WindowFlag::NotResizeable)){
-            windowFlags |= SDL_WINDOW_RESIZABLE;
-        }
-        
-        
-        
-        if((prop.openGLVersionMajor == 3 && prop.openGLVersionMinor > 2) || prop.openGLVersionMajor > 3){
-            if(prop.windowFlags & WindowFlag::CoreProfile){
-                contextFlags |= SDL_GL_CONTEXT_PROFILE_CORE;
-            }
-            else {
-                contextFlags |= SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
-            }
+            contextFlags |= SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
         }
     }
+    
 
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, prop.openGLVersionMajor);
@@ -305,9 +305,6 @@ void Window::DrawingLoop() {
 
     
 }
-
-
-
 
 FunctionSink<void(Window&,MouseEventProperties)> WindowEvents::MouseLeftWindowEvent() {
     return { m_Master.m_MouseLeftWindowFuncs };

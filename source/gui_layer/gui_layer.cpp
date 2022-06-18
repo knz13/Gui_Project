@@ -210,15 +210,17 @@ void GuiLayer::AddUi(Window& win) {
             ImGui::DockBuilderSetNodeSize(id, ImGui::GetMainViewport()->WorkSize);
             ImGui::DockBuilderSetNodePos(id, ImGui::GetMainViewport()->WorkPos);
 
-            ImGuiID dock1 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Left, 0.2f, nullptr, &id);
-            ImGuiID dock2 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Right, 0.2f, nullptr, &id);
-            ImGuiID dock3 = ImGui::DockBuilderSplitNode(dock2, ImGuiDir_Left, 0.75f, nullptr, &dock2);
-            ImGuiID dock4 = ImGui::DockBuilderSplitNode(dock3, ImGuiDir_Down, 0.3f, nullptr, &dock3);
+            ImGuiID dock1 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Right, 0.2f, nullptr, &id);
+            ImGuiID dock2 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Up, 0.6f, nullptr, &id);
+            ImGuiID dock3 = ImGui::DockBuilderSplitNode(dock2, ImGuiDir_Left, 0.2f, nullptr, &dock2);
+            ImGuiID dock4 = ImGui::DockBuilderSplitNode(id, ImGuiDir_Down, 0.3f, nullptr, &id);
+            ImGuiID dock5 = ImGui::DockBuilderSplitNode(dock4, ImGuiDir_Down, 0.3f, nullptr, &dock4);
 
-            WindowIDs::CreateDock("Scene Hierarchy", dock1);
-            WindowIDs::CreateDock("Properties", dock2);
+            WindowIDs::CreateDock("Scene Hierarchy", dock3);
+            WindowIDs::CreateDock("Properties", dock1);
             WindowIDs::CreateDock("Explorer", dock4);
-            WindowIDs::CreateDock("Game View", dock3);
+            WindowIDs::CreateDock("Game View", dock2);
+            WindowIDs::CreateDock("Console", dock5);
 
             
 
@@ -243,6 +245,13 @@ void GuiLayer::AddUi(Window& win) {
 
 
         GuiLayer::PropertiesView::Update(win);
+
+        SetupWindowStyle("Console", [](ImGuiWindowFlags flags) {
+            ImGui::Begin("Console", 0, flags);
+
+        });
+
+        ImGui::End();
 
         ImGui::PopStyleColor(6);
         

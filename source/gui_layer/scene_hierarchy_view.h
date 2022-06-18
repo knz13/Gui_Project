@@ -25,6 +25,7 @@ public:
 private:
     static void SetupObject(GameObject obj);
 
+    static inline ecspp::ObjectHandle m_ObjectToMakeFree;
     static inline std::map<std::string,std::function<void()>> m_DefaultObjects;
 };
 };

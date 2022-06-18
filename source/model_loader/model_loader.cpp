@@ -93,8 +93,9 @@ LoadedModelResult ModelLoader::AssimpGetMeshData(const aiMesh* mesh, LoadingMode
 	
 	
 	
-
+	m_Mutex.lock();
 	m_ModelCache[prop.fileName][prop.currentModelName] = std::move(vertex);
+	m_Mutex.unlock();
 
 	return LoadedModelResult(true);
 
@@ -114,9 +115,11 @@ LoadedModelResult ModelLoader::LoadModel(std::string fileName) {
 		return result;
 	}
 
-
+	m_Mutex.lock();
 	const aiScene* modelScene = m_Importer.ReadFile(fileName,aiProcess_FlipUVs);
-	
+	m_Mutex.unlock();
+
+
 	if (!modelScene) {
 		LOG("Couldn't load model at " + fileName);
 		return LoadedModelResult(false);
@@ -136,14 +139,15 @@ LoadedModelResult ModelLoader::CopyModelFromCache(std::string cacheName) {
     
 	MeshAttribute::Vertex vertices;
 
+	m_Mutex.lock();
 	for (auto& [name,vertex] : m_ModelCache[cacheName]){
 		vertices.positions.insert(vertices.positions.end(),vertex.positions.begin(),vertex.positions.end());
 		vertices.normals.insert(vertices.normals.end(),vertex.normals.begin(),vertex.normals.end());
 		vertices.texCoords.insert(vertices.texCoords.end(),vertex.texCoords.begin(),vertex.texCoords.end());
 		vertices.tangents.insert(vertices.tangents.end(),vertex.tangents.begin(),vertex.tangents.end());
 		vertices.indices.insert(vertices.indices.end(), vertex.indices.begin(), vertex.indices.end());
-
 	}
+	m_Mutex.unlock();
 
 	LoadedModelResult result(true);
 	result.vertices = vertices;

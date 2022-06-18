@@ -135,6 +135,12 @@ void GuiLayer::ExplorerView::Setup(Window& win)
             OnUpdatePathOrReload();
         }
     });
+
+    GameObject camera = GameObject::CreateNew("Explorer Camera");
+    camera.AddComponent<Camera>();
+    camera.AddComponent<InternalUse>();
+
+    m_ExplorerCamera = camera;
     
 }
 
@@ -245,10 +251,14 @@ bool GuiLayer::ExplorerView::FolderHasFoldersInside(std::string folderPath)
 void GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets()
 {
     if (ImGui::BeginMenu("Create")) {
+
         if (ImGui::MenuItem("Folder")) {
             AssetRegister::CreateAssetAtFolder(m_CurrentPath,"FolderAsset");
         }
         ImGui::Separator();
+        if (ImGui::MenuItem("Render Texture")) {
+            AssetRegister::CreateAssetAtFolder(m_CurrentPath,"RenderTextureAsset");
+        }
         if (ImGui::MenuItem("Shader")) {
 
         }
@@ -259,6 +269,11 @@ void GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets()
 
         ImGui::EndMenu();
     }
+}
+
+GameObject GuiLayer::ExplorerView::GetExplorerCamera()
+{
+    return m_ExplorerCamera.GetAs<GameObject>();
 }
 
 

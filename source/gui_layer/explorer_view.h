@@ -13,7 +13,7 @@ public:
 
     static void SetCurrentPath(std::string path);
     static void SetupDefaultPopupMenuWidgets();
-    
+    static GameObject GetExplorerCamera();
     
     static ecspp::ObjectHandle& GetTempObject();
 private:
@@ -29,5 +29,6 @@ private:
     static inline const std::string m_InitialPath = std::filesystem::current_path().string() + "/Assets";
     static inline std::string m_CurrentPath = "";
     static inline std::unordered_map<std::string,std::vector<std::string>> m_CurrentFilesByFolder;
+    static inline ecspp::ObjectHandle m_ExplorerCamera;
 };
 };

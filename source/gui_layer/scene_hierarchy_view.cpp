@@ -43,7 +43,10 @@ void GuiLayer::SceneHierarchyView::Update(Window& win) {
 
             
         });
-
+        if (m_ObjectToMakeFree) {
+            m_ObjectToMakeFree.GetAsObject().ClearParent();
+            m_ObjectToMakeFree = ecspp::ObjectHandle();
+        }
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(0,0));
@@ -114,7 +117,9 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
         }
 
         if (obj.GetChildren().size() == 0) {
-            flags |= ImGuiTreeNodeFlags_Bullet;
+            flags |= ImGuiTreeNodeFlags_FramePadding;
+            flags |= ImGuiTreeNodeFlags_Leaf;
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetFontSize() * 2);
         }
         else {
             flags |= ImGuiTreeNodeFlags_OpenOnArrow;
@@ -122,8 +127,8 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
 
         ImGui::SetNextItemOpen(true,ImGuiCond_Once);
         bool isOpen = false;
-
         
+
         isOpen = ImGui::TreeNodeEx((obj.GetName() + GuiLayer::GetImGuiID((void*)&obj.ID())).c_str(), flags);
 
 
@@ -165,7 +170,7 @@ void GuiLayer::SceneHierarchyView::SetupObject(GameObject obj) {
 
                 if(obj.GetParent()){
                     if(ImGui::MenuItem("Make Independent")){
-                        obj.ClearParent();
+                        m_ObjectToMakeFree = obj;
                     }
                 }
 

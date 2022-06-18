@@ -163,7 +163,7 @@ void GuiLayer::GameView::SetupEditorCameraDrawing()
 
         currentObjectShader.SetUniform3f("UMyIdentifier", r/255.0f, g / 255.0f, b / 255.0f);
 
-        if (handle.GetAs<GameObject>().GetHighlightState()) {
+        if (handle.ID() == GuiLayer::AnyObjectSelected().ID()) {
 
             GL_CALL(glStencilFunc(GL_ALWAYS, 1, 0xFF));
             GL_CALL(glStencilMask(0xFF));

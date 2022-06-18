@@ -62,7 +62,7 @@ private:
 	static LoadedModelResult ProcessData(const aiScene& scene,std::string modelFilePath,LoadingModelProperties prop);
 	static LoadedModelResult AssimpGetMeshData(const aiMesh* mesh,LoadingModelProperties prop);
 
-
+	static inline std::mutex m_Mutex;
 
 
 };
