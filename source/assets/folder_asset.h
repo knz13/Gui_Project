@@ -19,7 +19,7 @@ public:
 
 
 private:
-	void ShowProperties() override;
+	void OnShowProperties() override;
 	void SetupExplorerIcon(ImVec2 size) override;
 
 };

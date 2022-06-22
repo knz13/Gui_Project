@@ -2,7 +2,7 @@
 
 std::vector<std::string> Texture2DAsset::GetAssetExtensions()
 {
-	return {".png",".jpg","jpeg"};
+	return {".png",".jpg","jpeg",".PNG"};
 }
 
 void Texture2DAsset::ReadFile()
@@ -13,10 +13,12 @@ void Texture2DAsset::ReadFile()
 
 }
 
-void Texture2DAsset::ShowProperties()
+void Texture2DAsset::OnShowProperties()
 {
+
 }
 
 void Texture2DAsset::SetupExplorerIcon(ImVec2 size)
 {
+	ImGui::Image((ImTextureID)Storage().m_Texture.GetID(),size);
 }

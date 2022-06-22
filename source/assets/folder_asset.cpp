@@ -12,15 +12,12 @@ std::vector<std::string> FolderAsset::GetAssetExtensions()
 	return {};
 }
 
-void FolderAsset::ShowProperties()
+void FolderAsset::OnShowProperties()
 {
 	if (Storage().m_IconTexture) {
-		ImGui::Image((void*)Storage().m_IconTexture.GetID(), ImVec2(40, 40), ImVec2(0, 0), ImVec2(1, 1));
-		ImGui::SameLine();
-		ImGui::TextWrapped((std::filesystem::path(GetPath()).stem().string() + " (Folder Asset)").c_str());
-
 		ImGui::Dummy(ImVec2(ImGui::GetWindowSize().x - ImGui::CalcTextSize("OpenSelf").x, 1));
 		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2*ImGui::GetFontSize());
 		if (ImGui::Button("Open")) {
 			GuiLayer::ExplorerView::SetCurrentPath(GetPath());
 		}

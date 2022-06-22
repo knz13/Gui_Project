@@ -22,6 +22,7 @@
 #include "../vendor/assimp/include/assimp/matrix4x4.h"
 #include "../vendor/assimp/include/assimp/cimport.h"
 #include "imgui.h"
+#include "pybind11/embed.h"
 #include "imgui_internal.h"
 #include "imgui/backends/imgui_impl_sdl.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
@@ -30,6 +31,7 @@
 #include "../vendor/dialog/src/include/nfd.hpp"
 #include "../vendor/ecspp/include/ecspp.h"
 #include "../vendor/yael/include/yael.h"
+#include "gui_layer/console_view.h"
 
 
 
@@ -57,7 +59,7 @@ static unsigned int TestSize(unsigned int dataType) {
 }
 
 
-#define LOG(x) std::cout << "LOG: " << x << std::endl <<  "At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl
+#define LOG(x) { std::stringstream val; val << x; GuiLayer::ConsoleView::PushText(ConsoleImportance::LOG,val.str()); }
 
 
 #ifdef NDEBUG
@@ -65,8 +67,8 @@ static unsigned int TestSize(unsigned int dataType) {
 #define DEBUG_WARN(x)
 #define DEBUG_ERROR(x)
 #else
-#define DEBUG_LOG(x) std::cout << "LOG: " << x << std::endl <<   " At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl
-#define DEBUG_WARN(x) std::cout << "WARNING: " << x << std::endl <<  "At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl
+#define DEBUG_LOG(x) LOG(x)
+#define DEBUG_WARN(x) { std::stringstream val; val << x; GuiLayer::ConsoleView::PushText(ConsoleImportance::WARN,val.str()); }
 #define DEBUG_ERROR(x) std::cout << "ERROR! -> " << x  << std::endl <<  "At line: "<< __LINE__ << std::endl << "In file: " << __FILE__ << std::endl; __debugbreak()
 #endif
 

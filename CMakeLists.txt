@@ -242,6 +242,42 @@ project("kv_project")
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES async_project)
 
 
+#repository download and settings for alias pybind11...
+
+
+	FetchContent_Declare(pybind11_project
+
+		GIT_REPOSITORY https://github.com/pybind/pybind11
+
+		GIT_TAG v2.9.2
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/pybind11
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES pybind11_project)
+
+
+#repository download and settings for alias date...
+
+
+	#adding options
+
+	set(BUILD_TZ_LIB ON CACHE INTERNAL "")
+
+	FetchContent_Declare(date_project
+
+		GIT_REPOSITORY https://github.com/HowardHinnant/date
+
+		GIT_TAG v3.0.1
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/date
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES date_project)
+
+
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
 
 	foreach(X IN LISTS ${PROJECT_NAME}_DEPENDENCIES)
@@ -363,6 +399,10 @@ target_link_libraries(kv PUBLIC SDL2::SDL2main)
 
 target_link_libraries(kv PUBLIC Async++)
 
+target_link_libraries(kv PUBLIC pybind11::embed)
+
+target_link_libraries(kv PUBLIC date::date)
+
 
 #adding includes...
 
@@ -394,6 +434,10 @@ target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/ecspp/include)
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/yael/include)
 
 target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/async/include)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/pybind11/include)
+
+target_include_directories(kv PUBLIC ${PROJECT_SOURCE_DIR}/vendor/date/include)
 
 #------------------- Extra Lines ----------------
 

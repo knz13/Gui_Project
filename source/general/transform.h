@@ -3,7 +3,7 @@
 
 
 
-class TransformComponent : public EventReceiver,public ecspp::DefineComponent<TransformComponent,GameComponent>, public ecspp::AddOnlyTo<TransformComponent,GameObject> {
+class TransformComponent : public yael::event_receiver,public ecspp::DefineComponent<TransformComponent,GameComponent>, public ecspp::AddOnlyTo<TransformComponent,GameObject> {
     KV_CLASS
 public:
     TransformComponent();

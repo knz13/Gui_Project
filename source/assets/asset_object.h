@@ -173,10 +173,21 @@ public:
 
 
 protected:
-	virtual void ShowProperties() {};
+	void ShowProperties() override {
+		SetupExplorerIcon(ImVec2(60,60));
+		ImGui::SameLine();
+		ImGui::TextWrapped((std::filesystem::path(GetPath()).stem().string() + " (" + HelperFunctions::GetClassName<Derived>() + ")").c_str());
+
+		ImGui::Separator();
+
+		OnShowProperties();
+
+	
+	};
 	virtual void SetupExplorerIcon(ImVec2 size) {};
 	virtual void OnDestroy() {};
 	virtual void OnCreate() {};
+	virtual void OnShowProperties() {};
 	
 	 
 private:
@@ -238,6 +249,18 @@ private:
 			GuiLayer::AnyObjectSelected() = ecspp::ObjectHandle(this->ID());
 		}
 
+		size = ImVec2(size.x, size.y - ImGui::CalcTextSize("A").y - 10);
+		if (ImGui::BeginDragDropSource()) {
+			SetupExplorerIcon(size);
+
+			ImGui::Text(this->GetName().c_str());
+
+			ImGui::SetDragDropPayload(this->GetType().c_str(), &this->ID(), sizeof(entt::entity));
+
+			ImGui::EndDragDropSource();
+
+		}
+
 		if(ImGui::BeginPopupContextItem(GuiLayer::GetImGuiID(&GetPrivateStorage()).c_str())) {
 			GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets();
 			ImGui::Separator();
@@ -257,7 +280,6 @@ private:
 		ImGui::SetCursorPos(ImVec2(pos.x,pos.y + 4));
 
 
-		size = ImVec2(size.x, size.y - ImGui::CalcTextSize("A").y - 10);
 
 		SetupExplorerIcon(size);
 

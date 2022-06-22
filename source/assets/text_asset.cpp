@@ -26,11 +26,8 @@ void TextAsset::ReadFile()
 	
 }
 
-void TextAsset::ShowProperties()
+void TextAsset::OnShowProperties()
 {
-	ImGui::Image((void*)Storage().m_Texture.GetID(), ImVec2(40,40), ImVec2(0, 0), ImVec2(1, 1));
-	ImGui::SameLine();
-	ImGui::Text((std::filesystem::path(GetPath()).stem().string() + " (Text Asset)").c_str());
 
 	if (ImGui::BeginTable(GuiLayer::GetImGuiID(&Storage()).c_str(), 1, ImGuiTableFlags_Borders)) {
 		ImGui::TableNextColumn();

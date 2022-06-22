@@ -1,5 +1,6 @@
 #include "gui_layer.h"
 #include "../kv.h"
+#include "console_view.h"
 
 
 void GuiLayer::Init() {
@@ -248,8 +249,41 @@ void GuiLayer::AddUi(Window& win) {
 
         SetupWindowStyle("Console", [](ImGuiWindowFlags flags) {
             ImGui::Begin("Console", 0, flags);
-
         });
+
+        ImGui::BeginChild("ConsoleChildWindow");
+
+        if (ImGui::BeginTable("ConsoleMainTable", 2)) {
+            for (auto&  message : ConsoleView::GetTexts()) {
+                ImGui::TableNextColumn();
+                switch (message.importance) {
+                case ConsoleImportance::LOG:
+                    ImGui::Text("LOG");
+                    break;
+                case ConsoleImportance::WARN:
+                    ImGui::Text("WARN!");
+                    break;
+                case ConsoleImportance::ERROR:
+                    ImGui::Text("ERROR!");
+                    break;
+                }
+                ImGui::SameLine();
+                std::string msg;
+                msg += "[";
+                msg += message.time;
+                msg += "] ";
+                msg += message.message;
+
+                ImGui::TextWrapped(msg.c_str());
+
+                
+            }
+                
+            ImGui::EndTable();
+        };
+
+
+        ImGui::EndChild();
 
         ImGui::End();
 
@@ -328,7 +362,10 @@ std::string GuiLayer::GetImGuiID(void* ptr) {
     return ("##" + std::to_string(std::hash<void*>()(ptr)));
 }
 
-
+void GuiLayer::PushConsoleText(ConsoleImportance importance, std::string text)
+{
+    ConsoleView::PushText(importance,text);
+}
 
 void GuiLayer::SetupWidgetStyle(std::function<void()> beginCommand) {
     ImGui::PushStyleColor(ImGuiCol_FrameBg,ImVec4(60,60,60,1));

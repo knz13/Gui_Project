@@ -4,6 +4,7 @@
 #include "game_view.h"
 #include "properties_view.h"
 #include "scene_hierarchy_view.h"
+#include "console_view.h"
 
 
 
@@ -20,6 +21,8 @@ namespace GuiLayer {
     
     ecspp::ObjectHandle& AnyObjectSelected();
 
+
+    void PushConsoleText(ConsoleImportance importance,std::string text);
     void SetupWidgetStyle(std::function<void()> beginCommand);
     void SetupStaticTreeNodeStyle(std::function<void()> beginCommand);
     void SetupStaticButtonStyle(std::function<void()> beginCommand);

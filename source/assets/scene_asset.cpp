@@ -15,15 +15,12 @@ void SceneAsset::OnCreate()
 
 }
 
-void SceneAsset::ShowProperties()
+void SceneAsset::OnShowProperties()
 {
 	if (Storage().m_IconTexture) {
-		ImGui::Image((void*)Storage().m_IconTexture.GetID(), ImVec2(40, 40));
-		ImGui::SameLine();
-		ImGui::TextWrapped((std::filesystem::path(GetPath()).stem().string() + " (Scene Asset)").c_str());
-
 		ImGui::Dummy(ImVec2(ImGui::GetWindowSize().x - ImGui::CalcTextSize("OpenSelf").x, 1));
 		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2*ImGui::GetFontSize());
 		if (ImGui::Button("Open")) {
 			GuiLayer::LoadScene(GetPath());
 		}

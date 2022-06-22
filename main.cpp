@@ -4,6 +4,8 @@
 
 
 
+
+
 int main(){
     
 
@@ -22,7 +24,7 @@ int main(){
     GuiLayer::AddUi(win);
     
     
-    
+    LOG("Hey!");
 
 
     win.DrawingLoop();
