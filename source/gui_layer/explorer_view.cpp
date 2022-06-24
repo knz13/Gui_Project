@@ -198,10 +198,16 @@ void GuiLayer::ExplorerView::ShowAllSubFolders(std::string current)
     if (!std::filesystem::is_directory(current)) {
         return;
     }
+
+    
     
     if (!FolderHasFoldersInside(current)) {
-        
+        if (!AssetRegister::IsPathRegisteredAs<FolderAsset>(current)) {
+            return;
+        }
+
         bool open = ImGui::TreeNodeEx((std::filesystem::path(current).stem().string() + GuiLayer::GetImGuiID(&m_CurrentFilesByFolder)).c_str(), flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanFullWidth);
+        
         if (open) {
             ImGui::TreePop();
         }
@@ -225,6 +231,8 @@ void GuiLayer::ExplorerView::ShowAllSubFolders(std::string current)
             }
             ImGui::TreePop();
         }
+
+        
         
     }
 
@@ -314,6 +322,19 @@ void GuiLayer::ExplorerView::SetupFolderExplorerAboveFileExplorer()
     for (auto& folder : vec) {
         ImGui::Text(folder.c_str());
 
+        if (ImGui::BeginDragDropTarget()) {
+            const auto* payload = ImGui::AcceptDragDropPayload("AllAssets");
+
+            if (payload) {
+                entt::entity e = *(entt::entity*)payload->Data;
+                if (ecspp::ObjectHandle(e)) {
+                    AssetObject(e).MoveTo(sumItemsUntil(vec,"Assets") + "/" + std::filesystem::path(AssetObject(e).GetPath()).filename().string());
+                }
+            }
+
+            ImGui::EndDragDropTarget();
+        }
+
         if (ImGui::IsItemClicked()) {
             std::string finalPath = sumItemsUntil(vec,folder);
             SetCurrentPath(finalPath);
@@ -325,7 +346,7 @@ void GuiLayer::ExplorerView::SetupFolderExplorerAboveFileExplorer()
 
             if (ImGui::BeginPopupContextItem(("PopupFor" + folder).c_str(),ImGuiPopupFlags_MouseButtonLeft)) {
                 for (auto& file : std::filesystem::directory_iterator(sumItemsUntil(vec, folder))) {
-                    if (file.is_directory()) {
+                    if (file.is_directory() && AssetRegister::IsPathRegisteredAs<FolderAsset>(file.path().string())) {
                         if (ImGui::MenuItem(file.path().stem().string().c_str(), "", std::filesystem::path(m_CurrentPath) == file.path())) {
                             SetCurrentPath(file.path().string());
                         }

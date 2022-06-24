@@ -9,7 +9,6 @@ namespace GuiLayer {
 }
 
 
-
 class AssetRegister {
 public:
 
@@ -53,6 +52,8 @@ private:
 		ecspp::meta<T>().template RegisterFunc<&CallReadFile<T>>("Call Read File");
 		ecspp::meta<T>().template RegisterFunc<&CallSaveFile<T>>("Call Save File");
 		ecspp::meta<T>().template RegisterFunc<&CallRenameCreation<T>>("Rename On Creation");		
+		ecspp::meta<T>().template RegisterFunc<&CallMoveToDir<T>>("Call Move To Dir");		
+
 
 		m_RegisteredAssetClasses.push_back(HelperFunctions::GetClassName<T>());
 
@@ -100,6 +101,13 @@ private:
 		((AssetObject*)(&obj))->ReadFile();
 	}
 
+	template<typename T>
+	static void CallMoveToDir(entt::entity e,std::string path) {
+		T obj(e);
+
+		((AssetObject*)(&obj))->MoveToDir(path);
+	}
+
 	
 	
 	static inline std::vector<std::string> m_RegisteredAssetClasses;
@@ -123,7 +131,11 @@ public:
 
 	void InitializeFile();
 	void ShowOnExplorer(ImVec2 size);
+	void MoveTo(std::string path);
 	void Rename();
+	std::string GetPath() {
+		return AssetRegister::GetPathFromAsset(ecspp::ObjectHandle(m_Handle));
+	}
 protected:
 	virtual void OnExplorerUI(ImVec2 size) {};
 	virtual void OnRenameCall() {};
@@ -131,7 +143,9 @@ protected:
 	void SetPath(std::string path);
 	virtual void ReadFile();
 	virtual void SaveFile();
+	virtual void MoveToDir(std::string path) {};
 private:
+
 	
 
 	entt::entity m_Handle;
@@ -165,12 +179,6 @@ public:
 	//virtual void Serialize(ryml::NodeRef mainNode) = 0;
 	//virtual void Deserialize(ryml::NodeRef mainNode) = 0;
 
-	
-
-	std::string GetPath() {
-		return AssetRegister::GetPathFromAsset(ecspp::ObjectHandle(this->ID()));
-	}
-
 
 protected:
 	void ShowProperties() override {
@@ -191,7 +199,28 @@ protected:
 	 
 private:
 
-	void SucceedRenaming(std::string newPath) {
+	void MoveToDir(std::string path) override {
+
+		
+		try {
+			std::filesystem::rename(GetPath(), path);
+		}
+		catch (std::exception& e) {
+			DEBUG_LOG(e.what());
+			return;
+		}
+
+		if (GetPath() != "") {
+			AssetRegister::UnregisterPath(GetPath(), false);
+		}
+
+		AssetRegister::RegisterPath(this->ID(), path);
+
+
+
+	}
+
+	void SucceedRenaming(std::string newPath)  {
 		
 		if (GetPath() != "") {
 			AssetRegister::UnregisterPath(GetPath(), false);
@@ -255,6 +284,7 @@ private:
 			ImGui::Text(this->GetName().c_str());
 
 			ImGui::SetDragDropPayload(this->GetType().c_str(), &this->ID(), sizeof(entt::entity));
+			ImGui::SetDragDropPayload("AllAssets", &this->ID(), sizeof(entt::entity));
 
 			ImGui::EndDragDropSource();
 
@@ -277,8 +307,6 @@ private:
 		}
 
 		ImGui::SetCursorPos(ImVec2(pos.x,pos.y + 4));
-
-
 
 		SetupExplorerIcon(size);
 

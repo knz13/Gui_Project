@@ -216,6 +216,11 @@ void AssetObject::ShowOnExplorer(ImVec2 size)
 
 }
 
+void AssetObject::MoveTo(std::string path)
+{
+	HelperFunctions::CallMetaFunction(ecspp::ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeID()), "Call Move To Dir", m_Handle,path);
+}
+
 void AssetObject::Rename()
 {
 	HelperFunctions::CallMetaFunction(ecspp::ObjectPropertyRegister::GetClassNameByID(ecspp::Object(m_Handle).GetTypeID()), "Call Rename",m_Handle);
