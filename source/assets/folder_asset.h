@@ -19,6 +19,7 @@ public:
 
 
 private:
+	void ReadFile() override;
 	void OnShowProperties() override;
 	void SetupExplorerIcon(ImVec2 size) override;
 

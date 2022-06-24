@@ -18,6 +18,7 @@ public:
 	static std::vector<std::string> GetAssetExtensions();
 
 private:
+	void ReadFile() override;
 	void OnCreate() override;
 	
 	void OnShowProperties() override;

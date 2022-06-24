@@ -94,6 +94,10 @@ public:
 
         unsigned char* data = ReadTextureFile(path,&width,&height,&nrChannels);
         
+        if (!data) {
+            return {};
+        }
+
         GLenum format = nrChannels == 3 ? GL_RGB : GL_RGBA;
         
         Texture<TextureType> tex([=](Texture<TextureType>& texture){

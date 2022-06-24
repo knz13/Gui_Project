@@ -17,8 +17,9 @@ public:
 
 	static std::vector<std::string> GetAssetExtensions();
 
-	void ReadFile() override;
 private:
+	void ReadFile() override;
+	void OnCreate() override;
 	void OnShowProperties() override;
 	void SetupExplorerIcon(ImVec2 size) override;
 

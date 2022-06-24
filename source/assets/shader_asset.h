@@ -5,6 +5,8 @@
 class ShaderAssetStorage {
 public:
 	ecspp::HelperClasses::PointerHolder<Shader> m_Shader;
+	std::vector<std::string> m_Stages;
+	Texture<Type2D> m_Texture;
 };
 
 
@@ -22,7 +24,17 @@ public:
 	static ecspp::ObjectHandle LoadFromPath(std::string path);
 
 private:
+	void OnCreate() override;
+	void SetupExplorerIcon(ImVec2 size) override;
+	void CreateShaderAtLocationFromType(std::string path);
+	void OnShowProperties() override;
 	static inline std::unordered_map<std::string, ecspp::ObjectHandle> m_LoadedShaders;
+	static inline std::unordered_map<std::string, std::string> m_ShaderTypes = {
+		{"Vertex Shader",".vert"},
+		{"Fragment Shader",".frag" },
+		{"Compute Shader",".comp"},
+		{"Geometry Shader",".geom"}
+	};
 
 	void ReadFile() override;
 

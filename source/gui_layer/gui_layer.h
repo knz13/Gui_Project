@@ -5,7 +5,7 @@
 #include "properties_view.h"
 #include "scene_hierarchy_view.h"
 #include "console_view.h"
-
+#include "../panels/panels.h"
 
 
 class Window;
@@ -21,6 +21,13 @@ namespace GuiLayer {
     
     ecspp::ObjectHandle& AnyObjectSelected();
 
+    template<typename T>
+    void OpenWindow() {
+        static_assert(std::is_base_of<Panel,T>::value,"Type is not derived from Panel!");
+        if (PanelManager::RegisterPanel<T>()) {
+            PanelManager::OpenPanel<T>();
+        }
+    }
 
     void PushConsoleText(ConsoleImportance importance,std::string text);
     void SetupWidgetStyle(std::function<void()> beginCommand);

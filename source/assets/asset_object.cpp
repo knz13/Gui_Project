@@ -152,20 +152,15 @@ void AssetRegister::RegisterPath(entt::entity e, std::string path)
 {
 	path = std::filesystem::path(path).lexically_normal().string();
 
-	if (!std::filesystem::exists(path) && ecspp::Object(e).GetType() != "FolderAsset") {
-		std::fstream stream;
-
-		stream.open(path,std::fstream::out);
-
-
-
-		stream.close();
-	}
-
 	UnregisterPath(path);
+
 
 	m_RegisteredAssetsByPath[path] = e;
 	m_RegistererdPathsByAsset[e] = path;
+
+	if (!std::filesystem::exists(path)) {
+		AssetObject(e).InitializeFile();
+	}
 
 }
 

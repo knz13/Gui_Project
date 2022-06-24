@@ -359,6 +359,8 @@ add_executable(kv
 
 	${PROJECT_SOURCE_DIR}/source/assets/render_texture_asset.cpp
 
+	${PROJECT_SOURCE_DIR}/source/panels/lighting_panel.cpp
+
 	${PROJECT_SOURCE_DIR}/vendor/imguizmo/ImGuizmo.cpp
 
 	${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp

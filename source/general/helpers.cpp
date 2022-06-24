@@ -44,9 +44,11 @@ unsigned char* HelperFunctions::ReadTextureFile(std::string path, int* width, in
 {   
     
     unsigned char* data = stbi_load(path.c_str(), width, height, channels, 0);
+   
     if (!data) {
-        throw std::runtime_error("err");
+        DEBUG_LOG("Could not load file at " << path);
     }
+
     return data;
 }
 

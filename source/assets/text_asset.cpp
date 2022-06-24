@@ -13,6 +13,15 @@ void TextAsset::ReadFile()
 {
 	std::string path = this->GetPath();
 
+
+	if (!std::filesystem::exists(path)) {
+		std::ofstream stream;
+		stream.open(path);
+		stream.close();
+
+		return;
+	}
+
 	std::fstream stream(path);
 
 	std::string temp;
@@ -21,9 +30,14 @@ void TextAsset::ReadFile()
 		Storage().m_TextContents += temp;
 	}
 
-	Storage().m_Texture = HelperFunctions::LoadTextureFromFile<Type2D>("defaults/images/textFile.png");
 
 	
+}
+
+void TextAsset::OnCreate()
+{
+	Storage().m_Texture = HelperFunctions::LoadTextureFromFile<Type2D>("defaults/images/textFile.png");
+
 }
 
 void TextAsset::OnShowProperties()

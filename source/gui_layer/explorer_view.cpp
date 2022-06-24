@@ -260,7 +260,7 @@ void GuiLayer::ExplorerView::SetupDefaultPopupMenuWidgets()
             AssetRegister::CreateAssetAtFolder(m_CurrentPath,"RenderTextureAsset");
         }
         if (ImGui::MenuItem("Shader")) {
-
+            AssetRegister::CreateAssetAtFolder(m_CurrentPath,"ShaderAsset");
         }
         if (ImGui::MenuItem("Scene")) {
             AssetRegister::CreateAssetAtFolder(m_CurrentPath, "SceneAsset");

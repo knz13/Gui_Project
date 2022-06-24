@@ -188,19 +188,18 @@ protected:
 	virtual void OnDestroy() {};
 	virtual void OnCreate() {};
 	virtual void OnShowProperties() {};
-	
 	 
 private:
 
 	void SucceedRenaming(std::string newPath) {
+		
 		if (GetPath() != "") {
 			AssetRegister::UnregisterPath(GetPath(), false);
 		}
-		
 
 		AssetRegister::RegisterPath(this->ID(), newPath);
-		HelperFunctions::CallMetaFunction(this->GetType(),"Call Read File",this->ID());
 		this->SetName(GetPrivateStorage().tempWord);
+
 		GetPrivateStorage().tempWord = "";
 		GetPrivateStorage().m_IsRenaming = false;
 		if (GuiLayer::ExplorerView::GetTempObject().ID() == this->ID()) {
@@ -298,26 +297,14 @@ private:
 				
 				
 				if (GetPrivateStorage().m_DeleteIfNotRename) {
-					if (this->GetType() == "FolderAsset") {
-						std::filesystem::create_directory(GetPrivateStorage().m_CurrentDirectoryIfOneTimeOnly + "/" + GetPrivateStorage().tempWord);
-						this->SucceedRenaming(GetPrivateStorage().m_CurrentDirectoryIfOneTimeOnly + "/" + GetPrivateStorage().tempWord);
-						return;
-					}
-
-					
 					SucceedRenaming(GetPrivateStorage().m_CurrentDirectoryIfOneTimeOnly + "/" + GetPrivateStorage().tempWord + AssetRegister::GetExtensionForClass(this->GetType()));
-					
 					return;
 				}
 
 				std::string newPath;
-				if (std::filesystem::is_directory(GetPath())) {
-					newPath = std::filesystem::path(GetPath()).parent_path().string() + "/" + GetPrivateStorage().tempWord;
-					
-				}
-				else {
-					newPath = std::filesystem::path(GetPath()).parent_path().string() + "/" + GetPrivateStorage().tempWord + AssetRegister::GetExtensionForClass(this->GetType());
-				}
+				
+				newPath = std::filesystem::path(GetPath()).parent_path().string() + "/" + GetPrivateStorage().tempWord + AssetRegister::GetExtensionForClass(this->GetType());
+				
 				try {
 					std::filesystem::rename(GetPath(), newPath);
 				}

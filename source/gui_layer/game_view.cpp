@@ -47,7 +47,7 @@ void GuiLayer::GameView::Update(Window& win) {
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     GuiLayer::SetupWindowStyle("Game View",[&](ImGuiWindowFlags flags){
-            ImGui::Begin("Game View",0,flags);
+            ImGui::Begin("Game View",0,flags & ImGuiWindowFlags_NoBringToFrontOnFocus);
     });
     
     ImGui::PopStyleVar();

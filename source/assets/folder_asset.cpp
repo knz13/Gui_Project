@@ -12,6 +12,15 @@ std::vector<std::string> FolderAsset::GetAssetExtensions()
 	return {};
 }
 
+void FolderAsset::ReadFile()
+{
+	std::string path = GetPath();
+
+	if (!std::filesystem::exists(path)) {
+		std::filesystem::create_directory(path);
+	}
+}
+
 void FolderAsset::OnShowProperties()
 {
 	if (Storage().m_IconTexture) {
@@ -29,8 +38,6 @@ void FolderAsset::OnShowProperties()
 
 void FolderAsset::SetupExplorerIcon(ImVec2 size)
 {
-
-
 	if (Storage().m_IconTexture) {
 		ImGui::Image((void*)Storage().m_IconTexture.GetID(), ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1));
 

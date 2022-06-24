@@ -1,6 +1,8 @@
 #include "gui_layer.h"
 #include "../kv.h"
 #include "console_view.h"
+#include "../panels/panels.h"
+#include "../panels/lighting_panel.h"
 
 
 void GuiLayer::Init() {
@@ -188,6 +190,14 @@ void GuiLayer::AddUi(Window& win) {
 
                 ImGui::EndMenu();
             }
+            ImGui::SameLine();
+
+            if (ImGui::BeginMenu("Window")) {
+                if (ImGui::MenuItem("Lighting")) {
+                    OpenWindow<LightingPanel>();
+                }
+                ImGui::EndMenu();
+            }
 
             ImGui::EndMainMenuBar();
         }
@@ -203,6 +213,7 @@ void GuiLayer::AddUi(Window& win) {
         ImGui::DockSpace(id);
         
         if(firstLoop){
+
             
             
             ImGui::DockBuilderRemoveNode(id);            
@@ -229,6 +240,7 @@ void GuiLayer::AddUi(Window& win) {
             firstLoop = false;
 
             
+            
         }
         
         ImGui::PushStyleColor(ImGuiCol_Header, BaseColors::StaticWidgetBg.AsImVec4());
@@ -253,7 +265,7 @@ void GuiLayer::AddUi(Window& win) {
 
         ImGui::BeginChild("ConsoleChildWindow");
 
-        if (ImGui::BeginTable("ConsoleMainTable", 2)) {
+        if (ImGui::BeginTable("ConsoleMainTable", 1)) {
             for (auto&  message : ConsoleView::GetTexts()) {
                 ImGui::TableNextColumn();
                 switch (message.importance) {
@@ -276,12 +288,13 @@ void GuiLayer::AddUi(Window& win) {
 
                 ImGui::TextWrapped(msg.c_str());
 
-                
+            
             }
                 
             ImGui::EndTable();
         };
 
+        PanelManager::UpdatePanels();
 
         ImGui::EndChild();
 

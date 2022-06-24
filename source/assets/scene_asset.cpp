@@ -9,6 +9,17 @@ std::vector<std::string> SceneAsset::GetAssetExtensions()
 	return {".scene"};
 }
 
+void SceneAsset::ReadFile()
+{
+	std::string path = GetPath();
+
+	if (!std::filesystem::exists(path)) {
+		std::ofstream stream;
+		stream.open(path);
+		stream.close();
+	}
+}
+
 void SceneAsset::OnCreate()
 {
 	Storage().m_IconTexture = HelperFunctions::LoadTextureFromFile<Type2D>("defaults/images/ScenePlay.png");
