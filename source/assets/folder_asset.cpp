@@ -9,7 +9,7 @@ FolderAsset::FolderAsset(entt::entity e) : AssetObjectSpecifier(e)
 
 std::vector<std::string> FolderAsset::GetAssetExtensions()
 {
-	return {};
+	return {""};
 }
 
 void FolderAsset::ReadFile()

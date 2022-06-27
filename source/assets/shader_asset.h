@@ -31,9 +31,7 @@ private:
 	static inline std::unordered_map<std::string, ecspp::ObjectHandle> m_LoadedShaders;
 	static inline std::unordered_map<std::string, std::string> m_ShaderTypes = {
 		{"Vertex Shader",".vert"},
-		{"Fragment Shader",".frag" },
-		{"Compute Shader",".comp"},
-		{"Geometry Shader",".geom"}
+		{"Fragment Shader",".frag" }
 	};
 
 	void ReadFile() override;

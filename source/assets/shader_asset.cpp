@@ -93,14 +93,64 @@ void ShaderAsset::CreateShaderAtLocationFromType(std::string path)
 {
 	std::filesystem::path chosenPath(path);
 
-	if (!std::filesystem::exists(path)) {
+	if (!std::filesystem::exists(chosenPath.parent_path())) {
 		LOG("Could not create shader at " << path << " because the path is not valid!");
 		return;
 	}
 
+	std::ofstream stream;
+
 	if (chosenPath.extension().string() == ".vert") {
+		stream.open(path);
+
+		stream << R"(#version 430 core
+layout(location = 0) in vec3 pos;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texCoord;
+layout(location = 3) in vec3 tangent;
+
+uniform mat4 MVP //model-view-projection matrix;
+
+void main() {
+
+	// write your shader code here!
+
+};
+
+
+)";
+
+		stream.close();
+
+		Storage().m_Stages.push_back("Vertex Shader");
+
+		return;
+	}
+	if (chosenPath.extension().string() == ".frag") {
+		stream.open(path);
+
+		stream << R"(#version 430 core
+
+out vec4 mainColor;
+
+void main() {
+
+	// write your frament shader code here!
+	
+	mainColor = vec4(1.0f,1.0f,1.0f,1.0f); // this is the output color!
+
+};
+
+)";
+		stream.close();
+
+		Storage().m_Stages.push_back("Fragment Shader");
+
+		return;
 
 	}
+
+	
 
 }
 
@@ -113,14 +163,14 @@ void ShaderAsset::OnShowProperties()
 
 	ImGui::Button("+");
 
-	if (ImGui::BeginPopupContextItem()) {
+	if (ImGui::BeginPopupContextItem(0,ImGuiPopupFlags_MouseButtonLeft)) {
 
 		for (auto& [text,extension] : m_ShaderTypes) {
 			if (std::find(Storage().m_Stages.begin(), Storage().m_Stages.end(), text) != Storage().m_Stages.end()) {
 				continue;
 			}
 			if (ImGui::MenuItem(text.c_str())) {
-				CreateShaderAtLocationFromType(GetPath() + "/" + extension);
+				CreateShaderAtLocationFromType(GetPath() + "/shader" + extension);
 			}
 		}
 

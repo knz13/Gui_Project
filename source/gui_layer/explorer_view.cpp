@@ -199,12 +199,11 @@ void GuiLayer::ExplorerView::ShowAllSubFolders(std::string current)
         return;
     }
 
-    
+    if (!AssetRegister::IsPathRegisteredAs<FolderAsset>(current)) {
+        return;
+    }
     
     if (!FolderHasFoldersInside(current)) {
-        if (!AssetRegister::IsPathRegisteredAs<FolderAsset>(current)) {
-            return;
-        }
 
         bool open = ImGui::TreeNodeEx((std::filesystem::path(current).stem().string() + GuiLayer::GetImGuiID(&m_CurrentFilesByFolder)).c_str(), flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanFullWidth);
         
@@ -248,10 +247,12 @@ bool GuiLayer::ExplorerView::FolderHasFoldersInside(std::string folderPath)
     if (!std::filesystem::is_directory(folderPath)) {
         return false;
     }
+
     for (auto& file : std::filesystem::directory_iterator(folderPath)) {
         if (file.is_directory()) {
             return true;
         }
+
     }
     return false;
 }
